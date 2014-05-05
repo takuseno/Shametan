@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.util.zip.Inflater;
@@ -15,6 +16,7 @@ import java.util.zip.Inflater;
  */
 public class CameraFragment extends Fragment {
     CameraView cameraView;
+    Button shutter;
     LinearLayout cameraLayout;
     public CameraFragment(){
 
@@ -38,5 +40,13 @@ public class CameraFragment extends Fragment {
         cameraView = new CameraView(getActivity());
         cameraLayout = (LinearLayout)v.findViewById(R.id.camera_view);
         cameraLayout.addView(cameraView);
+
+        shutter = (Button)v.findViewById(R.id.shutter);
+        shutter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cameraView.myAutoFocus();
+            }
+        });
     }
 }
