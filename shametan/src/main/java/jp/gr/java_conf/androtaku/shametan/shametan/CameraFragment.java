@@ -1,6 +1,8 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import java.io.File;
 import java.util.zip.Inflater;
 
 /**
@@ -37,7 +40,7 @@ public class CameraFragment extends Fragment {
     }
 
     public void init(View v){
-        cameraView = new CameraView(getActivity());
+        cameraView = new CameraView(getActivity(),getFragmentManager());
         cameraLayout = (LinearLayout)v.findViewById(R.id.camera_view);
         cameraLayout.addView(cameraView);
 
@@ -49,4 +52,6 @@ public class CameraFragment extends Fragment {
             }
         });
     }
+
+
 }

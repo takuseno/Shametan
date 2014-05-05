@@ -1,7 +1,10 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.hardware.Camera;
+import android.os.Bundle;
 import android.os.Environment;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
@@ -20,12 +23,14 @@ import java.util.List;
 public class CameraView extends SurfaceView implements Callback,Camera.AutoFocusCallback,Camera.PictureCallback{
     private Camera camera;
     Context context;
+    FragmentManager manager;
 
     private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
 
-    public CameraView(Context context){
+    public CameraView(Context context,FragmentManager manager){
         super(context);
         this.context = context;
+        this.manager = manager;
         SurfaceHolder holder = getHolder();
         holder.addCallback(this);
     }
@@ -35,11 +40,11 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
                                int height) {
         // TODO Auto-generated method stub
         Camera.Parameters parameters = camera.getParameters();
+        parameters.setRotation(90);
         List<Camera.Size> previewSizes = parameters.getSupportedPreviewSizes();
         Camera.Size previewSize = previewSizes.get(0);
         //set preview size
         parameters.setPreviewSize(previewSize.width, previewSize.height);
-        parameters.setRotation(90);
         //set parameter
         camera.setParameters(parameters);
         camera.setDisplayOrientation(90);
@@ -90,10 +95,10 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
                 e.printStackTrace();
             }
         }
+        String imagePath = basePath.getPath() + "/test.jpg";
+        saveImage(data,new File(imagePath));
 
-        saveImage(data,new File(basePath + "/test.jpg"));
-
-        camera.startPreview();
+        toTrim(imagePath);
     }
 
     public void saveImage(byte[] data,File path){
@@ -113,5 +118,16 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
         }catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+    public void toTrim(String imagePath){
+        FragmentTransaction transaction = manager.beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putString("image_path",imagePath);
+        TrimFragment fragment = new TrimFragment();
+        fragment.setArguments(bundle);
+        transaction.replace(R.id.container,fragment,"trim_fragment");
+        transaction.addToBackStack("camera");
+        transaction.commit();
     }
 }
