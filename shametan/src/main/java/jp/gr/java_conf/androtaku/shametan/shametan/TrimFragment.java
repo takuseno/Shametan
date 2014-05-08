@@ -1,6 +1,8 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
@@ -51,6 +53,7 @@ public class TrimFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 saveImage(new File(basePath + "/trimtest.jpg"));
+                toDrawLine(basePath + "/trimtest.jpg");
             }
         });
     }
@@ -71,5 +74,17 @@ public class TrimFragment extends Fragment {
             e.printStackTrace();
         }
         imageView.setDrawingCacheEnabled(false);
+    }
+
+    public void toDrawLine(String imagePath){
+        FragmentManager manager = getFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putString("trimed_image_path",imagePath);
+        DrawLineFragment fragment = new DrawLineFragment();
+        fragment.setArguments(bundle);
+        transaction.replace(R.id.container,fragment,"drawline_fragment");
+        transaction.addToBackStack("trim");
+        transaction.commit();
     }
 }
