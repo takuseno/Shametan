@@ -72,7 +72,7 @@ public class DrawLineFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem menuItem){
         switch(menuItem.getItemId()){
             case R.id.add_line:
-
+                drawLineView.addLine();
                 break;
 
             default:
