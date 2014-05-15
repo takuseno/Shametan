@@ -31,9 +31,9 @@ public class DrawLineOptionDialog extends DialogFragment{
     int initColor;
     int initSize;
 
-    boolean changeFragColor = false;
-    boolean changeFragSize = false;
-    boolean deleteFrag;
+    private boolean changeFragColor = false;
+    private boolean changeFragSize = false;
+    private boolean deleteFrag = false;
 
     private int red = Color.argb(100, 255, 0, 0);
     private int green = Color.argb(100,0,255,0);

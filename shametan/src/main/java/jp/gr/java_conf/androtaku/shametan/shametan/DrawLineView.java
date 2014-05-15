@@ -6,10 +6,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.hardware.Camera;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by takuma on 2014/05/06.
@@ -36,8 +40,11 @@ public class DrawLineView extends View implements View.OnTouchListener{
     private static final int SELECTED_START = 1;
     private static final int SELECTED_END = 2;
     private static final int SELECTED_OPTION = 3;
+    private static final int SELECTED_WAITING_ADDITION = 4;
     private static final int SELECTED_NONE = 0;
     private int selectedNum = 0;
+
+    private int timeCounter = 0;
 
     private int red = Color.argb(100,255,0,0);
     private int green = Color.argb(100,0,255,0);
@@ -56,6 +63,24 @@ public class DrawLineView extends View implements View.OnTouchListener{
 
         this.context = context;
 
+        init();
+
+        WindowManager wm =
+                (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+        Display disp = wm.getDefaultDisplay();
+        Point size = new Point();
+        disp.getSize(size);
+        dispWidth = size.x;
+        dispHeight = size.y;
+        x1[0] = (dispWidth/2) - 100;
+        x2[0] = (dispWidth/2) + 100;
+        y1[0] = (dispHeight/2);
+        y2[0] = (dispHeight/2);
+        optX[0] = x2[0] + 50;
+        optY[0] = y2[0];
+    }
+
+    public void init(){
         x1 = new float[MAX_LINES];
         x2 = new float[MAX_LINES];
         y1 = new float[MAX_LINES];
@@ -82,39 +107,27 @@ public class DrawLineView extends View implements View.OnTouchListener{
         }
 
         paintLine = new Paint[20];
-        paintLine[0] = new Paint();
-        paintLine[0].setColor(red);
-        paintLine[0].setStyle(Paint.Style.STROKE);
-        paintLine[0].setAntiAlias(true);
-        paintLine[0].setStrokeWidth(40);
+        for(int i = 0;i < MAX_LINES;++i) {
+            paintLine[i] = new Paint();
+            paintLine[i].setColor(red);
+            paintLine[i].setStyle(Paint.Style.STROKE);
+            paintLine[i].setAntiAlias(true);
+            paintLine[i].setStrokeWidth(40);
+        }
 
         paintPoint = new Paint[20];
-        paintPoint[0] = new Paint();
-        paintPoint[0].setColor(Color.GREEN);
-        paintPoint[0].setStyle(Paint.Style.STROKE);
-        paintPoint[0].setAntiAlias(true);
-        paintPoint[0].setStrokeWidth(10);
+        for(int i = 0;i < MAX_LINES;++i) {
+            paintPoint[i] = new Paint();
+            paintPoint[i].setColor(Color.GREEN);
+            paintPoint[i].setStyle(Paint.Style.STROKE);
+            paintPoint[i].setAntiAlias(true);
+            paintPoint[i].setStrokeWidth(5);
+        }
 
         paintOpt = new Paint();
         paintOpt.setColor(Color.BLUE);
         paintOpt.setAntiAlias(true);
         paintOpt.setStrokeWidth(30);
-
-
-        WindowManager wm =
-                (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
-        Display disp = wm.getDefaultDisplay();
-        Point size = new Point();
-        disp.getSize(size);
-        dispWidth = size.x;
-        dispHeight = size.y;
-        x1[0] = (dispWidth/2) - 100;
-        x2[0] = (dispWidth/2) + 100;
-        y1[0] = (dispHeight/2);
-        y2[0] = (dispHeight/2);
-
-        optX[0] = x2[0] + 50;
-        optY[0] = y2[0];
     }
 
     public void importData(float[] x1,float[] x2,float[] y1,float[] y2,
@@ -140,18 +153,6 @@ public class DrawLineView extends View implements View.OnTouchListener{
         optX[numLines] = x2[numLines] + 50;
         optY[numLines] = y2[numLines];
 
-        paintLine[numLines] = new Paint();
-        paintLine[numLines].setColor(red);
-        paintLine[numLines].setStyle(Paint.Style.STROKE);
-        paintLine[numLines].setAntiAlias(true);
-        paintLine[numLines].setStrokeWidth(40);
-
-        paintPoint[numLines] = new Paint();
-        paintPoint[numLines].setColor(Color.GREEN);
-        paintPoint[numLines].setStyle(Paint.Style.STROKE);
-        paintPoint[numLines].setAntiAlias(true);
-        paintPoint[numLines].setStrokeWidth(10);
-
         ++numLines;
         invalidate();
     }
@@ -166,8 +167,6 @@ public class DrawLineView extends View implements View.OnTouchListener{
             optY[num] = optY[numLines - 1];
             lineColors[num] = lineColors[numLines - 1];
             lineWidth[num] = lineWidth[numLines - 1];
-            paintLine[num].setStrokeWidth(lineWidth[num]);
-            paintLine[num].setColor(lineColors[num]);
         }
         x1[numLines - 1] = 0;
         x2[numLines - 1] = 0;
@@ -178,7 +177,23 @@ public class DrawLineView extends View implements View.OnTouchListener{
         lineColors[numLines - 1] = red;
         lineWidth[numLines - 1] = 40;
 
+        refreshPaints();
+
         --numLines;
+    }
+
+    public void refreshPaints(){
+        for(int i = 0;i < numLines;++i){
+            paintLine[i].setColor(lineColors[i]);
+            paintLine[i].setStyle(Paint.Style.STROKE);
+            paintLine[i].setAntiAlias(true);
+            paintLine[i].setStrokeWidth(lineWidth[i]);
+
+            paintPoint[i].setColor(Color.GREEN);
+            paintPoint[i].setStyle(Paint.Style.STROKE);
+            paintPoint[i].setAntiAlias(true);
+            paintPoint[i].setStrokeWidth(5);
+        }
     }
 
     @Override
@@ -216,6 +231,10 @@ public class DrawLineView extends View implements View.OnTouchListener{
             case MotionEvent.ACTION_DOWN:
                 judgeTouchPoint(event.getX(),event.getY());
                 judgeTouchOption(event.getX(),event.getY());
+                if(selected == SELECTED_NONE){
+                    selected = SELECTED_WAITING_ADDITION;
+                    addtionTimer(event.getX(),event.getY());
+                }
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -224,7 +243,6 @@ public class DrawLineView extends View implements View.OnTouchListener{
 
             case MotionEvent.ACTION_UP:
                 if(selected == SELECTED_OPTION){
-
                     optionDialog.setValue(selectedNum,lineWidth[selectedNum],lineColors[selectedNum],this);
                     optionDialog.show(((Activity)context).getFragmentManager(),"optiondialog");
                 }
@@ -236,29 +254,36 @@ public class DrawLineView extends View implements View.OnTouchListener{
         return true;
     }
 
-    public void judgeTouchPoint(float x,float y){
+    public boolean judgeTouchPoint(float x,float y){
         for(int i = 0;i < numLines;++i) {
             if (x < (x1[i] + 50) && x > (x1[i] - 50)
                     && y < (y1[i] + 50) && y > (y1[i] - 50)) {
                 selected = SELECTED_START;
                 selectedNum = i;
+                return true;
             }
             if (x < (x2[i] + 50) && x > (x2[i] - 50)
                     && y < (y2[i] + 50) && y > (y2[i] - 50)) {
                 selected = SELECTED_END;
                 selectedNum = i;
+                return true;
             }
         }
+
+        return false;
     }
 
-    public void judgeTouchOption(float x,float y){
+    public boolean judgeTouchOption(float x,float y){
         for(int i = 0;i < numLines;++i) {
             if (x < (optX[i] + 30) && x > (optX[i] - 30)
                     && y < (optY[i] + 30) && y > (optY[i] - 30)) {
                 selected = SELECTED_OPTION;
                 selectedNum = i;
+                return true;
             }
         }
+
+        return false;
     }
 
     public void movePoint(float x,float y){
@@ -279,5 +304,47 @@ public class DrawLineView extends View implements View.OnTouchListener{
                 optY[selectedNum] = y;
             }
         }
+    }
+
+    public void addtionTimer(float x,float y){
+        final float position_x = x;
+        final float position_y = y;
+        Timer timer = new Timer(true);
+        final android.os.Handler handler = new android.os.Handler();
+        timer.schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        // TODO Auto-generated method stub
+                        handler.post(
+                                new Runnable(){
+                                    public void run(){
+                                        if(timeCounter == 2 && selected == SELECTED_WAITING_ADDITION){
+                                            addLine();
+                                            selected = SELECTED_END;
+                                            selectedNum = numLines - 1;
+                                            x1[selectedNum] = position_x;
+                                            x2[selectedNum] = position_x;
+                                            y1[selectedNum] = position_y;
+                                            y2[selectedNum] = position_y;
+
+                                            optX[selectedNum] = position_x + 50;
+                                            optY[selectedNum] = position_y;
+                                            timeCounter = 0;
+                                            cancel();
+                                        }
+
+                                        if(timeCounter == 2 && selected != SELECTED_WAITING_ADDITION){
+                                            timeCounter = 0;
+                                            cancel();
+                                        }
+
+                                        ++timeCounter;
+                                    }
+                                });
+                    }
+                }
+                , 0, 1000
+        );
     }
 }
