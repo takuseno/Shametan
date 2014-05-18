@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.hardware.Camera;
@@ -150,7 +151,7 @@ public class DrawLineView extends View implements View.OnTouchListener{
         y1[numLines] = (dispHeight/2);
         y2[numLines] = (dispHeight/2);
 
-        optX[numLines] = x2[numLines] + 50;
+        optX[numLines] = x2[numLines] + (lineWidth[numLines]*2);
         optY[numLines] = y2[numLines];
 
         ++numLines;
@@ -208,6 +209,8 @@ public class DrawLineView extends View implements View.OnTouchListener{
         if(optionDialog.isChangeFragSize()){
             lineWidth[selectedNum] = optionDialog.getChangeSize();
             paintLine[selectedNum].setStrokeWidth(lineWidth[selectedNum]);
+            optX[selectedNum] = x2[selectedNum] + (lineWidth[selectedNum] * 2);
+            optY[selectedNum] = y2[selectedNum];
             optionDialog.changeFragSizeReset();
         }
 
@@ -218,9 +221,40 @@ public class DrawLineView extends View implements View.OnTouchListener{
         }
 
         for(int i = 0;i < numLines;++i) {
+            //draw line
             canvas.drawLine(x1[i], y1[i], x2[i], y2[i], paintLine[i]);
-            canvas.drawCircle(x1[i], y1[i],lineWidth[i]/2, paintPoint[i]);
-            canvas.drawCircle(x2[i], y2[i],lineWidth[i]/2, paintPoint[i]);
+
+            //draw start point
+            canvas.save();
+            if(y1[i] > y2[i]) {
+                canvas.rotate(-(float) Math.toDegrees(Math.acos((x2[i] - x1[i]) /
+                        Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
+                        , x1[i], y1[i]);
+            }
+            else{
+                canvas.rotate((float) Math.toDegrees(Math.acos((x2[i] - x1[i]) /
+                        Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
+                        , x1[i], y1[i]);
+            }
+            canvas.drawRect(x1[i] - lineWidth[i],y1[i] - (lineWidth[i]/2),x1[i], y1[i] + (lineWidth[i]/2), paintPoint[i]);
+            canvas.restore();
+
+            //draw end point
+            canvas.save();
+            if(y1[i] > y2[i]) {
+                canvas.rotate(-(float) Math.toDegrees(Math.acos((x2[i] - x1[i]) /
+                        Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
+                        , x2[i], y2[i]);
+            }
+            else{
+                canvas.rotate((float) Math.toDegrees(Math.acos((x2[i] - x1[i]) /
+                        Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
+                        , x2[i], y2[i]);
+            }
+            canvas.drawRect(x2[i], y2[i] - (lineWidth[i]/2),x2[i] + lineWidth[i],y2[i] + lineWidth[i]/2, paintPoint[i]);
+            canvas.restore();
+
+            //draw option point
             canvas.drawPoint(optX[i],optY[i],paintOpt);
         }
     }
@@ -300,7 +334,7 @@ public class DrawLineView extends View implements View.OnTouchListener{
                 optY[selectedNum] = y - 50;
             }
             else {
-                optX[selectedNum] = x + 50;
+                optX[selectedNum] = x + (lineWidth[selectedNum] * 2);
                 optY[selectedNum] = y;
             }
         }

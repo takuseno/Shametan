@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
      */
     public static class PlaceholderFragment extends Fragment {
 
-        Button cameraButton;
+        Button cameraButton,galleryButton;
 
         public PlaceholderFragment() {
 
@@ -102,6 +102,22 @@ public class MainActivity extends Activity {
                     toCamera();
                 }
             });
+
+            galleryButton = (Button)v.findViewById(R.id.galleryButton);
+            galleryButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toGallery();
+                }
+            });
+        }
+
+        public void toGallery(){
+            FragmentManager manager = getFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+            transaction.replace(R.id.container,GalleryBigFragment.newInstance());
+            transaction.addToBackStack("main");
+            transaction.commit();
         }
 
         public void toCamera(){

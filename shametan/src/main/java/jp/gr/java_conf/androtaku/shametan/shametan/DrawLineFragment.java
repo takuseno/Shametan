@@ -32,11 +32,6 @@ public class DrawLineFragment extends Fragment {
 
     }
 
-    public static DrawLineFragment newInstance(){
-        DrawLineFragment fragment = new DrawLineFragment();
-        return fragment;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,
                              Bundle savedInstanceState){
