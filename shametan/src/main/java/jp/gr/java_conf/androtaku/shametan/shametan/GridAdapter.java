@@ -34,9 +34,20 @@ public class GridAdapter extends BaseAdapter {
     @Override
     public View getView(int position,View convertView,ViewGroup parent){
         String mFilePath = imgList[position].getPath();
-        convertView = inflater.inflate(layoutId, parent, false);
-        ImageView imageView = (ImageView)convertView.findViewById(R.id.gridImageVIew);
-        imageView.setImageBitmap(compressImage(mFilePath));
+
+        GridViewHolder holder;
+        if(convertView == null) {
+            holder = new GridViewHolder();
+            convertView = inflater.inflate(layoutId, parent, false);
+            holder.imageView = (ImageView) convertView.findViewById(R.id.gridImageVIew);
+            convertView.setTag(holder);
+        }
+
+        else{
+            holder = (GridViewHolder)convertView.getTag();
+        }
+
+        holder.imageView.setImageBitmap(compressImage(mFilePath));
         return convertView;
     }
 

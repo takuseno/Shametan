@@ -1,31 +1,19 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.FloatMath;
-import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.support.v4.widget.DrawerLayout.LayoutParams;
 import android.widget.ImageView;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * Created by takuma on 2014/05/05.
