@@ -4,10 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.media.ExifInterface;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
@@ -29,6 +32,7 @@ public class GridAdapter extends BaseAdapter {
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.layoutId = layoutId;
         this.imgList = imgList;
+
     }
 
     @Override
@@ -46,8 +50,10 @@ public class GridAdapter extends BaseAdapter {
         else{
             holder = (GridViewHolder)convertView.getTag();
         }
-
-        holder.imageView.setImageBitmap(compressImage(mFilePath));
+        holder.imageView.setTag(mFilePath);
+        holder.imageView.setImageResource(R.drawable.dummy);
+        PhotoAsync task = new PhotoAsync(holder.imageView,this);
+        task.execute(mFilePath);
         return convertView;
     }
 

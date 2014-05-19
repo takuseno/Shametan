@@ -80,6 +80,10 @@ public class TrimImageView extends ImageView implements OnTouchListener {
     Canvas canvas;
     Matrix saveMatrix;
 
+    int fromFragment = 2;
+    static final int FROM_CAMERA = 1;
+    static final int FROM_GALLERY = 2;
+
     //===============================================================
     // Constructor
     //===============================================================
@@ -521,7 +525,9 @@ public class TrimImageView extends ImageView implements OnTouchListener {
         bmpImage = decode(options, path, false);
 
         Matrix mat = new Matrix();
-        mat.postRotate(90);
+        if(fromFragment == FROM_CAMERA) {
+            mat.postRotate(90);
+        }
 
         Bitmap bmp = Bitmap.createBitmap(bmpImage,0,0,bmpImage.getWidth(),
                 bmpImage.getHeight(),mat,true);

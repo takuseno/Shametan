@@ -39,6 +39,7 @@ public class GallerySmallFragment extends Fragment {
         gridVIew = (GridView)v.findViewById(R.id.gridView);
         gridVIew.setNumColumns(3);
         fileSearch.searchFolder(new File(getArguments().getString("selected_directory_path")),".jpg",".JPG");
+        ArrangeImages arrangeImages = new ArrangeImages();
         imageFiles = fileSearch.getFileList();
         GridAdapter adapter = new GridAdapter(getActivity(),R.layout.grid_items,imageFiles);
         gridVIew.setAdapter(adapter);
@@ -55,6 +56,7 @@ public class GallerySmallFragment extends Fragment {
         FragmentTransaction transaction = manager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString("image_path",imagePath);
+        bundle.putString("from","gallery");
         TrimFragment fragment = new TrimFragment();
         fragment.setArguments(bundle);
         transaction.replace(R.id.container,fragment,"trim_fragment");

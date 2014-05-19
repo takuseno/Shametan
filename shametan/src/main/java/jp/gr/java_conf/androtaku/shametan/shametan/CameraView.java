@@ -124,6 +124,7 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
         FragmentTransaction transaction = manager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString("image_path",imagePath);
+        bundle.putString("from","camera");
         TrimFragment fragment = new TrimFragment();
         fragment.setArguments(bundle);
         transaction.replace(R.id.container,fragment,"trim_fragment");

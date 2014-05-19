@@ -46,6 +46,9 @@ public class TrimFragment extends Fragment {
     public void init(View v){
         imageView = (TrimImageView)v.findViewById(R.id.trimImageView);
         imagePath = getArguments().getString("image_path");
+        if("camera".equals(getArguments().getString("from"))){
+            imageView.fromFragment = 1;
+        }
         imageView.setImage(imagePath);
 
         trimButton = (Button)v.findViewById(R.id.trimButton);
