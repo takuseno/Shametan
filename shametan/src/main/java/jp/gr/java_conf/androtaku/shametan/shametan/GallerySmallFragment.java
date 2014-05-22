@@ -3,10 +3,12 @@ package jp.gr.java_conf.androtaku.shametan.shametan;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
@@ -41,12 +43,37 @@ public class GallerySmallFragment extends Fragment {
         fileSearch.searchFolder(new File(getArguments().getString("selected_directory_path")),".jpg",".JPG");
         ArrangeImages arrangeImages = new ArrangeImages();
         imageFiles = fileSearch.getFileList();
-        GridAdapter adapter = new GridAdapter(getActivity(),R.layout.grid_items,imageFiles);
+        final GridAdapter adapter = new GridAdapter(getActivity(),R.layout.grid_items,imageFiles);
         gridVIew.setAdapter(adapter);
         gridVIew.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 toTrim(imageFiles[position].getPath());
+            }
+        });
+        gridVIew.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                switch(scrollState){
+                    case AbsListView.OnScrollListener.SCROLL_STATE_IDLE:
+                        adapter.scrolled = false;
+                        for(int i = 0;i < 15;++i){
+                            if(!adapter.notShowed[i]){
+                                View targetView = gridVIew.getChildAt(adapter.diplayedId[i]);
+                                adapter.getView(adapter.diplayedId[i],targetView,gridVIew);
+                            }
+                        }
+                        break;
+
+                    case AbsListView.OnScrollListener.SCROLL_STATE_FLING:
+                        adapter.scrolled = true;
+                        break;
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
             }
         });
     }

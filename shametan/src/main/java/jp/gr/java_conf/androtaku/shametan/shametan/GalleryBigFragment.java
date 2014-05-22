@@ -73,8 +73,10 @@ public class GalleryBigFragment extends Fragment{
         int numExDirectories = 0;
         if(getMount_sd()!=null) {
             File externalSD = new File(getMount_sd());
-            externalImageDirectories = fileSearch.existFolderCheck(externalSD, ".jpg", ".JPG");
-            numExDirectories = externalImageDirectories.length;
+            if(isMounted(externalSD.getPath())) {
+                externalImageDirectories = fileSearch.existFolderCheck(externalSD, ".jpg", ".JPG");
+                numExDirectories = externalImageDirectories.length;
+            }
         }
 
         File internalSD = Environment.getExternalStorageDirectory();
@@ -103,6 +105,9 @@ public class GalleryBigFragment extends Fragment{
         try {
             // システム設定ファイルにアクセス
             File vold_fstab = new File("/system/etc/vold.fstab");
+            if(!vold_fstab.exists()){
+                return null;
+            }
             scanner = new Scanner(new FileInputStream(vold_fstab));
             // 一行ずつ読み込む
             while (scanner.hasNextLine()) {
