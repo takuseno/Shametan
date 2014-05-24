@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +21,11 @@ import java.io.StringBufferInputStream;
  * Created by takuma on 2014/05/18.
  */
 public class GallerySmallFragment extends Fragment {
-    GridView gridVIew;
+    GridView gridView;
     FileSearch fileSearch = new FileSearch();
     File[] imageFiles;
+
+    int firstVisibleId = 100;
 
     public GallerySmallFragment(){
 
@@ -38,29 +41,30 @@ public class GallerySmallFragment extends Fragment {
     }
 
     public void init(View v){
-        gridVIew = (GridView)v.findViewById(R.id.gridView);
-        gridVIew.setNumColumns(3);
-        fileSearch.searchFolder(new File(getArguments().getString("selected_directory_path")),".jpg",".JPG");
-        ArrangeImages arrangeImages = new ArrangeImages();
+        gridView = (GridView)v.findViewById(R.id.gridView);
+        gridView.setNumColumns(3);
+        fileSearch.searchFolder(new File(getArguments().getString("selected_directory_path")),".jpg",".JPG",".png",".PNG");
+        //ArrangeImages arrangeImages = new ArrangeImages(fileSearch.getFileList());
         imageFiles = fileSearch.getFileList();
         final GridAdapter adapter = new GridAdapter(getActivity(),R.layout.grid_items,imageFiles);
-        gridVIew.setAdapter(adapter);
-        gridVIew.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        gridView.setAdapter(adapter);
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 toTrim(imageFiles[position].getPath());
             }
         });
-        gridVIew.setOnScrollListener(new AbsListView.OnScrollListener() {
+        gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 switch(scrollState){
                     case AbsListView.OnScrollListener.SCROLL_STATE_IDLE:
                         adapter.scrolled = false;
-                        for(int i = 0;i < 15;++i){
-                            if(!adapter.notShowed[i]){
-                                View targetView = gridVIew.getChildAt(adapter.diplayedId[i]);
-                                adapter.getView(adapter.diplayedId[i],targetView,gridVIew);
+                        for(int i = 0;i < adapter.diplayedId.length;++i){
+                            if(!adapter.showed[adapter.diplayedId[i]]){
+                                Log.i("getadapter",String.valueOf(adapter.diplayedId[i]));
+                                View targetView = gridView.getChildAt(adapter.diplayedId[i]);
+                                gridView.getAdapter().getView(adapter.diplayedId[i],targetView,gridView);
                             }
                         }
                         break;
@@ -73,7 +77,12 @@ public class GallerySmallFragment extends Fragment {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
+                if(firstVisibleItem != firstVisibleId) {
+                    for (int i = 0; i < adapter.diplayedId.length; ++i) {
+                        firstVisibleId = firstVisibleItem;
+                        adapter.diplayedId[i] = firstVisibleItem + i;
+                    }
+                }
             }
         });
     }

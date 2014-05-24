@@ -13,9 +13,7 @@ public class FileSearch {
     int folderNumber;
     int fileNumber;
 
-    public void searchFolder(File path,String extension,String orExtension){
-
-        searchList = new File[1000];
+    public void searchFolder(File path,String extension,String orExtension,String or2Extension,String or3Extension){
         fileList = new File[5000];
         folderNumber = 0;
         fileNumber = 0;
@@ -24,11 +22,7 @@ public class FileSearch {
         int length = content.length;
 
         for(int i = 0;i < length;++i){
-            if(content[i].isDirectory()){
-                searchList[folderNumber] = content[i];
-                ++folderNumber;
-            }
-            else{
+            if(!content[i].isDirectory()){
                 if(recogFile(content[i],extension)){
                     fileList[fileNumber] = content[i];
                     ++fileNumber;
@@ -37,35 +31,19 @@ public class FileSearch {
                     fileList[fileNumber] = content[i];
                     ++fileNumber;
                 }
-            }
-        }
-
-        for(int i = 0;i < folderNumber;++i){
-            File folder = searchList[i];
-            File[] list = folder.listFiles();
-
-            for(int j = 0;j < list.length;++j){
-                if(list[j].isDirectory()){
-                    searchList[folderNumber] = list[j];
-                    ++folderNumber;
+                else if(recogFile(content[i],or2Extension)){
+                    fileList[fileNumber] = content[i];
+                    ++fileNumber;
                 }
-                else{
-                    if(recogFile(list[j],extension)){
-                        fileList[fileNumber] = list[j];
-                        ++fileNumber;
-                    }
-                    else if(recogFile(list[j],orExtension)){
-                        fileList[fileNumber] = list[j];
-                        ++fileNumber;
-                    }
+                else if(recogFile(content[i],or3Extension)){
+                    fileList[fileNumber] = content[i];
+                    ++fileNumber;
                 }
             }
-
         }
-
     }
 
-    public File[] existFolderCheck(File path,String extension,String orExtension){
+    public File[] existFolderCheck(File path,String extension,String orExtension,String or2Extension,String or3Extension){
 
         searchList = new File[1000];
         File[] tempList = new File[100];
@@ -105,6 +83,16 @@ public class FileSearch {
                         break;
                     }
                     else if(recogFile(list[j],orExtension)){
+                        tempList[tempCount] = folder;
+                        tempCount++;
+                        break;
+                    }
+                    else if(recogFile(list[j],or2Extension)){
+                        tempList[tempCount] = folder;
+                        tempCount++;
+                        break;
+                    }
+                    else if(recogFile(list[j],or3Extension)){
                         tempList[tempCount] = folder;
                         tempCount++;
                         break;

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/add_line"
-        android:title="Add"
-        android:icon="@drawable/ic_action_new"
+    <item
+        android:id="@+id/add_line"
+        android:title="@string/save"
         android:showAsAction="always"/>
 </menu>

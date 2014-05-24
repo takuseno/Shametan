@@ -74,14 +74,14 @@ public class GalleryBigFragment extends Fragment{
         if(getMount_sd()!=null) {
             File externalSD = new File(getMount_sd());
             if(isMounted(externalSD.getPath())) {
-                externalImageDirectories = fileSearch.existFolderCheck(externalSD, ".jpg", ".JPG");
+                externalImageDirectories = fileSearch.existFolderCheck(externalSD, ".jpg", ".JPG",".png",".PNG");
                 numExDirectories = externalImageDirectories.length;
             }
         }
 
         File internalSD = Environment.getExternalStorageDirectory();
         int numInDirectories;
-        internalImageDirectories = fileSearch.existFolderCheck(internalSD, ".jpg",".JPG");
+        internalImageDirectories = fileSearch.existFolderCheck(internalSD, ".jpg",".JPG",".png",".PNG");
         numInDirectories = internalImageDirectories.length;
 
         int numDirectories = numExDirectories + numInDirectories;

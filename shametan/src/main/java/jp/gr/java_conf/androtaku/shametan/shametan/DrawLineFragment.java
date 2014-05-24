@@ -37,7 +37,14 @@ public class DrawLineFragment extends Fragment {
                              Bundle savedInstanceState){
         View rootView = inflater.inflate(R.layout.drawline_layout,container,false);
 
-        MainActivity.menuType = MainActivity.MENU_DRAWLINE;
+        if(getActivity().getClass() == GetImageFromCameraActivity.class) {
+            GetImageFromCameraActivity.menuType = GetImageFromCameraActivity.MENU_DRAWLINE;
+        }
+
+        if(getActivity().getClass() == GetImageFromGalleryActivity.class) {
+            GetImageFromGalleryActivity.menuType = GetImageFromGalleryActivity.MENU_DRAWLINE;
+        }
+
         getFragmentManager().invalidateOptionsMenu();
         init(rootView);
         setHasOptionsMenu(true);
@@ -46,18 +53,24 @@ public class DrawLineFragment extends Fragment {
 
     public void init(View v){
         background = (ImageView)v.findViewById(R.id.drawline_background);
-        Bitmap bmp = BitmapFactory.decodeFile(getArguments().getString("trimed_image_path"));
+        String fileName = getArguments().getString("trimed_image_path");
+        Bitmap bmp = BitmapFactory.decodeFile(fileName);
         background.setImageBitmap(bmp);
 
         frameLayout = (FrameLayout)v.findViewById(R.id.drawline_frameLayout);
 
-        drawLineView = new DrawLineView(getActivity());
+        drawLineView = new DrawLineView(getActivity(),fileName);
         frameLayout.addView(drawLineView);
     }
 
     @Override
     public void onDestroyView(){
-        MainActivity.menuType = MainActivity.MENU_MAIN;
+        if(getActivity().getClass() == GetImageFromCameraActivity.class) {
+            GetImageFromCameraActivity.menuType = GetImageFromCameraActivity.MENU_MAIN;
+        }
+        if(getActivity().getClass() == GetImageFromGalleryActivity.class) {
+            GetImageFromGalleryActivity.menuType = GetImageFromGalleryActivity.MENU_MAIN;
+        }
         getFragmentManager().invalidateOptionsMenu();
         super.onDestroyView();
 
@@ -67,7 +80,6 @@ public class DrawLineFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem menuItem){
         switch(menuItem.getItemId()){
             case R.id.add_line:
-                //drawLineView.addLine();
                 break;
 
             default:

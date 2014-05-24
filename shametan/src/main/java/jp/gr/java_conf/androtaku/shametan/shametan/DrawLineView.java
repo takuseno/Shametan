@@ -2,17 +2,22 @@ package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapRegionDecoder;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -29,10 +34,9 @@ public class DrawLineView extends View implements View.OnTouchListener{
     private float[] y1;
     private float[] x2;
     private float[] y2;
-    private float[] optX;
-    private float[] optY;
 
     private int[] lineWidth;
+    private int lastModifiedWidth = 40;
 
     int numLines = 1;
     private static final int MAX_LINES = 20;
@@ -43,6 +47,7 @@ public class DrawLineView extends View implements View.OnTouchListener{
     private static final int SELECTED_OPTION = 3;
     private static final int SELECTED_WAITING_ADDITION = 4;
     private static final int SELECTED_NONE = 0;
+
     private int selectedNum = 0;
 
     private int timeCounter = 0;
@@ -51,6 +56,7 @@ public class DrawLineView extends View implements View.OnTouchListener{
     private int green = Color.argb(100,0,255,0);
     private int blue = Color.argb(100,0,0,255);
     private int[] lineColors;
+    private int lastModifiedColor = red;
 
     float dispWidth,dispHeight;
 
@@ -58,7 +64,11 @@ public class DrawLineView extends View implements View.OnTouchListener{
 
     DrawLineOptionDialog optionDialog = new DrawLineOptionDialog();
 
-    public DrawLineView(Context context){
+    String backgroundFile;
+
+    float touchX,touchY;
+
+    public DrawLineView(Context context,String fileName){
         super(context);
         setOnTouchListener(this);
 
@@ -77,8 +87,8 @@ public class DrawLineView extends View implements View.OnTouchListener{
         x2[0] = (dispWidth/2) + 100;
         y1[0] = (dispHeight/2);
         y2[0] = (dispHeight/2);
-        optX[0] = x2[0] + 50;
-        optY[0] = y2[0];
+
+        backgroundFile = fileName;
     }
 
     public void init(){
@@ -86,15 +96,11 @@ public class DrawLineView extends View implements View.OnTouchListener{
         x2 = new float[MAX_LINES];
         y1 = new float[MAX_LINES];
         y2 = new float[MAX_LINES];
-        optX = new float[MAX_LINES];
-        optY = new float[MAX_LINES];
         for(int i = 0;i < MAX_LINES;++i){
             x1[i] = 0;
             x2[i] = 0;
             y1[i] = 0;
             y2[i] = 0;
-            optX[i] = 0;
-            optY[i] = 0;
         }
 
         lineWidth = new int[MAX_LINES];
@@ -132,17 +138,14 @@ public class DrawLineView extends View implements View.OnTouchListener{
     }
 
     public void importData(float[] x1,float[] x2,float[] y1,float[] y2,
-                           float[] optX,float[] optY,
-                           Paint[] paintLine,Paint[] paintPoint){
+                           int[] lineWidth,int[] lineColors){
         numLines = x1.length;
         this.x1 = x1;
         this.x2 = x2;
         this.y1 = y1;
         this.y2 = y2;
-        this.optX = optX;
-        this.optY = optY;
-        this.paintLine = paintLine;
-        this.paintPoint = paintPoint;
+        this.lineWidth = lineWidth;
+        this.lineColors = lineColors;
     }
 
     public void addLine(){
@@ -151,10 +154,11 @@ public class DrawLineView extends View implements View.OnTouchListener{
         y1[numLines] = (dispHeight/2);
         y2[numLines] = (dispHeight/2);
 
-        optX[numLines] = x2[numLines] + (lineWidth[numLines]*2);
-        optY[numLines] = y2[numLines];
+        lineWidth[numLines] = lastModifiedWidth;
+        lineColors[numLines] = lastModifiedColor;
 
         ++numLines;
+        refreshPaints();
         invalidate();
     }
 
@@ -164,8 +168,6 @@ public class DrawLineView extends View implements View.OnTouchListener{
             x2[num] = x2[numLines - 1];
             y1[num] = y1[numLines - 1];
             y2[num] = y2[numLines - 1];
-            optX[num] = optX[numLines - 1];
-            optY[num] = optY[numLines - 1];
             lineColors[num] = lineColors[numLines - 1];
             lineWidth[num] = lineWidth[numLines - 1];
         }
@@ -173,8 +175,6 @@ public class DrawLineView extends View implements View.OnTouchListener{
         x2[numLines - 1] = 0;
         y1[numLines - 1] = 0;
         y2[numLines - 1] = 0;
-        optX[numLines - 1] = 0;
-        optY[numLines - 1] = 0;
         lineColors[numLines - 1] = red;
         lineWidth[numLines - 1] = 40;
 
@@ -203,14 +203,14 @@ public class DrawLineView extends View implements View.OnTouchListener{
         if(optionDialog.isChangeFragColor()){
             paintLine[selectedNum].setColor(optionDialog.getChangeColor());
             lineColors[selectedNum] = optionDialog.getChangeColor();
+            lastModifiedColor = optionDialog.getChangeColor();
             optionDialog.changeFragColorReset();
         }
 
         if(optionDialog.isChangeFragSize()){
             lineWidth[selectedNum] = optionDialog.getChangeSize();
             paintLine[selectedNum].setStrokeWidth(lineWidth[selectedNum]);
-            optX[selectedNum] = x2[selectedNum] + (lineWidth[selectedNum] * 2);
-            optY[selectedNum] = y2[selectedNum];
+            lastModifiedWidth = optionDialog.getChangeSize();
             optionDialog.changeFragSizeReset();
         }
 
@@ -255,7 +255,26 @@ public class DrawLineView extends View implements View.OnTouchListener{
             canvas.restore();
 
             //draw option point
-            canvas.drawPoint(optX[i],optY[i],paintOpt);
+            canvas.drawPoint((x1[i] + x2[i]) / 2,(y1[i] + y2[i]) / 2,paintOpt);
+
+
+        }
+
+        if(selected == SELECTED_START || selected == SELECTED_END){
+            canvas.drawBitmap(trimTouchPoint(touchX,touchY),touchX - 100,touchY - 300,null);
+        }
+    }
+
+    public Bitmap trimTouchPoint(float x,float y){
+        try {
+            BitmapRegionDecoder regionDecoder;
+            regionDecoder = BitmapRegionDecoder.newInstance(backgroundFile, false);
+            Rect rect = new Rect((int)(x - 100),(int)(y - 100),(int)(x + 100),(int)(y + 100));
+            Bitmap bitmap = regionDecoder.decodeRegion(rect,null);
+            return bitmap;
+        }catch(IOException e){
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -309,8 +328,8 @@ public class DrawLineView extends View implements View.OnTouchListener{
 
     public boolean judgeTouchOption(float x,float y){
         for(int i = 0;i < numLines;++i) {
-            if (x < (optX[i] + 30) && x > (optX[i] - 30)
-                    && y < (optY[i] + 30) && y > (optY[i] - 30)) {
+            if (x < ((x1[i] + x2[i]) / 2 + 30) && x > ((x1[i] + x2[i]) / 2 - 30)
+                    && y < ((y1[i] + y2[i]) / 2 + 30) && y > ((y1[i] + y2[i]) / 2 - 30)) {
                 selected = SELECTED_OPTION;
                 selectedNum = i;
                 return true;
@@ -328,16 +347,10 @@ public class DrawLineView extends View implements View.OnTouchListener{
         if(selected == SELECTED_END){
             x2[selectedNum] = x;
             y2[selectedNum] = y;
-
-            if((x + 50) > dispWidth) {
-                optX[selectedNum] = x;
-                optY[selectedNum] = y - 50;
-            }
-            else {
-                optX[selectedNum] = x + (lineWidth[selectedNum] * 2);
-                optY[selectedNum] = y;
-            }
         }
+
+        touchX = x;
+        touchY = y;
     }
 
     public void addtionTimer(float x,float y){
@@ -361,9 +374,6 @@ public class DrawLineView extends View implements View.OnTouchListener{
                                             x2[selectedNum] = position_x;
                                             y1[selectedNum] = position_y;
                                             y2[selectedNum] = position_y;
-
-                                            optX[selectedNum] = position_x + 50;
-                                            optY[selectedNum] = position_y;
                                             timeCounter = 0;
                                             cancel();
                                         }

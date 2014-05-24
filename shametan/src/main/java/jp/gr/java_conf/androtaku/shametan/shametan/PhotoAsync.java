@@ -25,36 +25,19 @@ public class PhotoAsync extends AsyncTask<String,Void,Bitmap> {
 
     ImageView imageView;
     GridAdapter adapter;
-    Context context;
     String tag;
 
-    public PhotoAsync(ImageView imageView,GridAdapter adapter,Context context){
+    public PhotoAsync(ImageView imageView,GridAdapter adapter){
         this.imageView = imageView;
         this.adapter = adapter;
         this.tag = imageView.getTag().toString();
-        this.context = context;
     }
 
     @Override
     protected Bitmap doInBackground(String... params){
-        /*ContentResolver cr = context.getContentResolver();
-        Uri uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = cr.query(uri,null,null,null,null);
-        long id;
-        Bitmap bitmap = null;
-        cursor.moveToFirst();
-        for(int i = 0;i < cursor.getCount();++i) {
-            String title = cursor.getString(cursor.getColumnIndexOrThrow("title"));
-            if(title.equals(params[0])) {
-                id = cursor.getLong((cursor.getColumnIndexOrThrow("_id")));
-                bitmap = MediaStore.Images.Thumbnails.getThumbnail(cr,id, MediaStore.Images.Thumbnails.MICRO_KIND,null);
-                break;
-            }
-        }*/
 
         Bitmap bitmap = compressImage(params[0]);
 
-        Log.i("AsyncTask","doinbackground");
         return bitmap;
     }
 
@@ -62,12 +45,10 @@ public class PhotoAsync extends AsyncTask<String,Void,Bitmap> {
     protected  void onPostExecute(Bitmap result){
         if(tag.equals(imageView.getTag())) {
             if (result != null) {
-                Log.i("AsyncTask", "onPostExecute");
                 imageView.setImageBitmap(result);
-                //imageView.setImageResource(R.drawable.ic_launcher);
+                Log.i("onpostexecute","done");
             }
         }
-       // adapter.notifyDataSetChanged();
     }
 
     public Bitmap compressImage(String imageName){

@@ -6,41 +6,46 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 
 /**
  * Created by takuma on 2014/05/19.
  */
 public class ArrangeImages {
-    public File[] arrangeImages(File[] images){
-        int length = images.length;
-        File[] arranged = new File[length];
-        ExifInterface ei;
-        for(int i = 0;i < length;++i){
-            long date = images[i].lastModified();
-            int count = 0;
-            for(int j = 0;j < length;++j){
-                if(i != j){
-                    long cpDate = images[j].lastModified();
-                    if(date < cpDate){
-                        ++count;
-                    }
-                }
-            }
-            arranged[count] = images[i];
-        }
-        return arranged;
-    }
+    Comparator comparator=new Comparator(){
+        public int compare(Object o1,Object o2){
+            File f1=(File)o1;
+            File f2=(File)o2;
 
-    public long toLong(String value){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss");
-        Date date;
-        try {
-            date = dateFormat.parse(value);
-            return date.getTime();
-        }catch(ParseException e){
-            return 0;
+            return (int)(f1.lastModified()-f2.lastModified());
+        }
+    };
+
+    private File[] dir;
+    public ArrangeImages(File[] dir){
+        this.dir=dir;
+    }
+    public File[] sort(){
+
+        ArrayList list=new ArrayList();
+        for(int i=0; i<dir.length; i++){
+            list.add(dir[i]);
         }
 
+
+        Collections.sort(list, this.comparator);
+
+        File[] output = new File[list.size()];
+
+        for(int i=0; i<list.size(); i++){
+            File f=(File)list.get(i);
+        }
+
+        return output;
     }
+
 }

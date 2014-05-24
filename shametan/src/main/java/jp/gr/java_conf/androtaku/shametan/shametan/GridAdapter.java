@@ -36,9 +36,8 @@ public class GridAdapter extends BaseAdapter {
 
     boolean scrolled = false;
 
-    int[] diplayedId = new int[15];
-    boolean[] notShowed = new boolean[15];
-    int displayedCount = 0;
+    int[] diplayedId;
+    boolean[] showed;
 
     public GridAdapter(Context context,int layoutId,File[] imgList){
         super();
@@ -47,33 +46,31 @@ public class GridAdapter extends BaseAdapter {
         this.imgList = imgList;
         this.cotext = context;
 
-        for(int i = 0;i < 15;++i){
-            diplayedId[i] = 0;
-            notShowed[i] = false;
-        }
-
         WindowManager wm = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
         Display disp = wm.getDefaultDisplay();
         Point size = new Point();
         disp.getSize(size);
         dispWidth = size.x;
+
+        diplayedId = new int[size.y/(dispWidth/3)*3 + 3];
+        for(int i = 0;i < diplayedId.length;++i){
+            diplayedId[i] = 0;
+        }
+        Log.i("idlength",String.valueOf(diplayedId.length));
+
+        showed = new boolean[imgList.length];
+        for(int i = 0;i < imgList.length;++i) {
+            showed[i] = false;
+        }
+        Log.i("imglistlength",String.valueOf(showed.length));
+
+
     }
 
     @Override
     public View getView(int position,View convertView,ViewGroup parent){
         String mFilePath = imgList[position].getPath();
-        if(displayedCount == 15){
-            int[] temp = diplayedId;
-            boolean[] tempflag = notShowed;
-            for(int i = 0;i < 14;++i){
-                diplayedId[i] = temp[i + 1];
-                notShowed[i] = tempflag[i + 1];
-            }
-            displayedCount = 14;
-        }
-        diplayedId[displayedCount] = position;
-        notShowed[displayedCount] = false;
-        Log.i("id",String.valueOf(position));
+        showed[position] = false;
 
         GridViewHolder holder;
         if(convertView == null) {
@@ -83,7 +80,6 @@ public class GridAdapter extends BaseAdapter {
             params.width = dispWidth/3;
             params.height = dispWidth/3;
             convertView.setLayoutParams(params);
-
             holder.imageView = (ImageView) convertView.findViewById(R.id.gridImageVIew);
             convertView.setTag(holder);
         }
@@ -94,39 +90,13 @@ public class GridAdapter extends BaseAdapter {
         holder.imageView.setTag(mFilePath);
         holder.imageView.setImageResource(R.drawable.dummy);
         if(!scrolled) {
-            PhotoAsync task = new PhotoAsync(holder.imageView, this, cotext);
+            PhotoAsync task = new PhotoAsync(holder.imageView, this);
             task.execute(mFilePath);
-            notShowed[displayedCount] = true;
+            showed[position] = true;
+            Log.i("gotadapter",String.valueOf(position));
         }
 
-        ++displayedCount;
         return convertView;
-    }
-
-    public Bitmap compressImage(String imageName){
-        BitmapFactory.Options opt = new BitmapFactory.Options();
-
-        opt.inJustDecodeBounds = true;
-
-        BitmapFactory.decodeFile(imageName, opt);
-
-        int scaleW = opt.outWidth / 320;
-        int scaleH = opt.outHeight / 240;
-
-        opt.inSampleSize = Math.max(scaleW, scaleH);
-        opt.inJustDecodeBounds = false;
-        Bitmap bmp = BitmapFactory.decodeFile(imageName, opt);
-
-        int w = bmp.getWidth();
-        int h = bmp.getHeight();
-        float scale = Math.min((float)320/w, (float)240/h);
-
-        Matrix matrix = new Matrix();
-        matrix.postScale(scale, scale);
-
-        bmp = Bitmap.createBitmap(bmp, 0, 0, w, h, matrix, true);
-
-        return bmp;
     }
 
     @Override

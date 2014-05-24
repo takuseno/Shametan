@@ -20,6 +20,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".GetImageFromCameraActivity"
+            android:label="@string/get_from_camera"/>
+
+        <activity android:name=".GetImageFromGalleryActivity"
+            android:label="@string/get_from_sd"/>
     </application>
 
 </manifest>

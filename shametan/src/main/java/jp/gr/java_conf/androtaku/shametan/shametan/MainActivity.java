@@ -5,6 +5,7 @@ import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,11 +26,6 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        try{
-            Class.forName("android.os.AsyncTask");
-        }catch(ClassNotFoundException e){
-            e.printStackTrace();
-        }
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .add(R.id.container, PlaceholderFragment.newInstance())
@@ -118,19 +114,23 @@ public class MainActivity extends Activity {
         }
 
         public void toGallery(){
-            FragmentManager manager = getFragmentManager();
+            /*FragmentManager manager = getFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
             transaction.replace(R.id.container,GalleryBigFragment.newInstance());
             transaction.addToBackStack("main");
-            transaction.commit();
+            transaction.commit();*/
+            Intent intent = new Intent(getActivity().getApplicationContext(),GetImageFromGalleryActivity.class);
+            getActivity().startActivity(intent);
         }
 
         public void toCamera(){
-            FragmentManager manger = getFragmentManager();
+            /*FragmentManager manger = getFragmentManager();
             FragmentTransaction transaction = manger.beginTransaction();
             transaction.replace(R.id.container,CameraFragment.newInstance());
             transaction.addToBackStack("main");
-            transaction.commit();
+            transaction.commit();*/
+            Intent intent = new Intent(getActivity().getApplicationContext(),GetImageFromCameraActivity.class);
+            getActivity().startActivity(intent);
         }
     }
 }
