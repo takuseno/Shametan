@@ -262,6 +262,7 @@ public class DrawLineView extends View implements View.OnTouchListener{
 
         if(selected == SELECTED_START || selected == SELECTED_END){
             canvas.drawBitmap(trimTouchPoint(touchX,touchY),touchX - 100,touchY - 300,null);
+            canvas.drawPoint(touchX,touchY - 200,paintOpt);
         }
     }
 
@@ -312,12 +313,16 @@ public class DrawLineView extends View implements View.OnTouchListener{
             if (x < (x1[i] + 50) && x > (x1[i] - 50)
                     && y < (y1[i] + 50) && y > (y1[i] - 50)) {
                 selected = SELECTED_START;
+                touchX = x;
+                touchY = y;
                 selectedNum = i;
                 return true;
             }
             if (x < (x2[i] + 50) && x > (x2[i] - 50)
                     && y < (y2[i] + 50) && y > (y2[i] - 50)) {
                 selected = SELECTED_END;
+                touchX = x;
+                touchY = y;
                 selectedNum = i;
                 return true;
             }
