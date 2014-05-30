@@ -1,12 +1,7 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.graphics.Point;
-import android.hardware.Camera;
-import android.media.ExifInterface;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -15,12 +10,9 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+
 
 /**
  * Created by takuma on 2014/05/18.

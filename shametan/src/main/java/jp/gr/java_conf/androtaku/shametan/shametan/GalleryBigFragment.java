@@ -1,6 +1,5 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
