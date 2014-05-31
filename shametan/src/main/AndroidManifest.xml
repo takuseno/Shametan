@@ -26,6 +26,9 @@
 
         <activity android:name=".GetImageFromGalleryActivity"
             android:label="@string/get_from_sd"/>
+
+        <activity android:name=".NotebookActivity"
+            android:label="@string/note"/>
     </application>
 
 </manifest>

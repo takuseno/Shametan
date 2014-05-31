@@ -81,8 +81,8 @@ public class TrimImageView extends ImageView implements OnTouchListener {
     Matrix saveMatrix;
 
     int fromFragment = 2;
-    static final int FROM_CAMERA = 1;
-    static final int FROM_GALLERY = 2;
+    public final int FROM_CAMERA = 1;
+    public final int FROM_GALLERY = 2;
 
     //===============================================================
     // Constructor

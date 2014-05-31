@@ -45,9 +45,14 @@ public class DrawLineFragment extends Fragment {
             GetImageFromGalleryActivity.menuType = GetImageFromGalleryActivity.MENU_DRAWLINE;
         }
 
+        if(getActivity().getClass() == NotebookActivity.class){
+            NotebookActivity.menuType = NotebookActivity.MENU_DRAWLINE;
+        }
+
         getFragmentManager().invalidateOptionsMenu();
         init(rootView);
         setHasOptionsMenu(true);
+
         return rootView;
     }
 
@@ -71,6 +76,9 @@ public class DrawLineFragment extends Fragment {
         if(getActivity().getClass() == GetImageFromGalleryActivity.class) {
             GetImageFromGalleryActivity.menuType = GetImageFromGalleryActivity.MENU_MAIN;
         }
+        if(getActivity().getClass() == NotebookActivity.class){
+            NotebookActivity.menuType = NotebookActivity.MENU_NOTE;
+        }
         getFragmentManager().invalidateOptionsMenu();
         super.onDestroyView();
 
@@ -79,7 +87,15 @@ public class DrawLineFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem){
         switch(menuItem.getItemId()){
-            case R.id.add_line:
+            case R.id.save_line:
+                drawLineView.exportData();
+                if(getActivity().getClass() == GetImageFromCameraActivity.class
+                        || getActivity().getClass() == GetImageFromGalleryActivity.class){
+                    getActivity().finish();
+                }
+                else{
+                    getFragmentManager().popBackStack();
+                }
                 break;
 
             default:

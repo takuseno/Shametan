@@ -1,0 +1,135 @@
+package jp.gr.java_conf.androtaku.shametan.shametan;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.util.Log;
+import android.view.View;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+/**
+ * Created by takuma on 2014/05/30.
+ */
+public class NoteView extends View {
+    Paint[] paintLine;
+
+    private float[] x1;
+    private float[] y1;
+    private float[] x2;
+    private float[] y2;
+
+    private int[] lineWidth;
+    private int[] lineColors;
+
+    int numLines;
+
+    Context context;
+
+    String filePath;
+
+    public NoteView(Context context, String filePath){
+        super(context);
+        this.filePath = filePath;
+        importFile(filePath);
+        this.context = context;
+    }
+
+    @Override
+    public void onDraw(Canvas canvas){
+        for(int i = 0;i < numLines;++i) {
+            //draw line
+            canvas.drawLine(x1[i], y1[i], x2[i], y2[i], paintLine[i]);
+        }
+    }
+
+    public void importFile(String filePath){
+        try {
+            FileInputStream fis = new FileInputStream(filePath);
+            byte[] readBytes = new byte[fis.available()];
+            fis.read(readBytes);
+            String readString = new String(readBytes);
+            analyzeData(readString);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void analyzeData(String data){
+        int index;
+        index = data.indexOf(";");
+        numLines = Integer.valueOf(data.substring(0,index));
+        Log.i("numlines",String.valueOf(numLines));
+        String restString = data.substring(index + 1);
+
+        x1 = new float[numLines];
+        for(int i = 0;i < numLines;++i){
+            String temp = restString;
+            index = temp.indexOf(",");
+            x1[i] = Float.valueOf(temp.substring(0,index));
+            Log.i("x1",String.valueOf(x1[i]));
+            restString = temp.substring(index + 1);
+        }
+
+        x2 = new float[numLines];
+        for(int i = 0;i < numLines;++i){
+            String temp = restString;
+            index = temp.indexOf(",");
+            x2[i] = Float.valueOf(temp.substring(0,index));
+            Log.i("x2",String.valueOf(x2[i]));
+            restString = temp.substring(index + 1);
+        }
+
+        y1 = new float[numLines];
+        for(int i = 0;i < numLines;++i){
+            String temp = restString;
+            index = temp.indexOf(",");
+            y1[i] = Float.valueOf(temp.substring(0,index));
+            Log.i("y1",String.valueOf(y1[i]));
+            restString = temp.substring(index + 1);
+        }
+
+        y2 = new float[numLines];
+        for(int i = 0;i < numLines;++i){
+            String temp = restString;
+            index = temp.indexOf(",");
+            y2[i] = Float.valueOf(temp.substring(0,index));
+            Log.i("y2",String.valueOf(y2[i]));
+            restString = temp.substring(index + 1);
+        }
+
+        lineWidth = new int[numLines];
+        for(int i = 0;i < numLines;++i){
+            String temp = restString;
+            index = temp.indexOf(",");
+            lineWidth[i] = Integer.valueOf(temp.substring(0,index));
+            Log.i("linewidth",String.valueOf(lineWidth[i]));
+            restString = temp.substring(index + 1);
+        }
+
+        lineColors = new int[numLines];
+        for(int i = 0;i < numLines;++i){
+            String temp = restString;
+            index = temp.indexOf(",");
+            lineColors[i] = Integer.valueOf(temp.substring(0,index));
+            Log.i("lineColors",String.valueOf(lineColors[i]));
+            restString = temp.substring(index + 1);
+        }
+
+        paintLine = new Paint[numLines];
+        for(int i = 0;i < numLines;++i){
+            paintLine[i] = new Paint();
+            paintLine[i].setColor(lineColors[i]);
+            paintLine[i].setStyle(Paint.Style.STROKE);
+            paintLine[i].setAntiAlias(true);
+            paintLine[i].setStrokeWidth(lineWidth[i]);
+        }
+    }
+
+    public void refresh(){
+        importFile(filePath);
+    }
+}

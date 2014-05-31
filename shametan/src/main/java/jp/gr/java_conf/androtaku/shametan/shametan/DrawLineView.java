@@ -11,12 +11,15 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -27,7 +30,7 @@ import java.util.TimerTask;
 public class DrawLineView extends View implements View.OnTouchListener{
 
     Paint[] paintLine;
-    Paint[] paintPoint;
+    Paint paintPoint;
     Paint paintOpt;
 
     private float[] x1;
@@ -65,6 +68,7 @@ public class DrawLineView extends View implements View.OnTouchListener{
     DrawLineOptionDialog optionDialog = new DrawLineOptionDialog();
 
     String backgroundFile;
+    String dataPath;
 
     float touchX,touchY;
 
@@ -89,6 +93,12 @@ public class DrawLineView extends View implements View.OnTouchListener{
         y2[0] = (dispHeight/2);
 
         backgroundFile = fileName;
+        int index = backgroundFile.lastIndexOf(".");
+        dataPath = backgroundFile.substring(0,index) + ".txt";
+        File data = new File(dataPath);
+        if(data.exists()){
+            importFile(dataPath);
+        }
     }
 
     public void init(){
@@ -122,30 +132,163 @@ public class DrawLineView extends View implements View.OnTouchListener{
             paintLine[i].setStrokeWidth(40);
         }
 
-        paintPoint = new Paint[20];
-        for(int i = 0;i < MAX_LINES;++i) {
-            paintPoint[i] = new Paint();
-            paintPoint[i].setColor(Color.GREEN);
-            paintPoint[i].setStyle(Paint.Style.STROKE);
-            paintPoint[i].setAntiAlias(true);
-            paintPoint[i].setStrokeWidth(5);
-        }
+        paintPoint = new Paint();
+        paintPoint.setColor(Color.GREEN);
+        paintPoint.setStyle(Paint.Style.STROKE);
+        paintPoint.setAntiAlias(true);
+        paintPoint.setStrokeWidth(5);
 
         paintOpt = new Paint();
         paintOpt.setColor(Color.BLUE);
         paintOpt.setAntiAlias(true);
         paintOpt.setStrokeWidth(30);
+
+
     }
 
-    public void importData(float[] x1,float[] x2,float[] y1,float[] y2,
-                           int[] lineWidth,int[] lineColors){
-        numLines = x1.length;
-        this.x1 = x1;
-        this.x2 = x2;
-        this.y1 = y1;
-        this.y2 = y2;
-        this.lineWidth = lineWidth;
-        this.lineColors = lineColors;
+    public void importFile(String filePath){
+        try {
+            FileInputStream fis = new FileInputStream(filePath);
+            byte[] readBytes = new byte[fis.available()];
+            fis.read(readBytes);
+            String readString = new String(readBytes);
+            analyzeData(readString);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void analyzeData(String data){
+        int index;
+        index = data.indexOf(";");
+        numLines = Integer.valueOf(data.substring(0,index));
+        Log.i("numlines", String.valueOf(numLines));
+        String restString = data.substring(index + 1);
+
+        for(int i = 0;i < numLines;++i){
+            String temp = restString;
+            index = temp.indexOf(",");
+            x1[i] = Float.valueOf(temp.substring(0,index));
+            Log.i("x1",String.valueOf(x1[i]));
+            restString = temp.substring(index + 1);
+        }
+
+        for(int i = 0;i < numLines;++i){
+            String temp = restString;
+            index = temp.indexOf(",");
+            x2[i] = Float.valueOf(temp.substring(0,index));
+            Log.i("x2",String.valueOf(x2[i]));
+            restString = temp.substring(index + 1);
+        }
+
+        for(int i = 0;i < numLines;++i){
+            String temp = restString;
+            index = temp.indexOf(",");
+            y1[i] = Float.valueOf(temp.substring(0,index));
+            Log.i("y1",String.valueOf(y1[i]));
+            restString = temp.substring(index + 1);
+        }
+
+        for(int i = 0;i < numLines;++i){
+            String temp = restString;
+            index = temp.indexOf(",");
+            y2[i] = Float.valueOf(temp.substring(0,index));
+            Log.i("y2",String.valueOf(y2[i]));
+            restString = temp.substring(index + 1);
+        }
+
+        for(int i = 0;i < numLines;++i){
+            String temp = restString;
+            index = temp.indexOf(",");
+            lineWidth[i] = Integer.valueOf(temp.substring(0,index));
+            Log.i("linewidth",String.valueOf(lineWidth[i]));
+            restString = temp.substring(index + 1);
+        }
+
+        for(int i = 0;i < numLines;++i){
+            String temp = restString;
+            index = temp.indexOf(",");
+            lineColors[i] = Integer.valueOf(temp.substring(0,index));
+            if(lineColors[i] == Color.RED){
+                lineColors[i] = red;
+            }
+            else if(lineColors[i] == Color.GREEN){
+                lineColors[i] = green;
+            }
+            else if(lineColors[i] == Color.BLUE){
+                lineColors[i] = blue;
+            }
+            Log.i("lineColors",String.valueOf(lineColors[i]));
+            restString = temp.substring(index + 1);
+        }
+
+        for(int i = 0;i < numLines;++i){
+            paintLine[i] = new Paint();
+            paintLine[i].setColor(lineColors[i]);
+            paintLine[i].setStyle(Paint.Style.STROKE);
+            paintLine[i].setAntiAlias(true);
+            paintLine[i].setStrokeWidth(lineWidth[i]);
+        }
+    }
+
+    public void exportData(){
+        /*
+        header numlines
+        value01 x1
+        value02 x2
+        value03 y1
+        value04 y2
+        value05 linewidth
+        value06 linecolors
+        each component separated by ,
+        each section separated by ;
+         */
+        int index = backgroundFile.lastIndexOf(".");
+        String dataPath = backgroundFile.substring(0,index) + ".txt";
+        File data = new File(dataPath);
+        if(data.exists()){
+            data.delete();
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(data);
+            String output = "" + String.valueOf(numLines) + ";";
+            for(int i = 0;i <numLines;++i){
+                output += String.valueOf(x1[i]) + ",";
+            }
+
+            for(int i = 0;i <numLines;++i){
+                output += String.valueOf(x2[i]) + ",";
+            }
+
+            for(int i = 0;i <numLines;++i){
+                output += String.valueOf(y1[i]) + ",";
+            }
+
+            for(int i = 0;i <numLines;++i){
+                output += String.valueOf(y2[i]) + ",";
+            }
+
+            for(int i = 0;i <numLines;++i){
+                output += String.valueOf(lineWidth[i]) + ",";
+            }
+
+            for(int i = 0;i <numLines;++i){
+                if(lineColors[i] == red) {
+                    output += String.valueOf(Color.RED) + ",";
+                }
+                if(lineColors[i] == green){
+                    output += String.valueOf(Color.GREEN) + ",";
+                }
+                if(lineColors[i] == blue){
+                    output += String.valueOf(Color.BLUE) + ",";
+                }
+            }
+
+            fos.write(output.getBytes());
+            fos.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 
     public void addLine(){
@@ -189,11 +332,6 @@ public class DrawLineView extends View implements View.OnTouchListener{
             paintLine[i].setStyle(Paint.Style.STROKE);
             paintLine[i].setAntiAlias(true);
             paintLine[i].setStrokeWidth(lineWidth[i]);
-
-            paintPoint[i].setColor(Color.GREEN);
-            paintPoint[i].setStyle(Paint.Style.STROKE);
-            paintPoint[i].setAntiAlias(true);
-            paintPoint[i].setStrokeWidth(5);
         }
     }
 
@@ -236,7 +374,7 @@ public class DrawLineView extends View implements View.OnTouchListener{
                         Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
                         , x1[i], y1[i]);
             }
-            canvas.drawRect(x1[i] - lineWidth[i],y1[i] - (lineWidth[i]/2),x1[i], y1[i] + (lineWidth[i]/2), paintPoint[i]);
+            canvas.drawRect(x1[i] - lineWidth[i],y1[i] - (lineWidth[i]/2),x1[i], y1[i] + (lineWidth[i]/2), paintPoint);
             canvas.restore();
 
             //draw end point
@@ -251,7 +389,7 @@ public class DrawLineView extends View implements View.OnTouchListener{
                         Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
                         , x2[i], y2[i]);
             }
-            canvas.drawRect(x2[i], y2[i] - (lineWidth[i]/2),x2[i] + lineWidth[i],y2[i] + lineWidth[i]/2, paintPoint[i]);
+            canvas.drawRect(x2[i], y2[i] - (lineWidth[i]/2),x2[i] + lineWidth[i],y2[i] + lineWidth[i]/2, paintPoint);
             canvas.restore();
 
             //draw option point

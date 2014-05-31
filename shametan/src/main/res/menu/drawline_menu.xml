@@ -2,7 +2,8 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/add_line"
+        android:id="@+id/save_line"
         android:title="@string/save"
+        android:icon="@drawable/ic_action_save"
         android:showAsAction="always"/>
 </menu>

@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
 
 /**
  * Created by takuma on 2014/05/05.
@@ -47,16 +48,23 @@ public class TrimFragment extends Fragment {
         imageView = (TrimImageView)v.findViewById(R.id.trimImageView);
         imagePath = getArguments().getString("image_path");
         if("camera".equals(getArguments().getString("from"))){
-            imageView.fromFragment = 1;
+            imageView.fromFragment = imageView.FROM_CAMERA;
+        }
+        else if("gallery".equals(getArguments().getString("from"))){
+            imageView.fromFragment = imageView.FROM_GALLERY;
         }
         imageView.setImage(imagePath);
+        File sourceImage = new File(imagePath);
+        //sourceImage.delete();
 
         trimButton = (Button)v.findViewById(R.id.trimButton);
         trimButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveImage(new File(basePath + "/trimtest.jpg"));
-                toDrawLine(basePath + "/trimtest.jpg");
+                final Calendar calendar = Calendar.getInstance();
+                String imagePath = basePath.getPath() + "/" + String.valueOf(calendar.getTimeInMillis()) + ".jpg";
+                saveImage(new File(imagePath));
+                toDrawLine(imagePath);
             }
         });
     }

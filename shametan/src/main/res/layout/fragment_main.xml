@@ -19,4 +19,11 @@
         android:id="@+id/galleryButton"
         android:layout_below="@+id/button" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Notebook"
+        android:id="@+id/notebookButton"
+        android:layout_below="@+id/galleryButton"/>
+
 </RelativeLayout>

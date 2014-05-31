@@ -54,7 +54,7 @@ public class MainActivity extends Activity {
      */
     public static class PlaceholderFragment extends Fragment {
 
-        Button cameraButton,galleryButton;
+        Button cameraButton,galleryButton,notebookButton;
 
         public PlaceholderFragment() {
 
@@ -107,25 +107,28 @@ public class MainActivity extends Activity {
                     toGallery();
                 }
             });
+
+            notebookButton = (Button)v.findViewById(R.id.notebookButton);
+            notebookButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    toNotebook();
+                }
+            });
         }
 
         public void toGallery(){
-            /*FragmentManager manager = getFragmentManager();
-            FragmentTransaction transaction = manager.beginTransaction();
-            transaction.replace(R.id.container,GalleryBigFragment.newInstance());
-            transaction.addToBackStack("main");
-            transaction.commit();*/
             Intent intent = new Intent(getActivity().getApplicationContext(),GetImageFromGalleryActivity.class);
             getActivity().startActivity(intent);
         }
 
         public void toCamera(){
-            /*FragmentManager manger = getFragmentManager();
-            FragmentTransaction transaction = manger.beginTransaction();
-            transaction.replace(R.id.container,CameraFragment.newInstance());
-            transaction.addToBackStack("main");
-            transaction.commit();*/
             Intent intent = new Intent(getActivity().getApplicationContext(),GetImageFromCameraActivity.class);
+            getActivity().startActivity(intent);
+        }
+
+        public void toNotebook(){
+            Intent intent = new Intent(getActivity().getApplicationContext(),NotebookActivity.class);
             getActivity().startActivity(intent);
         }
     }
