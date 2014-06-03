@@ -51,16 +51,18 @@ public class TempSelectNoteFragment extends Fragment {
     public void init(View v){
         gridView = (GridView)v.findViewById(R.id.noteList);
         gridView.setNumColumns(2);
-        fileSearch.searchFolder(basePath,".jpg",".JPG",".png",".PNG");
+        //fileSearch.searchFolder(basePath,".jpg",".JPG",".png",".PNG");
+        CSTFileController cstFileController = new CSTFileController(basePath + "/root.cst");
+        cstFileController.importCSTFile();
         //ArrangeImages arrangeImages = new ArrangeImages(fileSearch.getFileList());
-        imageFiles = fileSearch.getFileList();
+        imageFiles = cstFileController.getFiles();
         final NoteGridAdapter adapter = new NoteGridAdapter(getActivity(),R.layout.grid_items,imageFiles);
         gridView.setAdapter(adapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 int index = imageFiles[position].getPath().lastIndexOf(".");
-                String dataPath = imageFiles[position].getPath().substring(0, index) + ".txt";
+                String dataPath = imageFiles[position].getPath().substring(0, index) + ".st";
                 toNote(dataPath);
             }
         });
