@@ -11,14 +11,13 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.io.File;
 
 /**
- * Created by takuma on 2014/05/31.
+ * Created by takuma on 2014/06/04.
  */
-public class NoteGridAdapter extends BaseAdapter{
+public class PageGridAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     private int layoutId;
     private File[] noteList;
@@ -26,7 +25,7 @@ public class NoteGridAdapter extends BaseAdapter{
 
     int dispWidth;
 
-    public NoteGridAdapter(Context context,int layoutId,File[] noteList){
+    public PageGridAdapter(Context context,int layoutId,File[] noteList){
         super();
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.layoutId = layoutId;
@@ -47,26 +46,26 @@ public class NoteGridAdapter extends BaseAdapter{
 
         Animation anim = AnimationUtils.loadAnimation(cotext,R.anim.note_item_anim);
 
-        SelectNoteHolder holder;
+        GridViewHolder holder;
         if(convertView == null) {
-            holder = new SelectNoteHolder();
+            holder = new GridViewHolder();
             convertView = inflater.inflate(layoutId, parent, false);
             ViewGroup.LayoutParams params = convertView.getLayoutParams();
-            params.width = dispWidth/4;
-            params.height = dispWidth/4;
+            params.width = dispWidth/2;
+            params.height = dispWidth/2;
             convertView.setLayoutParams(params);
-            holder.imageView = (ImageView) convertView.findViewById(R.id.select_note_image);
-            holder.textView = (TextView) convertView.findViewById(R.id.select_note_text);
+            holder.imageView = (ImageView) convertView.findViewById(R.id.gridImageVIew);
             convertView.setTag(holder);
         }
 
         else{
-            holder = (SelectNoteHolder)convertView.getTag();
+            holder = (GridViewHolder)convertView.getTag();
         }
+
         holder.imageView.setTag(mFilePath);
-        holder.imageView.setImageResource(R.drawable.note_title);
-        int index = mFilePath.getName().indexOf(".");
-        holder.textView.setText(mFilePath.getName().substring(0,index));
+        holder.imageView.setImageResource(R.drawable.dummy);
+        PagePhotoAsync task = new PagePhotoAsync(holder.imageView, this, dispWidth);
+        task.execute(mFilePath.getPath());
 
         convertView.startAnimation(anim);
 

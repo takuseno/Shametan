@@ -12,7 +12,11 @@ public class CSTFileController {
 
     File path;
     File[] files;
+    File[] noteFiles;
+    File[] pageFiles;
     int numFiles;
+    int numNote = 0;
+    int numPage = 0;
     boolean initialized = false;
 
     public CSTFileController(String path){
@@ -47,11 +51,43 @@ public class CSTFileController {
             index = temp.indexOf(",");
             files[i] = new File(temp.substring(0,index));
             restString = temp.substring(index + 1);
+            if(files[i].getName().contains(".cst")){
+                ++numNote;
+            }
+            else{
+                ++numPage;
+            }
         }
     }
 
     public File[] getFiles(){
         return files;
+    }
+
+    public File[] getNoteFiles(){
+        int counter = 0;
+        noteFiles = new File[numNote];
+        for(int i = 0;i < numFiles;++i){
+            if(files[i].getName().contains(".cst")){
+                noteFiles[counter] = files[i];
+                ++counter;
+            }
+        }
+
+        return noteFiles;
+    }
+
+    public File[] getPageFiles(){
+        int counter = 0;
+        pageFiles = new File[numPage];
+        for(int i = 0;i < numFiles;++i){
+            if(!files[i].getName().contains(".cst")){
+                pageFiles[counter] = files[i];
+                ++counter;
+            }
+        }
+
+        return pageFiles;
     }
 
     public void saveCSTFile(File file){
@@ -91,6 +127,20 @@ public class CSTFileController {
                 e.printStackTrace();
             }
         }
+    }
 
+    public void makeCST(File file){
+        try{
+            FileOutputStream fos = new FileOutputStream(file);
+            String output = "0,";
+            fos.write(output.getBytes());
+            fos.close();
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isCSTFile(File path) {
+        return path.getName().contains(".cst");
     }
 }

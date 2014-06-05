@@ -10,14 +10,14 @@ import android.widget.ImageView;
 /**
  * Created by takuma on 2014/05/31.
  */
-public class NotePhotoAsync extends AsyncTask<String,Void,Bitmap> {
+public class PagePhotoAsync extends AsyncTask<String,Void,Bitmap> {
 
     ImageView imageView;
-    NoteGridAdapter adapter;
+    PageGridAdapter adapter;
     String tag;
     int width;
 
-    public NotePhotoAsync(ImageView imageView,NoteGridAdapter adapter,int width){
+    public PagePhotoAsync(ImageView imageView, PageGridAdapter adapter, int width){
         this.imageView = imageView;
         this.adapter = adapter;
         this.tag = imageView.getTag().toString();
@@ -34,12 +34,12 @@ public class NotePhotoAsync extends AsyncTask<String,Void,Bitmap> {
 
     @Override
     protected  void onPostExecute(Bitmap result){
-        if(tag.equals(imageView.getTag())) {
+        //if(tag.equals(imageView.getTag())) {
             if (result != null) {
                 imageView.setImageBitmap(result);
                 Log.i("onpostexecute", "done");
             }
-        }
+        //}
     }
 
     public Bitmap compressImage(String imageName){

@@ -91,7 +91,7 @@ public class DrawLineFragment extends Fragment {
         switch(menuItem.getItemId()){
             case R.id.save_line:
                 drawLineView.exportData();
-                CSTFileController cstFileController = new CSTFileController(basePath + "/root.cst");
+                CSTFileController cstFileController = new CSTFileController(getArguments().getString("cst_file"));
                 cstFileController.saveCSTFile(new File(fileName));
                 if(getActivity().getClass() == GetImageFromCameraActivity.class
                         || getActivity().getClass() == GetImageFromGalleryActivity.class){

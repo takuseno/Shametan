@@ -7,7 +7,11 @@
     <string name="get_from_camera">カメラ</string>
     <string name="get_from_sd">保存済み</string>
     <string name="save">保存</string>
-    <string name="note">ノートブック</string>
+    <string name="note">ノート</string>
+    <string name="page">ページ</string>
     <string name="edit">編集</string>
+    <string name="add_note">ノートの追加</string>
+    <string name="add_from_camera">カメラから追加</string>
+    <string name="add_from_gallery">端末内から追加</string>
 
 </resources>

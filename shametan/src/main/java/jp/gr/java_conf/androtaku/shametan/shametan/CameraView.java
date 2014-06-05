@@ -25,14 +25,17 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
     Context context;
     FragmentManager manager;
 
+    String cstPath;
+
     private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
 
-    public CameraView(Context context,FragmentManager manager){
+    public CameraView(Context context,FragmentManager manager,String cstPath){
         super(context);
         this.context = context;
         this.manager = manager;
         SurfaceHolder holder = getHolder();
         holder.addCallback(this);
+        this.cstPath = cstPath;
     }
 
     @Override
@@ -82,19 +85,6 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
 
     @Override
     public void onPictureTaken(byte[] data,Camera camera){
-        if(!basePath.exists()){
-            if(!basePath.mkdir()){
-                Toast.makeText(context,"failed to make a root folder",Toast.LENGTH_SHORT).show();
-            }
-            File noMedia = new File(basePath + "/.nomedia");
-            try {
-                if(!noMedia.createNewFile()){
-                    Toast.makeText(context,"failed to make .nomedia",Toast.LENGTH_SHORT).show();
-                }
-            }catch(IOException e){
-                e.printStackTrace();
-            }
-        }
         String imagePath = basePath.getPath() + "/test.jpg";
         saveImage(data,new File(imagePath));
 
@@ -125,6 +115,7 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
         Bundle bundle = new Bundle();
         bundle.putString("image_path",imagePath);
         bundle.putString("from","camera");
+        bundle.putString("cst_file",cstPath);
         TrimFragment fragment = new TrimFragment();
         fragment.setArguments(bundle);
         transaction.replace(R.id.container,fragment,"trim_fragment");

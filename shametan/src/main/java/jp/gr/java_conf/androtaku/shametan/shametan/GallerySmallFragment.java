@@ -42,7 +42,6 @@ public class GallerySmallFragment extends Fragment {
         gridView = (GridView)v.findViewById(R.id.gridView);
         gridView.setNumColumns(3);
         fileSearch.searchFolder(new File(getArguments().getString("selected_directory_path")),".jpg",".JPG",".png",".PNG");
-        //ArrangeImages arrangeImages = new ArrangeImages(fileSearch.getFileList());
         imageFiles = fileSearch.getFileList();
         final GridAdapter adapter = new GridAdapter(getActivity(),R.layout.grid_items,imageFiles);
         gridView.setAdapter(adapter);

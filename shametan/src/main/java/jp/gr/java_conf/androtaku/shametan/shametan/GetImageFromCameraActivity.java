@@ -21,8 +21,12 @@ public class GetImageFromCameraActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
+            Bundle bundle = new Bundle();
+            bundle.putString("cst_file",getIntent().getStringExtra("cst_file"));
+            CameraFragment fragment = new CameraFragment();
+            fragment.setArguments(bundle);
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, CameraFragment.newInstance())
+                    .add(R.id.container, fragment)
                     .commit();
         }
     }
