@@ -21,6 +21,7 @@ public class NotebookActivity extends Activity{
     public static final int MENU_SELECT_NOTE = 1;
     public static final int MENU_NOTE = 2;
     public static final int MENU_DRAWLINE = 3;
+    public static final int MENU_SELECT_PAGE = 4;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -78,6 +79,10 @@ public class NotebookActivity extends Activity{
 
             case MENU_DRAWLINE:
                 getMenuInflater().inflate(R.menu.drawline_menu,menu);
+                break;
+
+            case  MENU_SELECT_PAGE:
+                getMenuInflater().inflate(R.menu.select_page_menu,menu);
                 break;
 
             default:

@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import java.io.File;
 
@@ -27,16 +28,11 @@ import java.io.File;
  */
 public class SelectNoteFragment extends Fragment {
     private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
-    GridView gridNoteView,gridPageView;
+    GridView gridNoteView;
+    TextView noNoteText;
     NoteGridAdapter noteAdapter;
-    PageGridAdapter pageAdapter;
-    CSTFileController rootCSTFileController,cstFileController;
+    CSTFileController rootCSTFileController;
     File[] noteFiles;
-    File[] pageFiles;
-    File selectCST;
-
-    final static int NOTE = 1;
-    final static int PAGE = 2;
 
     public static SelectNoteFragment newInstance(){
         SelectNoteFragment fragment = new SelectNoteFragment();
@@ -55,10 +51,6 @@ public class SelectNoteFragment extends Fragment {
     public void init(View v){
         rootCSTFileController = new CSTFileController(basePath + "/root.cst");
         rootCSTFileController.importCSTFile();
-
-        cstFileController = new CSTFileController(basePath + getArguments().getString("cst_file"));
-        cstFileController.importCSTFile();
-
         noteFiles = rootCSTFileController.getNoteFiles();
         gridNoteView = (GridView)v.findViewById(R.id.noteList);
         gridNoteView.setNumColumns(3);
@@ -67,48 +59,24 @@ public class SelectNoteFragment extends Fragment {
         gridNoteView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                cstFileController = new CSTFileController(noteFiles[position].getPath());
-                refreshPageAdapter();
-                selectCST = noteFiles[position];
-                noteAdapter.setSelectPosition(position);
-                noteAdapter.getView(position,view,parent);
+                toPage(noteFiles[position].getPath());
             }
         });
         gridNoteView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                showDeleteDialog(noteFiles[position],NOTE);
+                showDeleteDialog(noteFiles[position]);
                 return true;
             }
         });
 
-        pageFiles = cstFileController.getPageFiles();
-        gridPageView = (GridView)v.findViewById(R.id.pageList);
-        gridPageView.setNumColumns(2);
-        pageAdapter = new PageGridAdapter(getActivity(),R.layout.grid_items,pageFiles);
-        gridPageView.setAdapter(pageAdapter);
-        gridPageView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                int index = pageFiles[position].getPath().lastIndexOf(".");
-                String dataPath = pageFiles[position].getPath().substring(0, index) + ".st";
-                toNote(dataPath);
-            }
-        });
-        gridPageView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                showDeleteDialog(pageFiles[position],PAGE);
-                return true;
-            }
-        });
+        noNoteText = (TextView)v.findViewById(R.id.no_notes_text);
     }
 
     @Override
     public void onResume(){
         super.onResume();
         refreshNoteAdapter();
-        refreshPageAdapter();
     }
 
     public void refreshNoteAdapter(){
@@ -116,16 +84,18 @@ public class SelectNoteFragment extends Fragment {
         noteFiles = rootCSTFileController.getNoteFiles();
         noteAdapter.refreshData(noteFiles);
         noteAdapter.notifyDataSetChanged();
+
+        if(noteFiles.length == 0){
+            noNoteText.setVisibility(View.VISIBLE);
+            gridNoteView.setVisibility(View.INVISIBLE);
+        }
+        else{
+            noNoteText.setVisibility(View.INVISIBLE);
+            gridNoteView.setVisibility(View.VISIBLE);
+        }
     }
 
-    public void refreshPageAdapter(){
-        cstFileController.importCSTFile();
-        pageFiles = cstFileController.getPageFiles();
-        pageAdapter.refreshData(pageFiles);
-        pageAdapter.notifyDataSetChanged();
-    }
-
-    public void showDeleteDialog(File file, final int pageOrnote){
+    public void showDeleteDialog(File file){
         final File deleteItem = file;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle("削除")
@@ -133,14 +103,8 @@ public class SelectNoteFragment extends Fragment {
                 .setPositiveButton("削除", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (pageOrnote == NOTE) {
-                            rootCSTFileController.deleteItem(deleteItem);
-                            refreshPageAdapter();
-                            refreshNoteAdapter();
-                        } else if (pageOrnote == PAGE) {
-                            cstFileController.deleteItem(deleteItem);
-                            refreshPageAdapter();
-                        }
+                        rootCSTFileController.deleteItem(deleteItem);
+                        refreshNoteAdapter();
                     }
                 })
                 .setNegativeButton("キャンセル", null);
@@ -173,30 +137,20 @@ public class SelectNoteFragment extends Fragment {
                 dialog.show();
                 break;
 
-            case R.id.add_from_camera:
-                Intent intent = new Intent(getActivity().getApplicationContext(),GetImageFromCameraActivity.class);
-                intent.putExtra("cst_file",selectCST.getPath());
-                getActivity().startActivity(intent);
-                break;
-
-            case R.id.add_from_gallery:
-
-                break;
-
             default:
         }
         return true;
 
     }
 
-    public void toNote(String filePath){
+    public void toPage(String filePath){
         FragmentManager manager = getFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         Bundle bundle = new Bundle();
-        bundle.putString("file_path",filePath);
-        NoteFragment fragment = new NoteFragment();
+        bundle.putString("cst_path",filePath);
+        SelectPageFragment fragment = new SelectPageFragment();
         fragment.setArguments(bundle);
-        transaction.replace(R.id.container,fragment,"note_fragment");
+        transaction.replace(R.id.container,fragment,"page_fragment");
         transaction.addToBackStack("notelist");
         transaction.commit();
     }

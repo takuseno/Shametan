@@ -23,7 +23,6 @@ import java.io.File;
  * Created by takuma on 2014/05/06.
  */
 public class DrawLineFragment extends Fragment {
-    private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
     ImageView background;
     DrawLineView drawLineView;
     FrameLayout frameLayout;

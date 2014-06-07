@@ -49,12 +49,12 @@ public class TrimFragment extends Fragment {
         imagePath = getArguments().getString("image_path");
         if("camera".equals(getArguments().getString("from"))){
             imageView.fromFragment = imageView.FROM_CAMERA;
+
         }
         else if("gallery".equals(getArguments().getString("from"))){
             imageView.fromFragment = imageView.FROM_GALLERY;
         }
         imageView.setImage(imagePath);
-        final File sourceImage = new File(imagePath);
 
         trimButton = (Button)v.findViewById(R.id.trimButton);
         trimButton.setOnClickListener(new View.OnClickListener() {
@@ -63,7 +63,6 @@ public class TrimFragment extends Fragment {
                 final Calendar calendar = Calendar.getInstance();
                 String imagePath = basePath.getPath() + "/" + String.valueOf(calendar.getTimeInMillis()) + ".jpg";
                 saveImage(new File(imagePath));
-                sourceImage.delete();
                 toDrawLine(imagePath);
             }
         });

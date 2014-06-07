@@ -13,5 +13,7 @@
     <string name="add_note">ノートの追加</string>
     <string name="add_from_camera">カメラから追加</string>
     <string name="add_from_gallery">端末内から追加</string>
+    <string name="no_notes">ノートを追加してください</string>
+    <string name="no_pages">ページを追加してください</string>
 
 </resources>

@@ -89,6 +89,7 @@ public class NoteFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putString("trimed_image_path",backgroundPath);
         DrawLineFragment fragment = new DrawLineFragment();
+        bundle.putString("cst_file",getArguments().getString("cst_file"));
         fragment.setArguments(bundle);
         transaction.replace(R.id.container,fragment,"drawline_fragment");
         transaction.addToBackStack("note");

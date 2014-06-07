@@ -122,9 +122,9 @@ public class CSTFileController {
             }
         }
 
-        int index = readString.indexOf(file.getName());
+        int index = readString.indexOf(file.getPath());
         String foreString = readString.substring(readString.indexOf(",") + 1, index);
-        String backString = readString.substring(index + file.getName().length() + 1);
+        String backString = readString.substring(index + file.getPath().length() + 1);
         try {
             FileOutputStream fos = new FileOutputStream(path);
             String output = String.valueOf(files.length - 1) + "," + foreString + backString;
@@ -189,5 +189,9 @@ public class CSTFileController {
 
     public boolean isCSTFile(File path) {
         return path.getName().contains(".cst");
+    }
+
+    public boolean idCSTExists(){
+        return path.exists();
     }
 }
