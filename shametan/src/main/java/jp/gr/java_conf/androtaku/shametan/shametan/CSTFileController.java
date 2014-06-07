@@ -122,6 +122,12 @@ public class CSTFileController {
             }
         }
 
+        else{
+            int index = file.getPath().indexOf(".jpg");
+            File deleteSTFile = new File(file.getPath().substring(0,index) + ".st");
+            deleteSTFile.delete();
+        }
+
         int index = readString.indexOf(file.getPath());
         String foreString = readString.substring(readString.indexOf(",") + 1, index);
         String backString = readString.substring(index + file.getPath().length() + 1);

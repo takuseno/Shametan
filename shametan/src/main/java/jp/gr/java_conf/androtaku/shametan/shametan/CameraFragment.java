@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import java.io.File;
@@ -19,7 +20,7 @@ import java.util.zip.Inflater;
  */
 public class CameraFragment extends Fragment {
     CameraView cameraView;
-    Button shutter;
+    ImageButton shutter;
     LinearLayout cameraLayout;
 
     String cstPath;
@@ -48,7 +49,7 @@ public class CameraFragment extends Fragment {
         cameraLayout = (LinearLayout)v.findViewById(R.id.camera_view);
         cameraLayout.addView(cameraView);
 
-        shutter = (Button)v.findViewById(R.id.shutter);
+        shutter = (ImageButton)v.findViewById(R.id.shutter);
         shutter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -54,7 +54,7 @@ public class NoteGridAdapter extends BaseAdapter{
             convertView = inflater.inflate(layoutId, parent, false);
             ViewGroup.LayoutParams params = convertView.getLayoutParams();
             params.width = dispWidth/3;
-            params.height = dispWidth/3;
+            params.height = (int)(dispWidth/3*1.6);
             convertView.setLayoutParams(params);
 
             holder.imageView = (ImageView) convertView.findViewById(R.id.select_note_image);
@@ -66,7 +66,7 @@ public class NoteGridAdapter extends BaseAdapter{
         }
 
         holder.imageView.setTag(mFilePath);
-        holder.imageView.setImageResource(R.drawable.note_title);
+        holder.imageView.setImageResource(R.drawable.note);
         int index = mFilePath.getName().indexOf(".");
         holder.textView.setText(mFilePath.getName().substring(0,index));
 

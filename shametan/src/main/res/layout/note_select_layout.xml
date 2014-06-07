@@ -12,9 +12,8 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="2"
         android:layout_margin="5dp"
-        android:background="#ffffff">
+        android:background="@drawable/wood_texture">
 
     <GridView
         android:layout_width="match_parent"
@@ -28,6 +27,7 @@
             android:layout_gravity="center"
             android:text="@string/no_notes"
             android:id="@+id/no_notes_text"
+            android:textColor="#ffffff"
             android:textSize="20sp"/>
 
     </FrameLayout>

@@ -1,5 +1,7 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -11,8 +13,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
 
@@ -34,7 +37,7 @@ public class SelectPageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,
                              Bundle savedInstanceState){
-        View rootView = inflater.inflate(R.layout.select_page_layout,container,false);
+        View rootView = inflater.inflate(R.layout.page_select_layout,container,false);
         init(rootView);
 
         NotebookActivity.menuType = NotebookActivity.MENU_SELECT_PAGE;

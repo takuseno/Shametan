@@ -15,5 +15,6 @@
     <string name="add_from_gallery">端末内から追加</string>
     <string name="no_notes">ノートを追加してください</string>
     <string name="no_pages">ページを追加してください</string>
+    <string name="trimming">トリミング</string>
 
 </resources>
