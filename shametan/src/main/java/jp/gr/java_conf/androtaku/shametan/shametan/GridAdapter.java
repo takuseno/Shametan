@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
@@ -63,6 +65,8 @@ public class GridAdapter extends BaseAdapter {
         String mFilePath = imgList[position].getPath();
         showed[position] = false;
 
+        Animation anim = AnimationUtils.loadAnimation(cotext,R.anim.note_item_anim);
+
         GridViewHolder holder;
         if(convertView == null) {
             holder = new GridViewHolder();
@@ -86,6 +90,8 @@ public class GridAdapter extends BaseAdapter {
             showed[position] = true;
             Log.i("gotadapter",String.valueOf(position));
         }
+
+        convertView.startAnimation(anim);
 
         return convertView;
     }

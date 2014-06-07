@@ -1,6 +1,7 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -22,6 +23,8 @@ public class NoteGridAdapter extends BaseAdapter{
     private LayoutInflater inflater;
     private int layoutId;
     private File[] noteList;
+    private int selectPosition = 0;
+    private View selectedView = null;
     Context cotext;
 
     int dispWidth;
@@ -52,16 +55,25 @@ public class NoteGridAdapter extends BaseAdapter{
             holder = new SelectNoteHolder();
             convertView = inflater.inflate(layoutId, parent, false);
             ViewGroup.LayoutParams params = convertView.getLayoutParams();
-            params.width = dispWidth/4;
-            params.height = dispWidth/4;
+            params.width = dispWidth/3;
+            params.height = dispWidth/3;
             convertView.setLayoutParams(params);
+
             holder.imageView = (ImageView) convertView.findViewById(R.id.select_note_image);
             holder.textView = (TextView) convertView.findViewById(R.id.select_note_text);
             convertView.setTag(holder);
         }
-
         else{
             holder = (SelectNoteHolder)convertView.getTag();
+        }
+
+        if(position == selectPosition){
+            if(selectedView != null){
+                selectedView.setBackgroundColor(Color.WHITE);
+            }
+            convertView.setBackgroundColor(Color.GREEN);
+            selectedView = convertView;
+            anim = AnimationUtils.loadAnimation(cotext,R.anim.selected_animation);
         }
         holder.imageView.setTag(mFilePath);
         holder.imageView.setImageResource(R.drawable.note_title);
@@ -71,6 +83,14 @@ public class NoteGridAdapter extends BaseAdapter{
         convertView.startAnimation(anim);
 
         return convertView;
+    }
+
+    public void refreshData(File[] noteList){
+        this.noteList = noteList;
+    }
+
+    public void setSelectPosition(int selectPosition){
+        this.selectPosition = selectPosition;
     }
 
     @Override

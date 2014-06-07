@@ -30,9 +30,13 @@ public class SelectNoteFragment extends Fragment {
     GridView gridNoteView,gridPageView;
     NoteGridAdapter noteAdapter;
     PageGridAdapter pageAdapter;
-    CSTFileController cstFileController;
+    CSTFileController rootCSTFileController,cstFileController;
     File[] noteFiles;
     File[] pageFiles;
+    File selectCST;
+
+    final static int NOTE = 1;
+    final static int PAGE = 2;
 
     public static SelectNoteFragment newInstance(){
         SelectNoteFragment fragment = new SelectNoteFragment();
@@ -49,18 +53,32 @@ public class SelectNoteFragment extends Fragment {
     }
 
     public void init(View v){
+        rootCSTFileController = new CSTFileController(basePath + "/root.cst");
+        rootCSTFileController.importCSTFile();
+
         cstFileController = new CSTFileController(basePath + getArguments().getString("cst_file"));
         cstFileController.importCSTFile();
 
-        noteFiles = cstFileController.getNoteFiles();
+        noteFiles = rootCSTFileController.getNoteFiles();
         gridNoteView = (GridView)v.findViewById(R.id.noteList);
-        gridNoteView.setNumColumns(4);
+        gridNoteView.setNumColumns(3);
         noteAdapter = new NoteGridAdapter(getActivity(),R.layout.select_note_item,noteFiles);
         gridNoteView.setAdapter(noteAdapter);
         gridNoteView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                toSelectNote("/" + noteFiles[position].getName());
+                cstFileController = new CSTFileController(noteFiles[position].getPath());
+                refreshPageAdapter();
+                selectCST = noteFiles[position];
+                noteAdapter.setSelectPosition(position);
+                noteAdapter.getView(position,view,parent);
+            }
+        });
+        gridNoteView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                showDeleteDialog(noteFiles[position],NOTE);
+                return true;
             }
         });
 
@@ -77,26 +95,58 @@ public class SelectNoteFragment extends Fragment {
                 toNote(dataPath);
             }
         });
+        gridPageView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                showDeleteDialog(pageFiles[position],PAGE);
+                return true;
+            }
+        });
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        //refreshNoteAdapter();
+        refreshNoteAdapter();
+        refreshPageAdapter();
     }
 
     public void refreshNoteAdapter(){
+        rootCSTFileController.importCSTFile();
+        noteFiles = rootCSTFileController.getNoteFiles();
+        noteAdapter.refreshData(noteFiles);
+        noteAdapter.notifyDataSetChanged();
+    }
+
+    public void refreshPageAdapter(){
         cstFileController.importCSTFile();
-
-        noteFiles = new File[cstFileController.getNoteFiles().length];
-        noteFiles = cstFileController.getNoteFiles();
-        noteAdapter = new NoteGridAdapter(getActivity(),R.layout.select_note_item,noteFiles);
-        gridNoteView.setAdapter(noteAdapter);
-
-        pageFiles = new File[cstFileController.getPageFiles().length];
         pageFiles = cstFileController.getPageFiles();
-        pageAdapter = new PageGridAdapter(getActivity(),R.layout.grid_items,pageFiles);
-        gridPageView.setAdapter(pageAdapter);
+        pageAdapter.refreshData(pageFiles);
+        pageAdapter.notifyDataSetChanged();
+    }
+
+    public void showDeleteDialog(File file, final int pageOrnote){
+        final File deleteItem = file;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle("削除")
+                .setMessage("選択したものを削除しますか？")
+                .setPositiveButton("削除", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (pageOrnote == NOTE) {
+                            rootCSTFileController.deleteItem(deleteItem);
+                            refreshPageAdapter();
+                            refreshNoteAdapter();
+                        } else if (pageOrnote == PAGE) {
+                            cstFileController.deleteItem(deleteItem);
+                            refreshPageAdapter();
+                        }
+                    }
+                })
+                .setNegativeButton("キャンセル", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override
@@ -112,9 +162,9 @@ public class SelectNoteFragment extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                                 String newPath = basePath + "/" + inputName.getText() + ".cst";
                                 File newDirectory = new File(newPath);
-                                cstFileController.makeCST(newDirectory);
-                                cstFileController.saveCSTFile(newDirectory);
-                                //refreshNoteAdapter();
+                                rootCSTFileController.makeCST(newDirectory);
+                                rootCSTFileController.saveCSTFile(newDirectory);
+                                refreshNoteAdapter();
                             }
                         })
                         .setNegativeButton("キャンセル", null);
@@ -125,7 +175,7 @@ public class SelectNoteFragment extends Fragment {
 
             case R.id.add_from_camera:
                 Intent intent = new Intent(getActivity().getApplicationContext(),GetImageFromCameraActivity.class);
-                intent.putExtra("cst_file",basePath + getArguments().getString("cst_file"));
+                intent.putExtra("cst_file",selectCST.getPath());
                 getActivity().startActivity(intent);
                 break;
 
@@ -148,18 +198,6 @@ public class SelectNoteFragment extends Fragment {
         fragment.setArguments(bundle);
         transaction.replace(R.id.container,fragment,"note_fragment");
         transaction.addToBackStack("notelist");
-        transaction.commit();
-    }
-
-    public void toSelectNote(String fileName){
-        FragmentManager manager = getFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-        Bundle bundle = new Bundle();
-        bundle.putString("cst_file",fileName);
-        SelectNoteFragment fragment = new SelectNoteFragment();
-        fragment.setArguments(bundle);
-        transaction.replace(R.id.container,fragment);
-        transaction.addToBackStack("noteselect");
         transaction.commit();
     }
 }

@@ -20,16 +20,16 @@ import java.io.File;
 public class PageGridAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     private int layoutId;
-    private File[] noteList;
+    private File[] pageList;
     Context cotext;
 
     int dispWidth;
 
-    public PageGridAdapter(Context context,int layoutId,File[] noteList){
+    public PageGridAdapter(Context context,int layoutId,File[] pageList){
         super();
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.layoutId = layoutId;
-        this.noteList = noteList;
+        this.pageList = pageList;
         this.cotext = context;
 
         WindowManager wm = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
@@ -42,7 +42,7 @@ public class PageGridAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position,View convertView,ViewGroup parent){
-        File mFilePath = new File(noteList[position].getPath());
+        File mFilePath = new File(pageList[position].getPath());
 
         Animation anim = AnimationUtils.loadAnimation(cotext,R.anim.note_item_anim);
 
@@ -72,9 +72,13 @@ public class PageGridAdapter extends BaseAdapter {
         return convertView;
     }
 
+    public void refreshData(File[] pageList){
+        this.pageList = pageList;
+    }
+
     @Override
     public int getCount(){
-        return noteList.length;
+        return pageList.length;
     }
 
     @Override
