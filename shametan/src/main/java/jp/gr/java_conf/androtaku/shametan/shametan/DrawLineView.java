@@ -93,7 +93,7 @@ public class DrawLineView extends View{
 
         backgroundFile = fileName;
         int index = backgroundFile.lastIndexOf(".");
-        dataPath = backgroundFile.substring(0,index) + ".txt";
+        dataPath = backgroundFile.substring(0,index) + ".st";
         File data = new File(dataPath);
         if(data.exists()){
             importFile(dataPath);
@@ -243,7 +243,7 @@ public class DrawLineView extends View{
         each section separated by ;
          */
         int index = backgroundFile.lastIndexOf(".");
-        String dataPath = backgroundFile.substring(0,index) + ".txt";
+        String dataPath = backgroundFile.substring(0,index) + ".st";
         File data = new File(dataPath);
         if(data.exists()){
             data.delete();

@@ -1,15 +1,18 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Point;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.File;
 
@@ -19,16 +22,18 @@ import java.io.File;
 public class NoteGridAdapter extends BaseAdapter{
     private LayoutInflater inflater;
     private int layoutId;
-    private File[] imgList;
+    private File[] noteList;
+    private int selectPosition = 0;
+    private View selectedView = null;
     Context cotext;
 
     int dispWidth;
 
-    public NoteGridAdapter(Context context,int layoutId,File[] imgList){
+    public NoteGridAdapter(Context context,int layoutId,File[] noteList){
         super();
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.layoutId = layoutId;
-        this.imgList = imgList;
+        this.noteList = noteList;
         this.cotext = context;
 
         WindowManager wm = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
@@ -41,34 +46,56 @@ public class NoteGridAdapter extends BaseAdapter{
 
     @Override
     public View getView(int position,View convertView,ViewGroup parent){
-        String mFilePath = imgList[position].getPath();
+        File mFilePath = new File(noteList[position].getPath());
 
-        GridViewHolder holder;
+        Animation anim = AnimationUtils.loadAnimation(cotext,R.anim.note_item_anim);
+
+        SelectNoteHolder holder;
         if(convertView == null) {
-            holder = new GridViewHolder();
+            holder = new SelectNoteHolder();
             convertView = inflater.inflate(layoutId, parent, false);
             ViewGroup.LayoutParams params = convertView.getLayoutParams();
-            params.width = dispWidth/2;
-            params.height = dispWidth/2;
+            params.width = dispWidth/3;
+            params.height = dispWidth/3;
             convertView.setLayoutParams(params);
-            holder.imageView = (ImageView) convertView.findViewById(R.id.gridImageVIew);
+
+            holder.imageView = (ImageView) convertView.findViewById(R.id.select_note_image);
+            holder.textView = (TextView) convertView.findViewById(R.id.select_note_text);
             convertView.setTag(holder);
         }
-
         else{
-            holder = (GridViewHolder)convertView.getTag();
+            holder = (SelectNoteHolder)convertView.getTag();
+        }
+
+        if(position == selectPosition){
+            if(selectedView != null){
+                selectedView.setBackgroundColor(Color.WHITE);
+            }
+            convertView.setBackgroundColor(Color.GREEN);
+            selectedView = convertView;
+            anim = AnimationUtils.loadAnimation(cotext,R.anim.selected_animation);
         }
         holder.imageView.setTag(mFilePath);
-        holder.imageView.setImageResource(R.drawable.dummy);
-        NotePhotoAsync task = new NotePhotoAsync(holder.imageView, this,dispWidth);
-        task.execute(mFilePath);
+        holder.imageView.setImageResource(R.drawable.note_title);
+        int index = mFilePath.getName().indexOf(".");
+        holder.textView.setText(mFilePath.getName().substring(0,index));
+
+        convertView.startAnimation(anim);
 
         return convertView;
     }
 
+    public void refreshData(File[] noteList){
+        this.noteList = noteList;
+    }
+
+    public void setSelectPosition(int selectPosition){
+        this.selectPosition = selectPosition;
+    }
+
     @Override
     public int getCount(){
-        return imgList.length;
+        return noteList.length;
     }
 
     @Override

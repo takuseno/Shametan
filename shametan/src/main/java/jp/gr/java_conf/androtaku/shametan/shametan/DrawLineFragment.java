@@ -28,6 +28,8 @@ public class DrawLineFragment extends Fragment {
     DrawLineView drawLineView;
     FrameLayout frameLayout;
 
+    String fileName;
+
     public DrawLineFragment(){
 
     }
@@ -58,7 +60,7 @@ public class DrawLineFragment extends Fragment {
 
     public void init(View v){
         background = (ImageView)v.findViewById(R.id.drawline_background);
-        String fileName = getArguments().getString("trimed_image_path");
+        fileName = getArguments().getString("trimed_image_path");
         Bitmap bmp = BitmapFactory.decodeFile(fileName);
         background.setImageBitmap(bmp);
 
@@ -89,6 +91,8 @@ public class DrawLineFragment extends Fragment {
         switch(menuItem.getItemId()){
             case R.id.save_line:
                 drawLineView.exportData();
+                CSTFileController cstFileController = new CSTFileController(getArguments().getString("cst_file"));
+                cstFileController.saveCSTFile(new File(fileName));
                 if(getActivity().getClass() == GetImageFromCameraActivity.class
                         || getActivity().getClass() == GetImageFromGalleryActivity.class){
                     getActivity().finish();

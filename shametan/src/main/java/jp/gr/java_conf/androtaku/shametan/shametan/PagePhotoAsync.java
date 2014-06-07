@@ -1,36 +1,27 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
-import android.media.ThumbnailUtils;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
 
-import java.io.IOException;
-import java.lang.ref.WeakReference;
-
 /**
- * Created by takuma on 2014/05/19.
+ * Created by takuma on 2014/05/31.
  */
-public class PhotoAsync extends AsyncTask<String,Void,Bitmap> {
+public class PagePhotoAsync extends AsyncTask<String,Void,Bitmap> {
 
     ImageView imageView;
-    GridAdapter adapter;
+    PageGridAdapter adapter;
     String tag;
+    int width;
 
-    public PhotoAsync(ImageView imageView,GridAdapter adapter){
+    public PagePhotoAsync(ImageView imageView, PageGridAdapter adapter, int width){
         this.imageView = imageView;
         this.adapter = adapter;
         this.tag = imageView.getTag().toString();
+        this.width = width;
     }
 
     @Override
@@ -43,12 +34,12 @@ public class PhotoAsync extends AsyncTask<String,Void,Bitmap> {
 
     @Override
     protected  void onPostExecute(Bitmap result){
-        if(tag.equals(imageView.getTag())) {
+        //if(tag.equals(imageView.getTag())) {
             if (result != null) {
                 imageView.setImageBitmap(result);
-                Log.i("onpostexecute","done");
+                Log.i("onpostexecute", "done");
             }
-        }
+        //}
     }
 
     public Bitmap compressImage(String imageName){
@@ -58,8 +49,8 @@ public class PhotoAsync extends AsyncTask<String,Void,Bitmap> {
 
         BitmapFactory.decodeFile(imageName, opt);
 
-        int scaleW = opt.outWidth / 320;
-        int scaleH = opt.outHeight / 240;
+        int scaleW = opt.outWidth / (width/2);
+        int scaleH = opt.outHeight / (width/2);
 
         opt.inSampleSize = Math.max(scaleW, scaleH);
         opt.inJustDecodeBounds = false;
@@ -67,7 +58,7 @@ public class PhotoAsync extends AsyncTask<String,Void,Bitmap> {
 
         int w = bmp.getWidth();
         int h = bmp.getHeight();
-        float scale = Math.min((float)320/w, (float)240/h);
+        float scale = Math.min((float)(width/2)/w, (float)(width/2)/h);
 
         Matrix matrix = new Matrix();
         matrix.postScale(scale, scale);

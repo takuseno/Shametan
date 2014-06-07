@@ -65,7 +65,7 @@ public class NoteFragment extends Fragment {
 
     @Override
     public void onDestroy(){
-        NotebookActivity.menuType = NotebookActivity.MENU_MAIN;
+        NotebookActivity.menuType = NotebookActivity.MENU_SELECT_NOTE;
         getFragmentManager().invalidateOptionsMenu();
         super.onDestroy();
     }

@@ -92,6 +92,7 @@ public class TrimFragment extends Fragment {
         FragmentTransaction transaction = manager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString("trimed_image_path",imagePath);
+        bundle.putString("cst_file",getArguments().getString("cst_file"));
         DrawLineFragment fragment = new DrawLineFragment();
         fragment.setArguments(bundle);
         transaction.replace(R.id.container,fragment,"drawline_fragment");

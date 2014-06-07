@@ -21,6 +21,9 @@ public class CameraFragment extends Fragment {
     CameraView cameraView;
     Button shutter;
     LinearLayout cameraLayout;
+
+    String cstPath;
+
     public CameraFragment(){
 
     }
@@ -35,12 +38,13 @@ public class CameraFragment extends Fragment {
                              Bundle savedInstanceState){
 
         View rootView = inflater.inflate(R.layout.camera_layout,container,false);
+        cstPath = getArguments().getString("cst_file");
         init(rootView);
         return rootView;
     }
 
     public void init(View v){
-        cameraView = new CameraView(getActivity(),getFragmentManager());
+        cameraView = new CameraView(getActivity(),getFragmentManager(),cstPath);
         cameraLayout = (LinearLayout)v.findViewById(R.id.camera_view);
         cameraLayout.addView(cameraView);
 
