@@ -21,17 +21,21 @@ import java.util.List;
  * Created by takuma on 2014/05/03.
  */
 public class CameraView extends SurfaceView implements Callback,Camera.AutoFocusCallback,Camera.PictureCallback{
+
+    //declare camera
     private Camera camera;
-    Context context;
+    //declare fragmentmanager
     FragmentManager manager;
 
+    //declare String of cst file path
     String cstPath;
 
+    //declare File of base directory path
     private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
 
+    //constructor
     public CameraView(Context context,FragmentManager manager,String cstPath){
         super(context);
-        this.context = context;
         this.manager = manager;
         SurfaceHolder holder = getHolder();
         holder.addCallback(this);
@@ -43,8 +47,10 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
                                int height) {
         // TODO Auto-generated method stub
         Camera.Parameters parameters = camera.getParameters();
+        //rotate camera preview because of vertical handed as default
         parameters.setRotation(90);
         List<Camera.Size> previewSizes = parameters.getSupportedPreviewSizes();
+        //get max size
         Camera.Size previewSize = previewSizes.get(0);
         //set preview size
         parameters.setPreviewSize(previewSize.width, previewSize.height);
@@ -85,12 +91,15 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
 
     @Override
     public void onPictureTaken(byte[] data,Camera camera){
-        String imagePath = basePath.getPath() + "/test.jpg";
+        //temporary image file path
+        String imagePath = basePath.getPath() + "/temp.jpg";
+        //save image
         saveImage(data,new File(imagePath));
-
+        //fragment transition to TrimFragment
         toTrim(imagePath);
     }
 
+    //function of saving image
     public void saveImage(byte[] data,File path){
         FileOutputStream fileOutputStream = null;
         try {
@@ -110,11 +119,15 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
         }
     }
 
+    //function of fragment transition to TrimFragment
     public void toTrim(String imagePath){
         FragmentTransaction transaction = manager.beginTransaction();
         Bundle bundle = new Bundle();
+        //put temporary image path
         bundle.putString("image_path",imagePath);
+        //put whether from camera or not
         bundle.putString("from","camera");
+        //put loaded cst file path
         bundle.putString("cst_file",cstPath);
         TrimFragment fragment = new TrimFragment();
         fragment.setArguments(bundle);

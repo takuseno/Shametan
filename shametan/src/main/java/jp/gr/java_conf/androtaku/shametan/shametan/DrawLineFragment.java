@@ -23,11 +23,13 @@ import java.io.File;
  * Created by takuma on 2014/05/06.
  */
 public class DrawLineFragment extends Fragment {
+    //declare views
     ImageView background;
     DrawLineView drawLineView;
     FrameLayout frameLayout;
 
-    String fileName;
+    //declare String of file path
+    String filePath;
 
     public DrawLineFragment(){
 
@@ -38,34 +40,35 @@ public class DrawLineFragment extends Fragment {
                              Bundle savedInstanceState){
         View rootView = inflater.inflate(R.layout.drawline_layout,container,false);
 
+        //set menu as activity
         if(getActivity().getClass() == GetImageFromCameraActivity.class) {
             GetImageFromCameraActivity.menuType = GetImageFromCameraActivity.MENU_DRAWLINE;
         }
-
-        if(getActivity().getClass() == GetImageFromGalleryActivity.class) {
+        else if(getActivity().getClass() == GetImageFromGalleryActivity.class) {
             GetImageFromGalleryActivity.menuType = GetImageFromGalleryActivity.MENU_DRAWLINE;
         }
-
-        if(getActivity().getClass() == NotebookActivity.class){
+        else if(getActivity().getClass() == NotebookActivity.class){
             NotebookActivity.menuType = NotebookActivity.MENU_DRAWLINE;
         }
 
         getFragmentManager().invalidateOptionsMenu();
-        init(rootView);
         setHasOptionsMenu(true);
+        //initialize views
+        init(rootView);
 
         return rootView;
     }
 
     public void init(View v){
         background = (ImageView)v.findViewById(R.id.drawline_background);
-        fileName = getArguments().getString("trimed_image_path");
-        Bitmap bmp = BitmapFactory.decodeFile(fileName);
+        //get trimed image path
+        filePath = getArguments().getString("trimed_image_path");
+        Bitmap bmp = BitmapFactory.decodeFile(filePath);
         background.setImageBitmap(bmp);
 
         frameLayout = (FrameLayout)v.findViewById(R.id.drawline_frameLayout);
 
-        drawLineView = new DrawLineView(getActivity(),fileName);
+        drawLineView = new DrawLineView(getActivity(),filePath);
         frameLayout.addView(drawLineView);
     }
 
@@ -74,15 +77,14 @@ public class DrawLineFragment extends Fragment {
         if(getActivity().getClass() == GetImageFromCameraActivity.class) {
             GetImageFromCameraActivity.menuType = GetImageFromCameraActivity.MENU_MAIN;
         }
-        if(getActivity().getClass() == GetImageFromGalleryActivity.class) {
+        else if(getActivity().getClass() == GetImageFromGalleryActivity.class) {
             GetImageFromGalleryActivity.menuType = GetImageFromGalleryActivity.MENU_MAIN;
         }
-        if(getActivity().getClass() == NotebookActivity.class){
+        else if(getActivity().getClass() == NotebookActivity.class){
             NotebookActivity.menuType = NotebookActivity.MENU_NOTE;
         }
         getFragmentManager().invalidateOptionsMenu();
         super.onDestroyView();
-
     }
 
     @Override
@@ -91,7 +93,7 @@ public class DrawLineFragment extends Fragment {
             case R.id.save_line:
                 drawLineView.exportData();
                 CSTFileController cstFileController = new CSTFileController(getArguments().getString("cst_file"));
-                cstFileController.saveCSTFile(new File(fileName));
+                cstFileController.saveCSTFile(new File(filePath));
                 if(getActivity().getClass() == GetImageFromCameraActivity.class
                         || getActivity().getClass() == GetImageFromGalleryActivity.class){
                     getActivity().finish();

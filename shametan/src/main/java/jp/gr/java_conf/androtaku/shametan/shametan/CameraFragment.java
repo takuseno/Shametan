@@ -19,31 +19,30 @@ import java.util.zip.Inflater;
  * Created by takuma on 2014/05/03.
  */
 public class CameraFragment extends Fragment {
+    //declare views
     CameraView cameraView;
     ImageButton shutter;
     LinearLayout cameraLayout;
 
+    //declare String of cst file path
     String cstPath;
 
+    //constructor
     public CameraFragment(){
-
-    }
-
-    public static CameraFragment newInstance(){
-        CameraFragment fragment = new CameraFragment();
-        return fragment;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,
                              Bundle savedInstanceState){
-
         View rootView = inflater.inflate(R.layout.camera_layout,container,false);
+        //get cst file path
         cstPath = getArguments().getString("cst_file");
+        //initialize views
         init(rootView);
         return rootView;
     }
 
+    //function of initializing views
     public void init(View v){
         cameraView = new CameraView(getActivity(),getFragmentManager(),cstPath);
         cameraLayout = (LinearLayout)v.findViewById(R.id.camera_view);

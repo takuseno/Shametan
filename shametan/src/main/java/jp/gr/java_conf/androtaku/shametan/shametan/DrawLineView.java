@@ -41,10 +41,10 @@ public class DrawLineView extends View{
     private int[] lineWidth;
     private int lastModifiedWidth = 40;
 
-    int numLines = 1;
+    private int numLines = 1;
     private static final int MAX_LINES = 20;
 
-    int selected = 0;
+    private int selected = 0;
     private static final int SELECTED_START = 1;
     private static final int SELECTED_END = 2;
     private static final int SELECTED_OPTION = 3;
@@ -353,8 +353,6 @@ public class DrawLineView extends View{
 
         if(optionDialog.isDeleteFrag()){
             deleteLine(selectedNum);
-            optionDialog.changeFragDeleteReset();
-            optionDialog.dismiss();
         }
 
         for(int i = 0;i < numLines;++i) {
@@ -397,6 +395,11 @@ public class DrawLineView extends View{
 
         }
 
+        if(optionDialog.isDeleteFrag()){
+            optionDialog.changeFragDeleteReset();
+            optionDialog.dismiss();
+        }
+
         if(selected == SELECTED_START || selected == SELECTED_END){
             canvas.drawBitmap(trimTouchPoint(touchX,touchY),touchX - 100,touchY - 300,null);
             canvas.drawPoint(touchX,touchY - 200,paintOpt);
@@ -424,6 +427,7 @@ public class DrawLineView extends View{
                 judgeTouchOption(event.getX(),event.getY());
                 if(selected == SELECTED_NONE){
                     selected = SELECTED_WAITING_ADDITION;
+                    timeCounter = 0;
                     addtionTimer(event.getX(),event.getY());
                 }
                 break;
@@ -434,7 +438,8 @@ public class DrawLineView extends View{
 
             case MotionEvent.ACTION_UP:
                 if(selected == SELECTED_OPTION){
-                    optionDialog.setValue(selectedNum,lineWidth[selectedNum],lineColors[selectedNum],this);
+                    optionDialog = new DrawLineOptionDialog();
+                    optionDialog.setValue(lineWidth[selectedNum],lineColors[selectedNum],this);
                     optionDialog.show(((Activity)context).getFragmentManager(),"optiondialog");
                 }
                 selected = SELECTED_NONE;
@@ -508,7 +513,7 @@ public class DrawLineView extends View{
                         handler.post(
                                 new Runnable(){
                                     public void run(){
-                                        if(timeCounter == 2 && selected == SELECTED_WAITING_ADDITION){
+                                        if(timeCounter == 1 && selected == SELECTED_WAITING_ADDITION){
                                             addLine();
                                             selected = SELECTED_END;
                                             selectedNum = numLines - 1;

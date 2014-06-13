@@ -8,10 +8,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
@@ -20,16 +24,16 @@ import android.widget.SeekBar;
  * Created by takuma on 2014/05/09.
  */
 public class DrawLineOptionDialog extends DialogFragment{
+    //declare views
     ImageButton redButton,greenButton,blueButton;
     SeekBar lineSizeSeek;
-    Button deleteButton;
+    Button deleteButton,okButton,cancelButton;
 
-    int selected;
-    int changeColor;
-    int lineSize;
+    private int lineColor;
+    private int lineSize;
 
-    int initColor;
-    int initSize;
+    private int sourceColor;
+    private int sourceSize;
 
     private boolean changeFragColor = false;
     private boolean changeFragSize = false;
@@ -41,51 +45,37 @@ public class DrawLineOptionDialog extends DialogFragment{
 
     DrawLineView drawLineView;
 
-    public void setValue(int selected,int lineSize,int lineColor,DrawLineView view){
-        this.selected = selected;
+    public void setValue(int lineSize,int lineColor,DrawLineView view){
         drawLineView = view;
-        this.lineSize = lineSize;
 
-        initSize = lineSize;
-        initColor = lineColor;
+        sourceSize = lineSize;
+        sourceColor = lineColor;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstanceState){
+        View content = inflater.inflate(R.layout.drawline_option_dialog,null);
+        init(content);
+
+        return content;
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-        LayoutInflater inflater = (LayoutInflater)getActivity()
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        View content = inflater.inflate(R.layout.drawline_option_dialog,null);
-
-        builder.setView(content);
-
-        init(content);
-
-        builder.setMessage("調整")
-                .setPositiveButton("決定",new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                })
-                .setNegativeButton("キャンセル",new DialogInterface.OnClickListener(){
-                    public void onClick(DialogInterface dialog,int id){
-                        changeFragSize = true;
-                        lineSize = initSize;
-                        changeFragColor = true;
-                        changeColor = initColor;
-                        drawLineView.invalidate();
-                    }
-                });
-
-        return builder.create();
+        Dialog dialog = new Dialog(getActivity(),R.style.MyDialogTheme);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        WindowManager.LayoutParams wmlp = dialog.getWindow().getAttributes();
+        wmlp.gravity = Gravity.CENTER;
+        dialog.getWindow().setAttributes(wmlp);
+        dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN);
+        dialog.setCanceledOnTouchOutside(true);
+        return dialog;
     }
 
     public void init(View v){
         lineSizeSeek = (SeekBar)v.findViewById(R.id.line_size_seek);
-        lineSizeSeek.setProgress(lineSize);
+        lineSizeSeek.setProgress(sourceSize);
         lineSizeSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -96,12 +86,10 @@ public class DrawLineOptionDialog extends DialogFragment{
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
 
@@ -109,7 +97,7 @@ public class DrawLineOptionDialog extends DialogFragment{
         redButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                changeColor = red;
+                lineColor = red;
                 changeFragColor = true;
                 drawLineView.invalidate();
                 redButton.setBackgroundResource(R.drawable.red_clicked);
@@ -123,7 +111,7 @@ public class DrawLineOptionDialog extends DialogFragment{
         greenButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                changeColor = green;
+                lineColor = green;
                 changeFragColor = true;
                 drawLineView.invalidate();
                 redButton.setBackgroundResource(R.drawable.red_option);
@@ -137,7 +125,7 @@ public class DrawLineOptionDialog extends DialogFragment{
         blueButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                changeColor = blue;
+                lineColor = blue;
                 changeFragColor = true;
                 redButton.setBackgroundResource(R.drawable.red_option);
                 greenButton.setBackgroundResource(R.drawable.green_option);
@@ -155,6 +143,26 @@ public class DrawLineOptionDialog extends DialogFragment{
                 drawLineView.invalidate();
             }
         });
+
+        okButton = (Button)v.findViewById(R.id.dialog_ok);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getDialog().dismiss();
+            }
+        });
+        cancelButton = (Button)v.findViewById(R.id.dialog_cancel);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeFragSize = true;
+                lineSize = sourceSize;
+                changeFragColor = true;
+                lineColor = sourceColor;
+                drawLineView.invalidate();
+                getDialog().dismiss();
+            }
+        });
     }
 
     public boolean isChangeFragColor(){
@@ -166,7 +174,7 @@ public class DrawLineOptionDialog extends DialogFragment{
     }
 
     public int getChangeColor(){
-        return changeColor;
+        return lineColor;
     }
 
     public boolean isChangeFragSize(){

@@ -48,7 +48,7 @@ public class SelectPageFragment extends Fragment {
 
     public void init(View v){
         cstFileController = new CSTFileController(getArguments().getString("cst_path"));
-
+        cstFileController.importCSTFile();
         pageFiles = cstFileController.getPageFiles();
         gridPageView = (GridView)v.findViewById(R.id.pageList);
         gridPageView.setNumColumns(2);
