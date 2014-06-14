@@ -1,5 +1,6 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -34,6 +35,9 @@ public class CameraFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,
                              Bundle savedInstanceState){
+        ActionBar actionBar = getActivity().getActionBar();
+        actionBar.hide();
+
         View rootView = inflater.inflate(R.layout.camera_layout,container,false);
         //get cst file path
         cstPath = getArguments().getString("cst_file");

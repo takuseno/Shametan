@@ -75,14 +75,13 @@ public class TrimImageView extends ImageView implements OnTouchListener {
     // 動作モード
     private int mMode = MODE_NONE;
 
-    Bitmap saveBitmap;
-
-    Canvas canvas;
-    Matrix saveMatrix;
-
     int fromFragment = 2;
     public final int FROM_CAMERA = 1;
     public final int FROM_GALLERY = 2;
+
+    int orientation = 1;
+    private static final int ORIEN_VERTICAL = 1;
+    private static final int ORIEN_HORIZON = 2;
 
     //===============================================================
     // Constructor
@@ -494,7 +493,9 @@ public class TrimImageView extends ImageView implements OnTouchListener {
         return loadImage(filePath, options, width, height);
     }
 
-
+    public void setOrientation(int orientation){
+        this.orientation = orientation;
+    }
 
     /**
      * ビットマップをロードする
@@ -526,7 +527,14 @@ public class TrimImageView extends ImageView implements OnTouchListener {
 
         Matrix mat = new Matrix();
         if(fromFragment == FROM_CAMERA) {
+        }
+
+        if(orientation == ORIEN_VERTICAL){
             mat.postRotate(90);
+        }
+
+        else if(orientation == ORIEN_HORIZON){
+
         }
 
         Bitmap bmp = Bitmap.createBitmap(bmpImage,0,0,bmpImage.getWidth(),

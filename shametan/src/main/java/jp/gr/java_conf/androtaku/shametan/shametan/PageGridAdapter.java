@@ -54,7 +54,7 @@ public class PageGridAdapter extends BaseAdapter {
             params.width = dispWidth/2;
             params.height = dispWidth/2;
             convertView.setLayoutParams(params);
-            holder.imageView = (ImageView) convertView.findViewById(R.id.gridImageVIew);
+            holder.imageView = (ImageView) convertView.findViewById(R.id.gridImageView);
             convertView.setTag(holder);
         }
 

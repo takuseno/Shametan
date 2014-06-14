@@ -1,8 +1,10 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -38,6 +40,13 @@ public class DrawLineFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,
                              Bundle savedInstanceState){
+        if(getArguments().getInt("orientation") == 2){
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+        if(getArguments().getInt("orientation") == 1){
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
         View rootView = inflater.inflate(R.layout.drawline_layout,container,false);
 
         //set menu as activity
@@ -84,6 +93,8 @@ public class DrawLineFragment extends Fragment {
             NotebookActivity.menuType = NotebookActivity.MENU_NOTE;
         }
         getFragmentManager().invalidateOptionsMenu();
+
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         super.onDestroyView();
     }
 

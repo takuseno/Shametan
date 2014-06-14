@@ -31,13 +31,13 @@ public class DrawLineOptionDialog extends DialogFragment{
 
     private int lineColor;
     private int lineSize;
+    private int selectedNum;
 
     private int sourceColor;
     private int sourceSize;
 
     private boolean changeFragColor = false;
     private boolean changeFragSize = false;
-    private boolean deleteFrag = false;
 
     private int red = Color.argb(100, 255, 0, 0);
     private int green = Color.argb(100,0,255,0);
@@ -45,11 +45,12 @@ public class DrawLineOptionDialog extends DialogFragment{
 
     DrawLineView drawLineView;
 
-    public void setValue(int lineSize,int lineColor,DrawLineView view){
+    public void setValue(int lineSize,int lineColor,DrawLineView view,int selectedNum){
         drawLineView = view;
 
         sourceSize = lineSize;
         sourceColor = lineColor;
+        this.selectedNum = selectedNum;
     }
 
     @Override
@@ -139,8 +140,8 @@ public class DrawLineOptionDialog extends DialogFragment{
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteFrag = true;
-                drawLineView.invalidate();
+                drawLineView.deleteLine(selectedNum);
+                getDialog().dismiss();
             }
         });
 
@@ -187,13 +188,5 @@ public class DrawLineOptionDialog extends DialogFragment{
 
     public int getChangeSize(){
         return lineSize;
-    }
-
-    public boolean isDeleteFrag(){
-        return deleteFrag;
-    }
-
-    public void changeFragDeleteReset(){
-        deleteFrag = false;
     }
 }

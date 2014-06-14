@@ -42,7 +42,7 @@ public class DrawLineView extends View{
     private int lastModifiedWidth = 40;
 
     private int numLines = 1;
-    private static final int MAX_LINES = 20;
+    private static final int MAX_LINES = 40;
 
     private int selected = 0;
     private static final int SELECTED_START = 1;
@@ -71,6 +71,7 @@ public class DrawLineView extends View{
     String dataPath;
 
     float touchX,touchY;
+    float scopeX,scopeY;
 
     public DrawLineView(Context context,String fileName){
         super(context);
@@ -122,7 +123,7 @@ public class DrawLineView extends View{
             lineColors[i] = red;
         }
 
-        paintLine = new Paint[20];
+        paintLine = new Paint[MAX_LINES];
         for(int i = 0;i < MAX_LINES;++i) {
             paintLine[i] = new Paint();
             paintLine[i].setColor(red);
@@ -323,6 +324,8 @@ public class DrawLineView extends View{
         refreshPaints();
 
         --numLines;
+
+        invalidate();
     }
 
     public void refreshPaints(){
@@ -349,10 +352,6 @@ public class DrawLineView extends View{
             paintLine[selectedNum].setStrokeWidth(lineWidth[selectedNum]);
             lastModifiedWidth = optionDialog.getChangeSize();
             optionDialog.changeFragSizeReset();
-        }
-
-        if(optionDialog.isDeleteFrag()){
-            deleteLine(selectedNum);
         }
 
         for(int i = 0;i < numLines;++i) {
@@ -395,14 +394,25 @@ public class DrawLineView extends View{
 
         }
 
-        if(optionDialog.isDeleteFrag()){
-            optionDialog.changeFragDeleteReset();
-            optionDialog.dismiss();
-        }
-
         if(selected == SELECTED_START || selected == SELECTED_END){
-            canvas.drawBitmap(trimTouchPoint(touchX,touchY),touchX - 100,touchY - 300,null);
-            canvas.drawPoint(touchX,touchY - 200,paintOpt);
+            if(touchX + 100 > dispWidth){
+                scopeX = dispWidth - 100;
+            }
+            else if(touchX - 100 < 0){
+                scopeX = 100;
+            }
+            else{
+                scopeX = touchX;
+            }
+
+            if(touchY - 300 < 0){
+                scopeY = touchY + 400;
+            }
+            else{
+                scopeY = touchY;
+            }
+            canvas.drawBitmap(trimTouchPoint(touchX,touchY),scopeX - 100,scopeY - 300,null);
+            canvas.drawPoint(scopeX,scopeY - 200,paintOpt);
         }
     }
 
@@ -439,7 +449,7 @@ public class DrawLineView extends View{
             case MotionEvent.ACTION_UP:
                 if(selected == SELECTED_OPTION){
                     optionDialog = new DrawLineOptionDialog();
-                    optionDialog.setValue(lineWidth[selectedNum],lineColors[selectedNum],this);
+                    optionDialog.setValue(lineWidth[selectedNum],lineColors[selectedNum],this,selectedNum);
                     optionDialog.show(((Activity)context).getFragmentManager(),"optiondialog");
                 }
                 selected = SELECTED_NONE;
@@ -525,7 +535,7 @@ public class DrawLineView extends View{
                                             cancel();
                                         }
 
-                                        if(timeCounter == 2 && selected != SELECTED_WAITING_ADDITION){
+                                        if(timeCounter == 1 && selected != SELECTED_WAITING_ADDITION){
                                             timeCounter = 0;
                                             cancel();
                                         }
