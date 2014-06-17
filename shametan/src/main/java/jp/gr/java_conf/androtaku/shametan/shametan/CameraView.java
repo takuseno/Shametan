@@ -37,7 +37,7 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
     //declare String of cst file path
     String cstPath;
 
-    private int orientation = 1;
+    private static int orientation = 1;
     private final static int ORIEN_VERTICAL = 1;
     private final static int ORIEN_HORIZON = 2;
 
@@ -102,10 +102,22 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
 
         int degrees = 0;
         switch (rotation) {
-            case Surface.ROTATION_0: degrees = 0; break;
-            case Surface.ROTATION_90: degrees = 90; break;
-            case Surface.ROTATION_180: degrees = 180; break;
-            case Surface.ROTATION_270: degrees = 270; break;
+            case Surface.ROTATION_0:
+                degrees = 0;
+                orientation = ORIEN_VERTICAL;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                orientation = ORIEN_HORIZON;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                orientation = ORIEN_VERTICAL;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                orientation = ORIEN_HORIZON;
+                break;
         }
 
         int result;
@@ -140,35 +152,6 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
 
     //function of saving image
     public void saveImage(byte[] data,File path){
-        WindowManager windowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
-        int rotation = windowManager.getDefaultDisplay().getRotation();
-        int degree = 0;
-        switch(rotation){
-            case Surface.ROTATION_0:
-                degree = 0;
-                orientation = ORIEN_VERTICAL;
-                break;
-            case Surface.ROTATION_90:
-                degree = 90;
-                orientation = ORIEN_HORIZON;
-                break;
-            case Surface.ROTATION_180:
-                degree = 180;
-                orientation = ORIEN_VERTICAL;
-                break;
-            case Surface.ROTATION_270:
-                degree = 270;
-                orientation = ORIEN_HORIZON;
-                break;
-        }
-        Matrix matrix = new Matrix();
-        matrix.setRotate(rotation);
-        Bitmap original = BitmapFactory.decodeByteArray(data,0,data.length);
-        Bitmap rotated = Bitmap.createBitmap(original,0,0,original.getWidth(),
-                original.getHeight(),matrix,true);
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        rotated.compress(Bitmap.CompressFormat.JPEG,100,baos);
         FileOutputStream fileOutputStream = null;
         try {
 
@@ -177,7 +160,7 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
             e.printStackTrace();
         }
         try{
-            fileOutputStream.write(baos.toByteArray());
+            fileOutputStream.write(data);
         }catch(IOException e){
             e.printStackTrace();
         }

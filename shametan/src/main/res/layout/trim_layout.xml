@@ -2,12 +2,21 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <jp.gr.java_conf.androtaku.shametan.shametan.TrimImageView
+    android:layout_height="match_parent"
+    >
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/trimImageView"
-        android:scaleType="matrix"/>
+        android:id="@+id/screenshot_layout">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/trimImageView"
+            android:scaleType="centerCrop"/>
+
+        </LinearLayout>
+
 
     <RelativeLayout
         android:layout_width="match_parent"

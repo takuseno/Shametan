@@ -5,9 +5,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.View;
+import android.view.WindowManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,13 +22,21 @@ import java.io.IOException;
  */
 public class NoteView extends View{
     Paint[] paintLine;
+    Paint[] hPaintLine;
 
     private float[] x1;
     private float[] y1;
     private float[] x2;
     private float[] y2;
 
+    private float[] hx1;
+    private float[] hy1;
+    private float[] hx2;
+    private float[] hy2;
+
     private int[] lineWidth;
+    private int[] hLineWidth;
+
     private int[] lineColors;
 
     private boolean[] hide;
@@ -39,9 +51,22 @@ public class NoteView extends View{
 
     String filePath;
 
-    public NoteView(Context context, String filePath){
+    private int orientation = 1;
+    private int stOrientation = 1;
+    private static final int ORIEN_VERTICAL = 1;
+    private static final int ORIEN_HORIZON = 2;
+    private float dispWidth;
+    private float dispHeight;
+    private float actionBarHeight;
+
+    public NoteView(Context context, String filePath,int width,int height,int actionBarHeight){
         super(context);
         this.filePath = filePath;
+
+        dispWidth = width;
+        dispHeight = height;
+        this.actionBarHeight = actionBarHeight;
+
         importFile(filePath);
         this.context = context;
 
@@ -55,7 +80,14 @@ public class NoteView extends View{
     public void onDraw(Canvas canvas){
         for(int i = 0;i < numLines;++i) {
             //draw line
-            canvas.drawLine(x1[i], y1[i], x2[i], y2[i], paintLine[i]);
+            if((stOrientation == ORIEN_VERTICAL && orientation == ORIEN_VERTICAL)
+                    || (stOrientation == ORIEN_HORIZON && orientation == ORIEN_HORIZON)) {
+                canvas.drawLine(x1[i], y1[i], x2[i], y2[i], paintLine[i]);
+            }
+            else {
+                canvas.drawLine(hx1[i], hy1[i], hx2[i], hy2[i], hPaintLine[i]);
+            }
+
         }
     }
 
@@ -73,8 +105,10 @@ public class NoteView extends View{
 
     public void analyzeData(String data){
         int index;
+        index = data.indexOf(",");
+        stOrientation = Integer.valueOf(data.substring(0,index));
         index = data.indexOf(";");
-        numLines = Integer.valueOf(data.substring(0,index));
+        numLines = Integer.valueOf(data.substring(2,index));
         Log.i("numlines",String.valueOf(numLines));
         String restString = data.substring(index + 1);
 
@@ -140,10 +174,78 @@ public class NoteView extends View{
             paintLine[i].setAntiAlias(true);
             paintLine[i].setStrokeWidth(lineWidth[i]);
         }
+
+        hx1 = new float[numLines];
+        hy1 = new float[numLines];
+        hx2 = new float[numLines];
+        hy2 = new float[numLines];
+        hLineWidth = new int[numLines];
+        hPaintLine = new Paint[numLines];
+
+        if(stOrientation == ORIEN_VERTICAL) {
+            dispWidth -= actionBarHeight;
+            for (int i = 0; i < numLines; ++i) {
+                hx1[i] = x1[i] * (dispWidth / dispHeight) + ((dispHeight - (dispWidth * dispWidth / dispHeight)) / 2);
+                Log.i("hx1", String.valueOf(hx1[i]));
+                hy1[i] = y1[i] * (dispWidth / dispHeight);
+                Log.i("hy1", String.valueOf(hy1[i]));
+                hx2[i] = x2[i] * (dispWidth / dispHeight) + ((dispHeight - (dispWidth * dispWidth / dispHeight)) / 2);
+                Log.i("hx2", String.valueOf(hx2[i]));
+                hy2[i] = y2[i] * (dispWidth / dispHeight);
+                Log.i("hy2", String.valueOf(hy2[i]));
+
+                hLineWidth[i] = (int) ((float) (lineWidth[i]) * (dispWidth / dispHeight));
+                Log.i("hlinewidth", String.valueOf(lineWidth[i] * (dispWidth / dispHeight)));
+
+                hPaintLine[i] = new Paint();
+                hPaintLine[i].setColor(lineColors[i]);
+                hPaintLine[i].setStyle(Paint.Style.STROKE);
+                hPaintLine[i].setAntiAlias(true);
+                hPaintLine[i].setStrokeWidth(hLineWidth[i]);
+            }
+        }
+        else{
+            dispHeight -= actionBarHeight;
+            for (int i = 0; i < numLines; ++i) {
+                hx1[i] = x1[i] * (dispWidth / dispHeight);
+                Log.i("hx1", String.valueOf(hx1[i]));
+                hy1[i] = y1[i] * (dispWidth / dispHeight) + ((dispHeight - (dispWidth * dispWidth / dispHeight)) / 2);
+                Log.i("hy1", String.valueOf(hy1[i]));
+                hx2[i] = x2[i] * (dispWidth / dispHeight);
+                Log.i("hx2", String.valueOf(hx2[i]));
+                hy2[i] = y2[i] * (dispWidth / dispHeight) + ((dispHeight - (dispWidth * dispWidth / dispHeight)) / 2);
+                Log.i("hy2", String.valueOf(hy2[i]));
+
+                hLineWidth[i] = (int) ((float) (lineWidth[i]) * (dispWidth / dispHeight));
+                Log.i("hlinewidth", String.valueOf(lineWidth[i] * (dispWidth / dispHeight)));
+
+                hPaintLine[i] = new Paint();
+                hPaintLine[i].setColor(lineColors[i]);
+                hPaintLine[i].setStyle(Paint.Style.STROKE);
+                hPaintLine[i].setAntiAlias(true);
+                hPaintLine[i].setStrokeWidth(hLineWidth[i]);
+            }
+        }
     }
 
     public void refresh(){
-        importFile(filePath);
+        //importFile(filePath);
+        WindowManager windowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+        int rotation = windowManager.getDefaultDisplay().getRotation();
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                orientation = ORIEN_VERTICAL;
+                break;
+            case Surface.ROTATION_90:
+                orientation = ORIEN_HORIZON;
+                break;
+            case Surface.ROTATION_180:
+                orientation = ORIEN_VERTICAL;
+                break;
+            case Surface.ROTATION_270:
+                orientation = ORIEN_HORIZON;
+                break;
+        }
     }
 
     @Override
@@ -167,53 +269,103 @@ public class NoteView extends View{
     }
 
     public void judgeTouched(float x,float y){
-        for(int i = 0;i < numLines;++i) {
-            float tilt = (y2[i]-y1[i]) / (x2[i]-x1[i]);
-            float lineY = tilt * (x - x1[i]) + y1[i];
-            if(y < lineY + lineWidth[i] && y > lineY - lineWidth[i]){
-
-                if(x1[i] < x2[i]){
-                    if(x > x1[i] && x < x2[i]){
-                        if(hide[i]) {
-                            changeColorTransparent(i);
-                            hide[i] = false;
+        float distant = 10000;
+        int tempId = -1;
+        if((stOrientation == ORIEN_VERTICAL && orientation == ORIEN_VERTICAL)
+                || (stOrientation == ORIEN_HORIZON && orientation == ORIEN_HORIZON)) {
+            for (int i = 0; i < numLines; ++i) {
+                float tilt = (y2[i] - y1[i]) / (x2[i] - x1[i]);
+                float lineY = tilt * (x - x1[i]) + y1[i];
+                if (y < lineY + lineWidth[i] && y > lineY - lineWidth[i]) {
+                    if (x1[i] < x2[i]) {
+                        if (x > x1[i] && x < x2[i]) {
+                            if (distant > Math.abs(lineY - y)) {
+                                distant = Math.abs(lineY - y);
+                                tempId = i;
+                            }
                         }
-                        else if(!hide[i]){
-                            changeColorSolid(i);
-                            hide[i] = true;
-                        }
-                    }
-                }
-
-                else if(x1[i] > x2[i]){
-                    if(x < x1[i] && x > x2[i]){
-                        if(hide[i]) {
-                            changeColorTransparent(i);
-                            hide[i] = false;
-                        }
-                        else if(!hide[i]){
-                            changeColorSolid(i);
-                            hide[i] = true;
+                    } else if (x1[i] > x2[i]) {
+                        if (x < x1[i] && x > x2[i]) {
+                            if (distant > Math.abs(lineY - y)) {
+                                distant = Math.abs(lineY - y);
+                                tempId = i;
+                            }
                         }
                     }
                 }
+            }
+        }
+        else{
+            for (int i = 0; i < numLines; ++i) {
+                float tilt = (hy2[i] - hy1[i]) / (hx2[i] - hx1[i]);
+                float lineY = tilt * (x - hx1[i]) + hy1[i];
+                if (y < lineY + hLineWidth[i] && y > lineY - hLineWidth[i]) {
+                    if (hx1[i] < hx2[i]) {
+                        if (x > hx1[i] && x < hx2[i]) {
+                            if (distant > Math.abs(lineY - y)) {
+                                distant = Math.abs(lineY - y);
+                                tempId = i;
+                            }
+                        }
+                    } else if (hx1[i] > hx2[i]) {
+                        if (x < hx1[i] && x > hx2[i]) {
+                            if (distant > Math.abs(lineY - y)) {
+                                distant = Math.abs(lineY - y);
+                                tempId = i;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
+
+        if(tempId != -1){
+            if(hide[tempId]) {
+                changeColorTransparent(tempId);
+                hide[tempId] = false;
+            }
+            else if(!hide[tempId]){
+                changeColorSolid(tempId);
+                hide[tempId] = true;
             }
         }
     }
 
     public void changeColorTransparent(int id){
-        if(lineColors[id] == Color.RED)
-            paintLine[id].setColor(red);
+        if((stOrientation == ORIEN_VERTICAL && orientation == ORIEN_VERTICAL)
+                || (stOrientation == ORIEN_HORIZON && orientation == ORIEN_HORIZON)) {
+            if (lineColors[id] == Color.RED)
+                paintLine[id].setColor(red);
 
-        if(lineColors[id] == Color.GREEN)
-            paintLine[id].setColor(green);
+            if (lineColors[id] == Color.GREEN)
+                paintLine[id].setColor(green);
 
-        if(lineColors[id] == Color.BLUE)
-            paintLine[id].setColor(blue);
+            if (lineColors[id] == Color.BLUE)
+                paintLine[id].setColor(blue);
+        }
+        else{
+            if (lineColors[id] == Color.RED)
+                hPaintLine[id].setColor(red);
+
+            if (lineColors[id] == Color.GREEN)
+                hPaintLine[id].setColor(green);
+
+            if (lineColors[id] == Color.BLUE)
+                hPaintLine[id].setColor(blue);
+        }
     }
 
     public void changeColorSolid(int id){
-        paintLine[id].setColor(lineColors[id]);
+        if((stOrientation == ORIEN_VERTICAL && orientation == ORIEN_VERTICAL)
+                || (stOrientation == ORIEN_HORIZON && orientation == ORIEN_HORIZON))
+            paintLine[id].setColor(lineColors[id]);
+
+        else
+            hPaintLine[id].setColor(lineColors[id]);
+    }
+
+    public int getOrientation(){
+        return stOrientation;
     }
 }

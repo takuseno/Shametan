@@ -2,24 +2,33 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/wood_texture">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@android:color/background_light"
+        android:textSize="20dp"
+        android:shadowColor="#000000"
+        android:shadowDx="5"
+        android:shadowDy="5"
+        android:shadowRadius="25"
         android:text="@string/note"
         android:paddingLeft="5dp"/>
+
+    <GridView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/noteList"
+        ></GridView>
+
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="5dp"
-        android:background="@drawable/wood_texture">
-
-    <GridView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/noteList"
-        ></GridView>
+        >
 
         <TextView
             android:layout_width="wrap_content"
@@ -27,8 +36,12 @@
             android:layout_gravity="center"
             android:text="@string/no_notes"
             android:id="@+id/no_notes_text"
-            android:textColor="#ffffff"
-            android:textSize="20sp"/>
+            android:textColor="@android:color/background_light"
+            android:textSize="20dp"
+            android:shadowColor="#000000"
+            android:shadowDx="5"
+            android:shadowDy="5"
+            android:shadowRadius="25"/>
 
     </FrameLayout>
 

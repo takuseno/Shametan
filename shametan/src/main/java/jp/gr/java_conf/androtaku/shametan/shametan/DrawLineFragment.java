@@ -77,7 +77,7 @@ public class DrawLineFragment extends Fragment {
 
         frameLayout = (FrameLayout)v.findViewById(R.id.drawline_frameLayout);
 
-        drawLineView = new DrawLineView(getActivity(),filePath);
+        drawLineView = new DrawLineView(getActivity(),filePath,getArguments().getInt("orientation"));
         frameLayout.addView(drawLineView);
     }
 

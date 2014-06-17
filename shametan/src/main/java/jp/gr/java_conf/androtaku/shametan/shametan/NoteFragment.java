@@ -1,15 +1,20 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -51,7 +56,17 @@ public class NoteFragment extends Fragment {
         Bitmap bmp = BitmapFactory.decodeFile(backgroundPath);
         background.setImageBitmap(bmp);
 
-        noteView = new NoteView(getActivity().getApplicationContext(),filePath);
+        int actionBarHeight = getActivity().getActionBar().getHeight();
+
+        WindowManager wm =
+                (WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE);
+        Display disp = wm.getDefaultDisplay();
+        Point size = new Point();
+        disp.getSize(size);
+        if(size.x < size.y)
+            noteView = new NoteView(getActivity().getApplicationContext(),filePath,size.x,size.y,actionBarHeight);
+        else
+            noteView = new NoteView(getActivity().getApplicationContext(),filePath,size.y,size.x,actionBarHeight);
 
         frameLayout = (FrameLayout)v.findViewById(R.id.note_framelayout);
         frameLayout.addView(noteView);
@@ -79,7 +94,6 @@ public class NoteFragment extends Fragment {
 
             default:
         }
-
         return super.onOptionsItemSelected(menuItem);
     }
 
@@ -90,6 +104,7 @@ public class NoteFragment extends Fragment {
         bundle.putString("trimed_image_path",backgroundPath);
         DrawLineFragment fragment = new DrawLineFragment();
         bundle.putString("cst_file",getArguments().getString("cst_file"));
+        bundle.putInt("orientation",noteView.getOrientation());
         fragment.setArguments(bundle);
         transaction.replace(R.id.container,fragment,"drawline_fragment");
         transaction.addToBackStack("note");

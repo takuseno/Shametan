@@ -51,6 +51,10 @@ public class DrawLineView extends View{
     private static final int SELECTED_WAITING_ADDITION = 4;
     private static final int SELECTED_NONE = 0;
 
+    private int orienation = 1;
+    private static final int ORIEN_VERTICAL = 1;
+    private static final int ORIEN_HORiZON = 2;
+
     private int selectedNum = 0;
 
     private int timeCounter = 0;
@@ -73,10 +77,12 @@ public class DrawLineView extends View{
     float touchX,touchY;
     float scopeX,scopeY;
 
-    public DrawLineView(Context context,String fileName){
+    public DrawLineView(Context context,String fileName,int orientation){
         super(context);
 
         this.context = context;
+
+        this.orienation = orientation;
 
         init();
 
@@ -142,8 +148,6 @@ public class DrawLineView extends View{
         paintOpt.setColor(Color.BLUE);
         paintOpt.setAntiAlias(true);
         paintOpt.setStrokeWidth(30);
-
-
     }
 
     public void importFile(String filePath){
@@ -160,8 +164,10 @@ public class DrawLineView extends View{
 
     public void analyzeData(String data){
         int index;
+        index = data.indexOf(",");
+        orienation = Integer.valueOf(data.substring(0,index));
         index = data.indexOf(";");
-        numLines = Integer.valueOf(data.substring(0,index));
+        numLines = Integer.valueOf(data.substring(2,index));
         Log.i("numlines", String.valueOf(numLines));
         String restString = data.substring(index + 1);
 
@@ -233,7 +239,8 @@ public class DrawLineView extends View{
 
     public void exportData(){
         /*
-        header numlines
+        header orientation
+        subheader numlines
         value01 x1
         value02 x2
         value03 y1
@@ -251,7 +258,7 @@ public class DrawLineView extends View{
         }
         try {
             FileOutputStream fos = new FileOutputStream(data);
-            String output = "" + String.valueOf(numLines) + ";";
+            String output = "" + String.valueOf(orienation) + "," + String.valueOf(numLines) + ";";
             for(int i = 0;i <numLines;++i){
                 output += String.valueOf(x1[i]) + ",";
             }

@@ -6,14 +6,21 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,12 +33,15 @@ import java.util.Calendar;
  */
 public class TrimFragment extends Fragment {
     Button trimButton;
-    TrimImageView imageView;
+    ImageView imageView;
+    LinearLayout linearLayout;
     String imagePath;
 
     private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
     private final static int ORIEN_VERTICAL = 1;
     private final static int ORIEN_HORIZON = 2;
+
+    private int dispWidth,dispHeight;
 
     public TrimFragment(){
 
@@ -48,23 +58,38 @@ public class TrimFragment extends Fragment {
         ActionBar actionBar = getActivity().getActionBar();
         actionBar.show();
 
+        WindowManager wm =
+                (WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE);
+        Display disp = wm.getDefaultDisplay();
+        Point size = new Point();
+        disp.getSize(size);
+        dispWidth = size.x;
+        dispHeight = size.y;
+
         View rootView = inflater.inflate(R.layout.trim_layout,container,false);
         init(rootView);
         return rootView;
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+    }
+
     public void init(View v){
-        imageView = (TrimImageView)v.findViewById(R.id.trimImageView);
+        imageView = (ImageView)v.findViewById(R.id.trimImageView);
         imagePath = getArguments().getString("image_path");
         if("camera".equals(getArguments().getString("from"))){
-            imageView.fromFragment = imageView.FROM_CAMERA;
+            //imageView.fromFragment = imageView.FROM_CAMERA;
 
         }
         else if("gallery".equals(getArguments().getString("from"))){
-            imageView.fromFragment = imageView.FROM_GALLERY;
+            //imageView.fromFragment = imageView.FROM_GALLERY;
         }
-        imageView.setOrientation(getArguments().getInt("orientation"));
-        imageView.setImage(imagePath);
+        imageView.setImageBitmap(compressImage(imagePath));
+        if(getArguments().getInt("orientation") == ORIEN_HORIZON){
+            //imageView.setRotation(90);
+        }
 
         trimButton = (Button)v.findViewById(R.id.trimButton);
         trimButton.setOnClickListener(new View.OnClickListener() {
@@ -76,11 +101,39 @@ public class TrimFragment extends Fragment {
                 toDrawLine(imagePath);
             }
         });
+
+        linearLayout = (LinearLayout)v.findViewById(R.id.screenshot_layout);
+    }
+
+    public Bitmap compressImage(String imageName){
+        BitmapFactory.Options opt = new BitmapFactory.Options();
+
+        opt.inJustDecodeBounds = true;
+
+        BitmapFactory.decodeFile(imageName, opt);
+
+        int scaleW = opt.outWidth / dispWidth;
+        int scaleH = opt.outHeight / dispHeight;
+
+        opt.inSampleSize = Math.max(scaleW, scaleH);
+        opt.inJustDecodeBounds = false;
+        Bitmap bmp = BitmapFactory.decodeFile(imageName, opt);
+
+        int w = bmp.getWidth();
+        int h = bmp.getHeight();
+        float scale = Math.min((float)dispWidth/w, (float)dispHeight/h);
+
+        Matrix matrix = new Matrix();
+        matrix.postScale(scale, scale);
+
+        bmp = Bitmap.createBitmap(bmp, 0, 0, w, h, matrix, true);
+
+        return bmp;
     }
 
     public void saveImage(File imagePath){
-        imageView.setDrawingCacheEnabled(true);
-        Bitmap saveBitmap = Bitmap.createBitmap(imageView.getDrawingCache());
+        linearLayout.setDrawingCacheEnabled(true);
+        Bitmap saveBitmap = Bitmap.createBitmap(linearLayout.getDrawingCache());
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(imagePath);
