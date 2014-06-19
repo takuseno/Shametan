@@ -5,9 +5,9 @@ package jp.gr.java_conf.androtaku.shametan.shametan;
  */
 
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -144,13 +144,13 @@ public class SelectNoteFragment extends Fragment {
     }
 
     public void toPage(String filePath){
-        FragmentManager manager = getFragmentManager();
+        FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString("cst_path",filePath);
         SelectPageFragment fragment = new SelectPageFragment();
         fragment.setArguments(bundle);
-        transaction.replace(R.id.container,fragment,"page_fragment");
+        transaction.replace(R.id.container,fragment);
         transaction.addToBackStack("notelist");
         transaction.commit();
     }

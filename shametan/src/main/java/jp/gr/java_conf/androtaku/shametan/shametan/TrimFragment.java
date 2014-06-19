@@ -1,9 +1,10 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.app.ActionBar;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.os.Build;
+import android.support.v7.app.ActionBar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +12,7 @@ import android.graphics.Matrix;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Surface;
@@ -55,16 +57,21 @@ public class TrimFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,
                              Bundle savedInstanceState){
-        ActionBar actionBar = getActivity().getActionBar();
+        ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
         actionBar.show();
 
         WindowManager wm =
                 (WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE);
         Display disp = wm.getDefaultDisplay();
         Point size = new Point();
-        disp.getSize(size);
-        dispWidth = size.x;
-        dispHeight = size.y;
+        if(Build.VERSION.SDK_INT < 13){
+            dispWidth = disp.getWidth();
+            dispHeight = disp.getHeight();
+        }else {
+            disp.getSize(size);
+            dispWidth = size.x;
+            dispHeight = size.y;
+        }
 
         View rootView = inflater.inflate(R.layout.trim_layout,container,false);
         init(rootView);
@@ -87,8 +94,8 @@ public class TrimFragment extends Fragment {
             //imageView.fromFragment = imageView.FROM_GALLERY;
         }
         imageView.setImageBitmap(compressImage(imagePath));
-        if(getArguments().getInt("orientation") == ORIEN_HORIZON){
-            //imageView.setRotation(90);
+        if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
+            imageView.setRotation(90);
         }
 
         trimButton = (Button)v.findViewById(R.id.trimButton);

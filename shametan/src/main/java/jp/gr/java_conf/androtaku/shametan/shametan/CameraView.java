@@ -1,12 +1,9 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.media.CameraProfile;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,9 +12,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 import android.view.WindowManager;
-import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -184,7 +179,7 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
         bundle.putInt("orientation",orientation);
         TrimFragment fragment = new TrimFragment();
         fragment.setArguments(bundle);
-        transaction.replace(R.id.container,fragment,"trim_fragment");
+        transaction.replace(R.id.container, fragment);
         transaction.addToBackStack("camera");
         transaction.commit();
     }

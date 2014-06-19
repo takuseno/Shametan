@@ -1,5 +1,6 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,6 +12,8 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
+import android.os.Build;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -90,9 +93,15 @@ public class DrawLineView extends View{
                 (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
         Display disp = wm.getDefaultDisplay();
         Point size = new Point();
-        disp.getSize(size);
-        dispWidth = size.x;
-        dispHeight = size.y;
+        if(Build.VERSION.SDK_INT < 13){
+            dispWidth = disp.getWidth();
+            dispHeight = disp.getHeight();
+        }else{
+            disp.getSize(size);
+            dispWidth = size.x;
+            dispHeight = size.y;
+        }
+
         x1[0] = (dispWidth/2) - 100;
         x2[0] = (dispWidth/2) + 100;
         y1[0] = (dispHeight/2);
@@ -457,7 +466,7 @@ public class DrawLineView extends View{
                 if(selected == SELECTED_OPTION){
                     optionDialog = new DrawLineOptionDialog();
                     optionDialog.setValue(lineWidth[selectedNum],lineColors[selectedNum],this,selectedNum);
-                    optionDialog.show(((Activity)context).getFragmentManager(),"optiondialog");
+                    optionDialog.show(((ActionBarActivity)context).getSupportFragmentManager(),"optiondialog");
                 }
                 selected = SELECTED_NONE;
                 break;

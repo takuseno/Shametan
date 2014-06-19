@@ -1,9 +1,6 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -60,7 +57,7 @@ public class DrawLineFragment extends Fragment {
             NotebookActivity.menuType = NotebookActivity.MENU_DRAWLINE;
         }
 
-        getFragmentManager().invalidateOptionsMenu();
+        //getFragmentManager().invalidateOptionsMenu();
         setHasOptionsMenu(true);
         //initialize views
         init(rootView);
@@ -92,7 +89,6 @@ public class DrawLineFragment extends Fragment {
         else if(getActivity().getClass() == NotebookActivity.class){
             NotebookActivity.menuType = NotebookActivity.MENU_NOTE;
         }
-        getFragmentManager().invalidateOptionsMenu();
 
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         super.onDestroyView();

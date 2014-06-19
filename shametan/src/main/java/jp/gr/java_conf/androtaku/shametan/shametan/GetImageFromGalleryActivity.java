@@ -1,24 +1,19 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
-
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 /**
  * Created by takuma on 2014/05/24.
  */
-public class GetImageFromGalleryActivity extends Activity {
+public class GetImageFromGalleryActivity extends ActionBarActivity {
 
     public static int menuType = 1;
     public static final int MENU_MAIN = 1;
@@ -32,7 +27,7 @@ public class GetImageFromGalleryActivity extends Activity {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(intent,1);
+        startActivityForResult(intent,0x1111);
     }
 
     @Override
@@ -58,7 +53,7 @@ public class GetImageFromGalleryActivity extends Activity {
             finish();
         }
 
-        if(requestCode == 1 && resultCode == RESULT_OK){
+        if(requestCode == 0x1111 && resultCode == RESULT_OK){
             Uri selectedImage = data.getData();
             String[] filePathColumn = {MediaStore.Images.Media.DATA};
             Cursor cursor = getContentResolver().query(selectedImage,filePathColumn,null,null,null);
@@ -68,7 +63,7 @@ public class GetImageFromGalleryActivity extends Activity {
             String path = cursor.getString(index);
             cursor.close();
 
-            FragmentManager manager = getFragmentManager();
+            FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
             Bundle bundle = new Bundle();
             bundle.putString("cst_file",getIntent().getStringExtra("cst_file"));
@@ -76,7 +71,7 @@ public class GetImageFromGalleryActivity extends Activity {
             bundle.putString("from","gallery");
             TrimFragment fragment = new TrimFragment();
             fragment.setArguments(bundle);
-            transaction.replace(R.id.container,fragment,"trim_fragment");
+            transaction.replace(R.id.container, fragment);
             transaction.addToBackStack("gallery_small");
             transaction.commit();
         }

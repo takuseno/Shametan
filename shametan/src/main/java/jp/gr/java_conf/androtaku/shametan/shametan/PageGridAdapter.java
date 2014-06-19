@@ -2,6 +2,7 @@ package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.os.Build;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,9 +35,13 @@ public class PageGridAdapter extends BaseAdapter {
 
         WindowManager wm = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
         Display disp = wm.getDefaultDisplay();
-        Point size = new Point();
-        disp.getSize(size);
-        dispWidth = size.x;
+        if(Build.VERSION.SDK_INT < 13){
+            dispWidth = disp.getWidth();
+        }else {
+            Point size = new Point();
+            disp.getSize(size);
+            dispWidth = size.x;
+        }
 
     }
 

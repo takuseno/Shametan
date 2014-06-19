@@ -3,9 +3,9 @@ package jp.gr.java_conf.androtaku.shametan.shametan;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -41,7 +41,6 @@ public class SelectPageFragment extends Fragment {
         init(rootView);
 
         NotebookActivity.menuType = NotebookActivity.MENU_SELECT_PAGE;
-        getFragmentManager().invalidateOptionsMenu();
         setHasOptionsMenu(true);
         return rootView;
     }
@@ -82,7 +81,6 @@ public class SelectPageFragment extends Fragment {
     @Override
     public void onDestroy(){
         NotebookActivity.menuType = NotebookActivity.MENU_SELECT_NOTE;
-        getFragmentManager().invalidateOptionsMenu();
         super.onDestroy();
     }
 
@@ -143,14 +141,14 @@ public class SelectPageFragment extends Fragment {
     }
 
     public void toNote(String filePath){
-        FragmentManager manager = getFragmentManager();
+        FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString("file_path",filePath);
         bundle.putString("cst_file",getArguments().getString("cst_path"));
         NoteFragment fragment = new NoteFragment();
         fragment.setArguments(bundle);
-        transaction.replace(R.id.container,fragment,"note_fragment");
+        transaction.replace(R.id.container,fragment);
         transaction.addToBackStack("pagelist");
         transaction.commit();
     }

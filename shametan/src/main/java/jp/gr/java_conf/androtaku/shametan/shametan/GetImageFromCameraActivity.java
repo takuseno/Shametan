@@ -1,15 +1,14 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 
 /**
  * Created by takuma on 2014/05/24.
  */
-public class GetImageFromCameraActivity extends Activity {
+public class GetImageFromCameraActivity extends ActionBarActivity {
 
     public static int menuType = 1;
     public static final int MENU_MAIN = 1;
@@ -25,7 +24,7 @@ public class GetImageFromCameraActivity extends Activity {
             bundle.putString("cst_file",getIntent().getStringExtra("cst_file"));
             CameraFragment fragment = new CameraFragment();
             fragment.setArguments(bundle);
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, fragment)
                     .commit();
         }

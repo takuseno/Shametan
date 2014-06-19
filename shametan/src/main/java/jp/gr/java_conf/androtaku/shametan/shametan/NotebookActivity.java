@@ -1,8 +1,8 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.widget.Toast;
 
@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * Created by takuma on 2014/05/30.
  */
-public class NotebookActivity extends Activity{
+public class NotebookActivity extends ActionBarActivity {
 
     private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
 
@@ -59,7 +59,7 @@ public class NotebookActivity extends Activity{
             bundle.putString("cst_file","/root.cst");
             SelectNoteFragment fragment = new SelectNoteFragment();
             fragment.setArguments(bundle);
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, fragment)
                     .commit();
         }

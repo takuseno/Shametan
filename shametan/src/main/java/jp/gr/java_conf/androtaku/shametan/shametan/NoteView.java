@@ -58,14 +58,16 @@ public class NoteView extends View{
     private float dispWidth;
     private float dispHeight;
     private float actionBarHeight;
+    private float statusBarHeight;
 
-    public NoteView(Context context, String filePath,int width,int height,int actionBarHeight){
+    public NoteView(Context context, String filePath,int width,int height,int actionBarHeight,int statusBarHeight){
         super(context);
         this.filePath = filePath;
 
         dispWidth = width;
         dispHeight = height;
         this.actionBarHeight = actionBarHeight;
+        this.statusBarHeight = statusBarHeight;
 
         importFile(filePath);
         this.context = context;
@@ -184,12 +186,13 @@ public class NoteView extends View{
 
         if(stOrientation == ORIEN_VERTICAL) {
             dispWidth -= actionBarHeight;
+            dispHeight -= (actionBarHeight);
             for (int i = 0; i < numLines; ++i) {
-                hx1[i] = x1[i] * (dispWidth / dispHeight) + ((dispHeight - (dispWidth * dispWidth / dispHeight)) / 2);
+                hx1[i] = x1[i] * (dispWidth / dispHeight) + ((dispHeight + actionBarHeight - (dispWidth * dispWidth / dispHeight)) / 2);
                 Log.i("hx1", String.valueOf(hx1[i]));
                 hy1[i] = y1[i] * (dispWidth / dispHeight);
                 Log.i("hy1", String.valueOf(hy1[i]));
-                hx2[i] = x2[i] * (dispWidth / dispHeight) + ((dispHeight - (dispWidth * dispWidth / dispHeight)) / 2);
+                hx2[i] = x2[i] * (dispWidth / dispHeight) + ((dispHeight + actionBarHeight - (dispWidth * dispWidth / dispHeight)) / 2);
                 Log.i("hx2", String.valueOf(hx2[i]));
                 hy2[i] = y2[i] * (dispWidth / dispHeight);
                 Log.i("hy2", String.valueOf(hy2[i]));
@@ -205,15 +208,15 @@ public class NoteView extends View{
             }
         }
         else{
-            dispHeight -= actionBarHeight;
+            dispHeight += (actionBarHeight);
             for (int i = 0; i < numLines; ++i) {
                 hx1[i] = x1[i] * (dispWidth / dispHeight);
                 Log.i("hx1", String.valueOf(hx1[i]));
-                hy1[i] = y1[i] * (dispWidth / dispHeight) + ((dispHeight - (dispWidth * dispWidth / dispHeight)) / 2);
+                hy1[i] = y1[i] * (dispWidth / dispHeight) + ((dispHeight - actionBarHeight - (dispWidth * dispWidth / (dispHeight-actionBarHeight))) / 2);
                 Log.i("hy1", String.valueOf(hy1[i]));
                 hx2[i] = x2[i] * (dispWidth / dispHeight);
                 Log.i("hx2", String.valueOf(hx2[i]));
-                hy2[i] = y2[i] * (dispWidth / dispHeight) + ((dispHeight - (dispWidth * dispWidth / dispHeight)) / 2);
+                hy2[i] = y2[i] * (dispWidth / dispHeight) + ((dispHeight - actionBarHeight - (dispWidth * dispWidth / (dispHeight-actionBarHeight))) / 2);
                 Log.i("hy2", String.valueOf(hy2[i]));
 
                 hLineWidth[i] = (int) ((float) (lineWidth[i]) * (dispWidth / dispHeight));
