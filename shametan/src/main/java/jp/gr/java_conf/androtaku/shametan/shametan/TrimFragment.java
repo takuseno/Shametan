@@ -1,5 +1,8 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.content.res.Resources;
+import android.graphics.BitmapRegionDecoder;
+import android.graphics.Rect;
 import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -13,6 +16,7 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Surface;
@@ -24,6 +28,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -33,17 +38,25 @@ import java.util.Calendar;
 /**
  * Created by takuma on 2014/05/05.
  */
-public class TrimFragment extends Fragment {
+public class TrimFragment extends Fragment{
     Button trimButton;
     ImageView imageView;
-    LinearLayout linearLayout;
+    TrimmingView trimmingView;
+    FrameLayout frameLayout;
     String imagePath;
 
     private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
+
     private final static int ORIEN_VERTICAL = 1;
     private final static int ORIEN_HORIZON = 2;
 
+    private float PIXEL_LIMIT;
+    private float rsz_ratio;
+    private Bitmap setBmp;
+
     private int dispWidth,dispHeight;
+    private int imageWidth,imageHeight;
+
 
     public TrimFragment(){
 
@@ -60,21 +73,45 @@ public class TrimFragment extends Fragment {
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
         actionBar.show();
 
-        WindowManager wm =
-                (WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE);
-        Display disp = wm.getDefaultDisplay();
-        Point size = new Point();
-        if(Build.VERSION.SDK_INT < 13){
-            dispWidth = disp.getWidth();
-            dispHeight = disp.getHeight();
-        }else {
-            disp.getSize(size);
-            dispWidth = size.x;
-            dispHeight = size.y;
-        }
-
-        View rootView = inflater.inflate(R.layout.trim_layout,container,false);
+        final View rootView = inflater.inflate(R.layout.trim_layout,container,false);
         init(rootView);
+
+        rootView.post(new Runnable() {
+            @Override
+            public void run() {
+                dispWidth = rootView.getWidth();
+                dispHeight = rootView.getHeight();
+                trimmingView.init(dispWidth,dispHeight);
+
+                PIXEL_LIMIT = dispWidth * dispHeight * 3;
+                Bitmap srcBmp = compressImage(imagePath);
+                if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(90);
+                    Bitmap rotatedBmp = Bitmap.createBitmap(srcBmp,0,0,
+                            srcBmp.getWidth(),srcBmp.getHeight(),matrix,true);
+                    imageView.setImageBitmap(rotatedBmp);
+                    setBmp = rotatedBmp;
+                }
+                else{
+                    imageView.setImageBitmap(srcBmp);
+                    setBmp = srcBmp;
+                }
+
+                imageView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageWidth = imageView.getWidth();
+                        imageHeight = imageView.getHeight();
+                        trimmingView.putWidth(imageWidth);
+                        trimmingView.putHeight(imageHeight);
+                        Log.i("image width",String.valueOf(imageWidth));
+                        Log.i("image height",String.valueOf(imageHeight));
+                    }
+                });
+
+            }
+        });
         return rootView;
     }
 
@@ -86,17 +123,6 @@ public class TrimFragment extends Fragment {
     public void init(View v){
         imageView = (ImageView)v.findViewById(R.id.trimImageView);
         imagePath = getArguments().getString("image_path");
-        if("camera".equals(getArguments().getString("from"))){
-            //imageView.fromFragment = imageView.FROM_CAMERA;
-
-        }
-        else if("gallery".equals(getArguments().getString("from"))){
-            //imageView.fromFragment = imageView.FROM_GALLERY;
-        }
-        imageView.setImageBitmap(compressImage(imagePath));
-        if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
-            imageView.setRotation(90);
-        }
 
         trimButton = (Button)v.findViewById(R.id.trimButton);
         trimButton.setOnClickListener(new View.OnClickListener() {
@@ -109,51 +135,89 @@ public class TrimFragment extends Fragment {
             }
         });
 
-        linearLayout = (LinearLayout)v.findViewById(R.id.screenshot_layout);
+        frameLayout = (FrameLayout)v.findViewById(R.id.trim_framelayout);
+
+        trimmingView = new TrimmingView(getActivity());
+        frameLayout.addView(trimmingView);
     }
 
     public Bitmap compressImage(String imageName){
-        BitmapFactory.Options opt = new BitmapFactory.Options();
+        Bitmap bmpSrc;
+        bmpSrc = BitmapFactory.decodeFile(imageName);
+        float srcWidth = bmpSrc.getWidth();
+        float srcHeight = bmpSrc.getHeight();
 
-        opt.inJustDecodeBounds = true;
-
-        BitmapFactory.decodeFile(imageName, opt);
-
-        int scaleW = opt.outWidth / dispWidth;
-        int scaleH = opt.outHeight / dispHeight;
-
-        opt.inSampleSize = Math.max(scaleW, scaleH);
-        opt.inJustDecodeBounds = false;
-        Bitmap bmp = BitmapFactory.decodeFile(imageName, opt);
-
-        int w = bmp.getWidth();
-        int h = bmp.getHeight();
-        float scale = Math.min((float)dispWidth/w, (float)dispHeight/h);
-
+        rsz_ratio = (float)Math.sqrt(PIXEL_LIMIT / (srcWidth * srcHeight));
+        Log.i("ratio",String.valueOf(rsz_ratio));
         Matrix matrix = new Matrix();
-        matrix.postScale(scale, scale);
 
-        bmp = Bitmap.createBitmap(bmp, 0, 0, w, h, matrix, true);
+        matrix.postScale(rsz_ratio,rsz_ratio);
 
-        return bmp;
+        Bitmap bmpRsz = Bitmap.createBitmap(bmpSrc,0,0,bmpSrc.getWidth(),
+                bmpSrc.getHeight(),matrix,true);
+        return bmpRsz;
     }
 
     public void saveImage(File imagePath){
-        linearLayout.setDrawingCacheEnabled(true);
-        Bitmap saveBitmap = Bitmap.createBitmap(linearLayout.getDrawingCache());
+        float[] pointX = trimmingView.getPointsX();
+        float[] pointY = trimmingView.getPointsY();
+
+        float rszX1,rszX2,rszY1,rszY2;
+
+        if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
+            rszX1 = (pointY[0] / rsz_ratio) * ((float) setBmp.getWidth() / (float) imageWidth);
+            rszX2 = (pointY[1] / rsz_ratio) * ((float) setBmp.getWidth() / (float) imageWidth);
+            rszY1 = ((dispWidth - pointX[1]) / rsz_ratio) * ((float) setBmp.getHeight() / (float) imageHeight);
+            rszY2 = ((dispWidth - pointX[0]) / rsz_ratio) * ((float) setBmp.getHeight() / (float) imageHeight);
+        }
+        else {
+            rszX1 = (pointX[0] / rsz_ratio) * ((float) setBmp.getWidth() / (float) imageWidth);
+            rszX2 = (pointX[1] / rsz_ratio) * ((float) setBmp.getWidth() / (float) imageWidth);
+            rszY1 = (pointY[0] / rsz_ratio) * ((float) setBmp.getHeight() / (float) imageHeight);
+            rszY2 = (pointY[1] / rsz_ratio) * ((float) setBmp.getHeight() / (float) imageHeight);
+        }
+
+        Bitmap saveBmp = null;
+
+        try {
+            BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(this.imagePath, false);
+            Rect rect = new Rect((int)rszX1,(int)rszY1,(int)rszX2,(int)rszY2);
+            Bitmap tempBmp = regionDecoder.decodeRegion(rect,null);
+            float srcWidth = tempBmp.getWidth();
+            float srcHeight = tempBmp.getHeight();
+
+            if(srcWidth < srcHeight * (dispWidth / dispHeight)){
+                rsz_ratio = dispHeight / srcHeight;
+            }
+            else{
+                rsz_ratio = dispWidth / srcWidth;
+            }
+            Matrix matrix = new Matrix();
+            matrix.postScale(rsz_ratio,rsz_ratio);
+            saveBmp = Bitmap.createBitmap(tempBmp,0,0,tempBmp.getWidth(),
+                    tempBmp.getHeight(),matrix,true);
+            if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
+                tempBmp = saveBmp;
+                matrix = new Matrix();
+                matrix.postRotate(90);
+                saveBmp = Bitmap.createBitmap(tempBmp,0,0,
+                        tempBmp.getWidth(),tempBmp.getHeight(),matrix,true);
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(imagePath);
         }catch(FileNotFoundException e){
             e.printStackTrace();
         }
-        saveBitmap.compress(Bitmap.CompressFormat.JPEG,100,fos);
+        saveBmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
         try {
             fos.close();
         }catch(IOException e){
             e.printStackTrace();
         }
-        imageView.setDrawingCacheEnabled(false);
     }
 
     public void toDrawLine(String imagePath){

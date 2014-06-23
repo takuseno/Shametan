@@ -1,6 +1,7 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.media.CameraProfile;
+import android.os.Build;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
@@ -45,6 +46,9 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
         this.context = context;
         this.manager = manager;
         SurfaceHolder holder = getHolder();
+        if(Build.VERSION.SDK_INT < 13) {
+            holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        }
         holder.addCallback(this);
         this.cstPath = cstPath;
     }

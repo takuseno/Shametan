@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import java.io.File;
 
@@ -26,6 +27,7 @@ public class DrawLineFragment extends Fragment {
     ImageView background;
     DrawLineView drawLineView;
     FrameLayout frameLayout;
+    LinearLayout ssLayout;
 
     //declare String of file path
     String filePath;
@@ -44,7 +46,7 @@ public class DrawLineFragment extends Fragment {
             getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
-        View rootView = inflater.inflate(R.layout.drawline_layout,container,false);
+        final View rootView = inflater.inflate(R.layout.drawline_layout,container,false);
 
         //set menu as activity
         if(getActivity().getClass() == GetImageFromCameraActivity.class) {
@@ -56,6 +58,21 @@ public class DrawLineFragment extends Fragment {
         else if(getActivity().getClass() == NotebookActivity.class){
             NotebookActivity.menuType = NotebookActivity.MENU_DRAWLINE;
         }
+
+        rootView.post(new Runnable() {
+            @Override
+            public void run() {
+                drawLineView.putDispWidth(rootView.getWidth());
+                drawLineView.putDispHeight(rootView.getHeight());
+                background.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        drawLineView.putImageWidth(background.getWidth());
+                        drawLineView.putImageHeight(background.getHeight());
+                    }
+                });
+            }
+        });
 
         //getFragmentManager().invalidateOptionsMenu();
         setHasOptionsMenu(true);
@@ -76,6 +93,16 @@ public class DrawLineFragment extends Fragment {
 
         drawLineView = new DrawLineView(getActivity(),filePath,getArguments().getInt("orientation"));
         frameLayout.addView(drawLineView);
+
+        ssLayout = (LinearLayout)v.findViewById(R.id.drawline_screenshot);
+        ssLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                ssLayout.setDrawingCacheEnabled(true);
+                drawLineView.putBackgroundCash(ssLayout.getDrawingCache());
+            }
+        });
+
     }
 
     @Override

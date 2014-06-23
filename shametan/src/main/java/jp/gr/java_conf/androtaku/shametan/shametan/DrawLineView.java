@@ -20,6 +20,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -40,6 +41,8 @@ public class DrawLineView extends View{
     private float[] y1;
     private float[] x2;
     private float[] y2;
+
+    private float startX,startY;
 
     private int[] lineWidth;
     private int lastModifiedWidth = 40;
@@ -68,7 +71,7 @@ public class DrawLineView extends View{
     private int[] lineColors;
     private int lastModifiedColor = red;
 
-    float dispWidth,dispHeight;
+    float dispWidth,dispHeight,imageWidth,imageHeight;
 
     Context context;
 
@@ -78,7 +81,7 @@ public class DrawLineView extends View{
     String dataPath;
 
     float touchX,touchY;
-    float scopeX,scopeY;
+    private byte[] ssBytes = null;
 
     public DrawLineView(Context context,String fileName,int orientation){
         super(context);
@@ -157,6 +160,8 @@ public class DrawLineView extends View{
         paintOpt.setColor(Color.BLUE);
         paintOpt.setAntiAlias(true);
         paintOpt.setStrokeWidth(30);
+
+
     }
 
     public void importFile(String filePath){
@@ -406,42 +411,58 @@ public class DrawLineView extends View{
 
             //draw option point
             canvas.drawPoint((x1[i] + x2[i]) / 2,(y1[i] + y2[i]) / 2,paintOpt);
-
-
         }
 
         if(selected == SELECTED_START || selected == SELECTED_END){
+            trimTouchPoint(canvas);
+        }
+    }
+
+    public void trimTouchPoint(Canvas canvas){
+        try {
+            float recX,recY,scopeX,scopeY,fingerPointY;
             if(touchX + 100 > dispWidth){
-                scopeX = dispWidth - 100;
+                recX = dispWidth - 200;
+                scopeX = recX + 100;
             }
             else if(touchX - 100 < 0){
-                scopeX = 100;
+                recX = 0;
+                scopeX = recX + 100;
             }
             else{
+                recX = touchX - 100;
                 scopeX = touchX;
             }
 
             if(touchY - 300 < 0){
-                scopeY = touchY + 400;
+                recY = touchY + 100;
+            }
+            else{
+                recY = touchY - 300;
+            }
+
+            if(touchY - 100 < 0){
+                scopeY = 100;
+                fingerPointY = recY + touchY;
+            }
+            else if(touchY + 100 > dispHeight){
+                scopeY = dispHeight - 100;
+                fingerPointY = recY + 200 - (dispHeight - touchY);
             }
             else{
                 scopeY = touchY;
+                fingerPointY = recY + 100;
             }
-            canvas.drawBitmap(trimTouchPoint(touchX,touchY),scopeX - 100,scopeY - 300,null);
-            canvas.drawPoint(scopeX,scopeY - 200,paintOpt);
-        }
-    }
 
-    public Bitmap trimTouchPoint(float x,float y){
-        try {
             BitmapRegionDecoder regionDecoder;
-            regionDecoder = BitmapRegionDecoder.newInstance(backgroundFile, false);
-            Rect rect = new Rect((int)(x - 100),(int)(y - 100),(int)(x + 100),(int)(y + 100));
-            Bitmap bitmap = regionDecoder.decodeRegion(rect,null);
-            return bitmap;
+            regionDecoder = BitmapRegionDecoder.newInstance(ssBytes,0,ssBytes.length,false);
+            Rect rect = new Rect((int)(scopeX - 100),(int)(scopeY - 100),(int)(scopeX + 100),(int)(scopeY + 100));
+
+            canvas.drawBitmap(regionDecoder.decodeRegion(rect,null),recX,recY,null);
+            canvas.drawPoint(touchX,fingerPointY,paintOpt);
+
         }catch(IOException e){
             e.printStackTrace();
-            return null;
         }
     }
 
@@ -453,13 +474,22 @@ public class DrawLineView extends View{
                 judgeTouchOption(event.getX(),event.getY());
                 if(selected == SELECTED_NONE){
                     selected = SELECTED_WAITING_ADDITION;
-                    timeCounter = 0;
-                    addtionTimer(event.getX(),event.getY());
+                    startX = event.getX();
+                    startY = event.getY();
                 }
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 movePoint(event.getX(),event.getY());
+                if(selected == SELECTED_WAITING_ADDITION){
+                    addLine();
+                    selected = SELECTED_END;
+                    selectedNum = numLines - 1;
+                    x1[selectedNum] = startX;
+                    x2[selectedNum] = startX;
+                    y1[selectedNum] = startY;
+                    y2[selectedNum] = startY;
+                }
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -526,42 +556,28 @@ public class DrawLineView extends View{
         touchY = y;
     }
 
-    public void addtionTimer(float x,float y){
-        final float position_x = x;
-        final float position_y = y;
-        Timer timer = new Timer(true);
-        final android.os.Handler handler = new android.os.Handler();
-        timer.schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        // TODO Auto-generated method stub
-                        handler.post(
-                                new Runnable(){
-                                    public void run(){
-                                        if(timeCounter == 1 && selected == SELECTED_WAITING_ADDITION){
-                                            addLine();
-                                            selected = SELECTED_END;
-                                            selectedNum = numLines - 1;
-                                            x1[selectedNum] = position_x;
-                                            x2[selectedNum] = position_x;
-                                            y1[selectedNum] = position_y;
-                                            y2[selectedNum] = position_y;
-                                            timeCounter = 0;
-                                            cancel();
-                                        }
+    public void putDispWidth(int width){
+        dispWidth = width;
+    }
+    public void putDispHeight(int height){
+        dispHeight = height;
+    }
 
-                                        if(timeCounter == 1 && selected != SELECTED_WAITING_ADDITION){
-                                            timeCounter = 0;
-                                            cancel();
-                                        }
+    public void putImageWidth(int width){
+        imageWidth = width;
+    }
 
-                                        ++timeCounter;
-                                    }
-                                });
-                    }
-                }
-                , 0, 1000
-        );
+    public void putImageHeight(int height){
+        imageHeight = height;
+    }
+
+    public void putBackgroundCash(Bitmap bmp){
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            ssBytes = baos.toByteArray();
+        }catch(NullPointerException e){
+            e.printStackTrace();
+        }
     }
 }

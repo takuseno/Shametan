@@ -60,7 +60,7 @@ public class NoteFragment extends Fragment {
         Bitmap bmp = BitmapFactory.decodeFile(backgroundPath);
         background.setImageBitmap(bmp);
 
-        int actionBarHeight = ((ActionBarActivity)getActivity()).getActionBar().getHeight();
+        int actionBarHeight = ((ActionBarActivity)getActivity()).getSupportActionBar().getHeight();
         Rect rect = new Rect();
         Window window = getActivity().getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(rect);
