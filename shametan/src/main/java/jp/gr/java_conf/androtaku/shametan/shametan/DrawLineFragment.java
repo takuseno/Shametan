@@ -1,5 +1,6 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.graphics.Matrix;
 import android.support.v4.app.Fragment;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -8,6 +9,7 @@ import android.graphics.Canvas;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,13 +26,14 @@ import java.io.File;
  */
 public class DrawLineFragment extends Fragment {
     //declare views
-    ImageView background;
-    DrawLineView drawLineView;
-    FrameLayout frameLayout;
-    LinearLayout ssLayout;
+    private ImageView background;
+    private DrawLineView drawLineView;
+    private FrameLayout frameLayout;
 
     //declare String of file path
-    String filePath;
+    private String filePath;
+
+    private float PIXEL_LIMIT;
 
     public DrawLineFragment(){
 
@@ -39,13 +42,6 @@ public class DrawLineFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,
                              Bundle savedInstanceState){
-        if(getArguments().getInt("orientation") == 2){
-            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        }
-        if(getArguments().getInt("orientation") == 1){
-            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
-
         final View rootView = inflater.inflate(R.layout.drawline_layout,container,false);
 
         //set menu as activity
@@ -64,11 +60,21 @@ public class DrawLineFragment extends Fragment {
             public void run() {
                 drawLineView.putDispWidth(rootView.getWidth());
                 drawLineView.putDispHeight(rootView.getHeight());
+                PIXEL_LIMIT = rootView.getWidth() * rootView.getHeight() * 3;
+                background.setImageBitmap(fitImage(filePath));
                 background.post(new Runnable() {
                     @Override
                     public void run() {
                         drawLineView.putImageWidth(background.getWidth());
                         drawLineView.putImageHeight(background.getHeight());
+                        drawLineView.init();
+                        frameLayout.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                frameLayout.setDrawingCacheEnabled(true);
+                                drawLineView.putBackgroundCash(frameLayout.getDrawingCache());
+                            }
+                        });
                     }
                 });
             }
@@ -86,23 +92,11 @@ public class DrawLineFragment extends Fragment {
         background = (ImageView)v.findViewById(R.id.drawline_background);
         //get trimed image path
         filePath = getArguments().getString("trimed_image_path");
-        Bitmap bmp = BitmapFactory.decodeFile(filePath);
-        background.setImageBitmap(bmp);
 
         frameLayout = (FrameLayout)v.findViewById(R.id.drawline_frameLayout);
 
-        drawLineView = new DrawLineView(getActivity(),filePath,getArguments().getInt("orientation"));
+        drawLineView = new DrawLineView(getActivity(),filePath);
         frameLayout.addView(drawLineView);
-
-        ssLayout = (LinearLayout)v.findViewById(R.id.drawline_screenshot);
-        ssLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                ssLayout.setDrawingCacheEnabled(true);
-                drawLineView.putBackgroundCash(ssLayout.getDrawingCache());
-            }
-        });
-
     }
 
     @Override
@@ -119,6 +113,23 @@ public class DrawLineFragment extends Fragment {
 
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         super.onDestroyView();
+    }
+
+    public Bitmap fitImage(String imageName){
+        Bitmap bmpSrc;
+        bmpSrc = BitmapFactory.decodeFile(imageName);
+        float srcWidth = bmpSrc.getWidth();
+        float srcHeight = bmpSrc.getHeight();
+
+        float rsz_ratio = (float)Math.sqrt(PIXEL_LIMIT / (srcWidth * srcHeight));
+        Log.i("ratio", String.valueOf(rsz_ratio));
+        Matrix matrix = new Matrix();
+
+        matrix.postScale(rsz_ratio,rsz_ratio);
+
+        Bitmap bmpRsz = Bitmap.createBitmap(bmpSrc,0,0,bmpSrc.getWidth(),
+                bmpSrc.getHeight(),matrix,true);
+        return bmpRsz;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.graphics.Matrix;
 import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,6 +12,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,6 +36,8 @@ public class NoteFragment extends Fragment {
 
     String filePath,backgroundPath;
 
+    private float PIXEL_LIMIT;
+
     public NoteFragment(){
 
     }
@@ -41,11 +45,31 @@ public class NoteFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,
                              Bundle savedInstanceState){
-        View rootView = inflater.inflate(R.layout.note_layout,container,false);
+        final View rootView = inflater.inflate(R.layout.note_layout,container,false);
 
         filePath = getArguments().getString("file_path");
         int index = filePath.lastIndexOf(".");
         backgroundPath = filePath.substring(0,index) + ".jpg";
+
+        rootView.post(new Runnable() {
+            @Override
+            public void run() {
+                noteView.putDispWidth(rootView.getWidth());
+                noteView.putDispHeight(rootView.getHeight());
+                PIXEL_LIMIT = rootView.getWidth() * rootView.getHeight() * 3;
+                background.setImageBitmap(fitImage(backgroundPath));
+                background.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        noteView.putImageWidth(background.getWidth());
+                        Log.i("imagewidth",""+background.getWidth());
+                        noteView.putImageHeight(background.getHeight());
+                        Log.i("imageHeight",""+background.getHeight());
+                        noteView.init();
+                    }
+                });
+            }
+        });
 
         init(rootView);
 
@@ -57,36 +81,7 @@ public class NoteFragment extends Fragment {
 
     public void init(View v){
         background = (ImageView)v.findViewById(R.id.noteBackground);
-        Bitmap bmp = BitmapFactory.decodeFile(backgroundPath);
-        background.setImageBitmap(bmp);
-
-        int actionBarHeight = ((ActionBarActivity)getActivity()).getSupportActionBar().getHeight();
-        Rect rect = new Rect();
-        Window window = getActivity().getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(rect);
-        int statusBarHeight = rect.top;
-
-        WindowManager wm =
-                (WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE);
-        Display disp = wm.getDefaultDisplay();
-        if(Build.VERSION.SDK_INT < 13){
-            if (disp.getWidth() < disp.getHeight())
-                noteView = new NoteView(getActivity().getApplicationContext(), filePath,
-                        disp.getWidth(),disp.getHeight(), actionBarHeight, statusBarHeight);
-            else
-                noteView = new NoteView(getActivity().getApplicationContext(), filePath,
-                        disp.getHeight(),disp.getWidth(), actionBarHeight, statusBarHeight);
-        }else {
-            Point size = new Point();
-            disp.getSize(size);
-            if (size.x < size.y)
-                noteView = new NoteView(getActivity().getApplicationContext(), filePath,
-                        size.x, size.y, actionBarHeight, statusBarHeight);
-            else
-                noteView = new NoteView(getActivity().getApplicationContext(), filePath,
-                        size.y, size.x, actionBarHeight, statusBarHeight);
-        }
-
+        noteView = new NoteView(getActivity().getApplicationContext(), filePath);
         frameLayout = (FrameLayout)v.findViewById(R.id.note_framelayout);
         frameLayout.addView(noteView);
     }
@@ -94,13 +89,29 @@ public class NoteFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        noteView.refresh();
     }
 
     @Override
     public void onDestroy(){
         NotebookActivity.menuType = NotebookActivity.MENU_SELECT_NOTE;
         super.onDestroy();
+    }
+
+    public Bitmap fitImage(String imageName){
+        Bitmap bmpSrc;
+        bmpSrc = BitmapFactory.decodeFile(imageName);
+        float srcWidth = bmpSrc.getWidth();
+        float srcHeight = bmpSrc.getHeight();
+
+        float rsz_ratio = (float)Math.sqrt(PIXEL_LIMIT / (srcWidth * srcHeight));
+        Log.i("ratio",String.valueOf(rsz_ratio));
+        Matrix matrix = new Matrix();
+
+        matrix.postScale(rsz_ratio,rsz_ratio);
+
+        Bitmap bmpRsz = Bitmap.createBitmap(bmpSrc,0,0,bmpSrc.getWidth(),
+                bmpSrc.getHeight(),matrix,true);
+        return bmpRsz;
     }
 
     @Override
@@ -122,7 +133,6 @@ public class NoteFragment extends Fragment {
         bundle.putString("trimed_image_path",backgroundPath);
         DrawLineFragment fragment = new DrawLineFragment();
         bundle.putString("cst_file",getArguments().getString("cst_file"));
-        bundle.putInt("orientation", noteView.getOrientation());
         fragment.setArguments(bundle);
         transaction.replace(R.id.container, fragment);
         transaction.addToBackStack("note");

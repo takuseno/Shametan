@@ -44,10 +44,10 @@ public class DrawLineView extends View{
 
     private float startX,startY;
 
-    private int[] lineWidth;
-    private int lastModifiedWidth = 40;
+    private float[] lineWidth;
+    private float lastModifiedWidth = 40;
 
-    private int numLines = 1;
+    private int numLines = 0;
     private static final int MAX_LINES = 40;
 
     private int selected = 0;
@@ -57,13 +57,7 @@ public class DrawLineView extends View{
     private static final int SELECTED_WAITING_ADDITION = 4;
     private static final int SELECTED_NONE = 0;
 
-    private int orienation = 1;
-    private static final int ORIEN_VERTICAL = 1;
-    private static final int ORIEN_HORiZON = 2;
-
     private int selectedNum = 0;
-
-    private int timeCounter = 0;
 
     private int red = Color.argb(100,255,0,0);
     private int green = Color.argb(100,0,255,0);
@@ -71,7 +65,9 @@ public class DrawLineView extends View{
     private int[] lineColors;
     private int lastModifiedColor = red;
 
-    float dispWidth,dispHeight,imageWidth,imageHeight;
+    float dispWidth,dispHeight;
+    float imageWidth,imageHeight;
+    float extraX,extraY;
 
     Context context;
 
@@ -83,55 +79,25 @@ public class DrawLineView extends View{
     float touchX,touchY;
     private byte[] ssBytes = null;
 
-    public DrawLineView(Context context,String fileName,int orientation){
+    private boolean initialized = false;
+
+    public DrawLineView(Context context,String fileName){
         super(context);
-
         this.context = context;
-
-        this.orienation = orientation;
-
-        init();
-
-        WindowManager wm =
-                (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
-        Display disp = wm.getDefaultDisplay();
-        Point size = new Point();
-        if(Build.VERSION.SDK_INT < 13){
-            dispWidth = disp.getWidth();
-            dispHeight = disp.getHeight();
-        }else{
-            disp.getSize(size);
-            dispWidth = size.x;
-            dispHeight = size.y;
-        }
-
-        x1[0] = (dispWidth/2) - 100;
-        x2[0] = (dispWidth/2) + 100;
-        y1[0] = (dispHeight/2);
-        y2[0] = (dispHeight/2);
-
         backgroundFile = fileName;
-        int index = backgroundFile.lastIndexOf(".");
-        dataPath = backgroundFile.substring(0,index) + ".st";
-        File data = new File(dataPath);
-        if(data.exists()){
-            importFile(dataPath);
-        }
+
     }
 
     public void init(){
+        extraX = (dispWidth - imageWidth) / 2;
+        extraY = (dispHeight - imageHeight) / 2;
+
         x1 = new float[MAX_LINES];
         x2 = new float[MAX_LINES];
         y1 = new float[MAX_LINES];
         y2 = new float[MAX_LINES];
-        for(int i = 0;i < MAX_LINES;++i){
-            x1[i] = 0;
-            x2[i] = 0;
-            y1[i] = 0;
-            y2[i] = 0;
-        }
 
-        lineWidth = new int[MAX_LINES];
+        lineWidth = new float[MAX_LINES];
         for(int i = 0;i < MAX_LINES;++i){
             lineWidth[i] = 40;
         }
@@ -161,7 +127,15 @@ public class DrawLineView extends View{
         paintOpt.setAntiAlias(true);
         paintOpt.setStrokeWidth(30);
 
+        int index = backgroundFile.lastIndexOf(".");
+        dataPath = backgroundFile.substring(0,index) + ".st";
+        File data = new File(dataPath);
+        if(data.exists()){
+            importFile(dataPath);
+        }
 
+        initialized = true;
+        invalidate();
     }
 
     public void importFile(String filePath){
@@ -178,17 +152,15 @@ public class DrawLineView extends View{
 
     public void analyzeData(String data){
         int index;
-        index = data.indexOf(",");
-        orienation = Integer.valueOf(data.substring(0,index));
         index = data.indexOf(";");
-        numLines = Integer.valueOf(data.substring(2,index));
+        numLines = Integer.valueOf(data.substring(0,index));
         Log.i("numlines", String.valueOf(numLines));
         String restString = data.substring(index + 1);
 
         for(int i = 0;i < numLines;++i){
             String temp = restString;
             index = temp.indexOf(",");
-            x1[i] = Float.valueOf(temp.substring(0,index));
+            x1[i] = (Float.valueOf(temp.substring(0,index)) * imageWidth) + extraX;
             Log.i("x1",String.valueOf(x1[i]));
             restString = temp.substring(index + 1);
         }
@@ -196,7 +168,7 @@ public class DrawLineView extends View{
         for(int i = 0;i < numLines;++i){
             String temp = restString;
             index = temp.indexOf(",");
-            x2[i] = Float.valueOf(temp.substring(0,index));
+            x2[i] = (Float.valueOf(temp.substring(0,index)) * imageWidth) + extraX;
             Log.i("x2",String.valueOf(x2[i]));
             restString = temp.substring(index + 1);
         }
@@ -204,7 +176,7 @@ public class DrawLineView extends View{
         for(int i = 0;i < numLines;++i){
             String temp = restString;
             index = temp.indexOf(",");
-            y1[i] = Float.valueOf(temp.substring(0,index));
+            y1[i] = (Float.valueOf(temp.substring(0,index)) * imageHeight) + extraY;
             Log.i("y1",String.valueOf(y1[i]));
             restString = temp.substring(index + 1);
         }
@@ -212,7 +184,7 @@ public class DrawLineView extends View{
         for(int i = 0;i < numLines;++i){
             String temp = restString;
             index = temp.indexOf(",");
-            y2[i] = Float.valueOf(temp.substring(0,index));
+            y2[i] = (Float.valueOf(temp.substring(0,index)) * imageHeight) + extraY;
             Log.i("y2",String.valueOf(y2[i]));
             restString = temp.substring(index + 1);
         }
@@ -220,7 +192,7 @@ public class DrawLineView extends View{
         for(int i = 0;i < numLines;++i){
             String temp = restString;
             index = temp.indexOf(",");
-            lineWidth[i] = Integer.valueOf(temp.substring(0,index));
+            lineWidth[i] = (Float.valueOf(temp.substring(0,index)) * imageWidth);
             Log.i("linewidth",String.valueOf(lineWidth[i]));
             restString = temp.substring(index + 1);
         }
@@ -272,25 +244,25 @@ public class DrawLineView extends View{
         }
         try {
             FileOutputStream fos = new FileOutputStream(data);
-            String output = "" + String.valueOf(orienation) + "," + String.valueOf(numLines) + ";";
+            String output = "" + String.valueOf(numLines) + ";";
             for(int i = 0;i <numLines;++i){
-                output += String.valueOf(x1[i]) + ",";
+                output += String.valueOf((x1[i] - extraX) / imageWidth) + ",";
             }
 
             for(int i = 0;i <numLines;++i){
-                output += String.valueOf(x2[i]) + ",";
+                output += String.valueOf((x2[i] - extraY) / imageWidth) + ",";
             }
 
             for(int i = 0;i <numLines;++i){
-                output += String.valueOf(y1[i]) + ",";
+                output += String.valueOf((y1[i] - extraY) / imageHeight) + ",";
             }
 
             for(int i = 0;i <numLines;++i){
-                output += String.valueOf(y2[i]) + ",";
+                output += String.valueOf((y2[i] - extraY) / imageHeight) + ",";
             }
 
             for(int i = 0;i <numLines;++i){
-                output += String.valueOf(lineWidth[i]) + ",";
+                output += String.valueOf(lineWidth[i] / imageWidth) + ",";
             }
 
             for(int i = 0;i <numLines;++i){
@@ -361,60 +333,60 @@ public class DrawLineView extends View{
     @Override
     public void onDraw(Canvas canvas){
         super.onDraw(canvas);
-        if(optionDialog.isChangeFragColor()){
-            paintLine[selectedNum].setColor(optionDialog.getChangeColor());
-            lineColors[selectedNum] = optionDialog.getChangeColor();
-            lastModifiedColor = optionDialog.getChangeColor();
-            optionDialog.changeFragColorReset();
-        }
-
-        if(optionDialog.isChangeFragSize()){
-            lineWidth[selectedNum] = optionDialog.getChangeSize();
-            paintLine[selectedNum].setStrokeWidth(lineWidth[selectedNum]);
-            lastModifiedWidth = optionDialog.getChangeSize();
-            optionDialog.changeFragSizeReset();
-        }
-
-        for(int i = 0;i < numLines;++i) {
-            //draw line
-            canvas.drawLine(x1[i], y1[i], x2[i], y2[i], paintLine[i]);
-
-            //draw start point
-            canvas.save();
-            if(y1[i] > y2[i]) {
-                canvas.rotate(-(float) Math.toDegrees(Math.acos((x2[i] - x1[i]) /
-                        Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
-                        , x1[i], y1[i]);
+        if(initialized) {
+            if (optionDialog.isChangeFragColor()) {
+                paintLine[selectedNum].setColor(optionDialog.getChangeColor());
+                lineColors[selectedNum] = optionDialog.getChangeColor();
+                lastModifiedColor = optionDialog.getChangeColor();
+                optionDialog.changeFragColorReset();
             }
-            else{
-                canvas.rotate((float) Math.toDegrees(Math.acos((x2[i] - x1[i]) /
-                        Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
-                        , x1[i], y1[i]);
-            }
-            canvas.drawRect(x1[i] - lineWidth[i],y1[i] - (lineWidth[i]/2),x1[i], y1[i] + (lineWidth[i]/2), paintPoint);
-            canvas.restore();
 
-            //draw end point
-            canvas.save();
-            if(y1[i] > y2[i]) {
-                canvas.rotate(-(float) Math.toDegrees(Math.acos((x2[i] - x1[i]) /
-                        Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
-                        , x2[i], y2[i]);
+            if (optionDialog.isChangeFragSize()) {
+                lineWidth[selectedNum] = optionDialog.getChangeSize();
+                paintLine[selectedNum].setStrokeWidth(lineWidth[selectedNum]);
+                lastModifiedWidth = optionDialog.getChangeSize();
+                optionDialog.changeFragSizeReset();
             }
-            else{
-                canvas.rotate((float) Math.toDegrees(Math.acos((x2[i] - x1[i]) /
-                        Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
-                        , x2[i], y2[i]);
+
+            for (int i = 0; i < numLines; ++i) {
+                //draw line
+                canvas.drawLine(x1[i], y1[i], x2[i], y2[i], paintLine[i]);
+
+                //draw start point
+                canvas.save();
+                if (y1[i] > y2[i]) {
+                    canvas.rotate(-(float) Math.toDegrees(Math.acos((x2[i] - x1[i]) /
+                            Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
+                            , x1[i], y1[i]);
+                } else {
+                    canvas.rotate((float) Math.toDegrees(Math.acos((x2[i] - x1[i]) /
+                            Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
+                            , x1[i], y1[i]);
+                }
+                canvas.drawRect(x1[i] - lineWidth[i], y1[i] - (lineWidth[i] / 2), x1[i], y1[i] + (lineWidth[i] / 2), paintPoint);
+                canvas.restore();
+
+                //draw end point
+                canvas.save();
+                if (y1[i] > y2[i]) {
+                    canvas.rotate(-(float) Math.toDegrees(Math.acos((x2[i] - x1[i]) /
+                            Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
+                            , x2[i], y2[i]);
+                } else {
+                    canvas.rotate((float) Math.toDegrees(Math.acos((x2[i] - x1[i]) /
+                            Math.sqrt((double) ((x2[i] - x1[i]) * (x2[i] - x1[i])) + (double) ((y2[i] - y1[i]) * (y2[i] - y1[i])))))
+                            , x2[i], y2[i]);
+                }
+                canvas.drawRect(x2[i], y2[i] - (lineWidth[i] / 2), x2[i] + lineWidth[i], y2[i] + lineWidth[i] / 2, paintPoint);
+                canvas.restore();
+
+                //draw option point
+                canvas.drawPoint((x1[i] + x2[i]) / 2, (y1[i] + y2[i]) / 2, paintOpt);
             }
-            canvas.drawRect(x2[i], y2[i] - (lineWidth[i]/2),x2[i] + lineWidth[i],y2[i] + lineWidth[i]/2, paintPoint);
-            canvas.restore();
 
-            //draw option point
-            canvas.drawPoint((x1[i] + x2[i]) / 2,(y1[i] + y2[i]) / 2,paintOpt);
-        }
-
-        if(selected == SELECTED_START || selected == SELECTED_END){
-            trimTouchPoint(canvas);
+            if (selected == SELECTED_START || selected == SELECTED_END) {
+                trimTouchPoint(canvas);
+            }
         }
     }
 

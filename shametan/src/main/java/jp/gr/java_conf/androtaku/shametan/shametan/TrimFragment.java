@@ -221,30 +221,11 @@ public class TrimFragment extends Fragment{
     }
 
     public void toDrawLine(String imagePath){
-        WindowManager windowManager = (WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE);
-        int rotation = windowManager.getDefaultDisplay().getRotation();
-        int orentation = 1;
-        switch(rotation){
-            case Surface.ROTATION_0:
-                orentation = ORIEN_VERTICAL;
-                break;
-            case Surface.ROTATION_90:
-                orentation = ORIEN_HORIZON;
-                break;
-            case Surface.ROTATION_180:
-                orentation = ORIEN_VERTICAL;
-                break;
-            case Surface.ROTATION_270:
-                orentation = ORIEN_HORIZON;
-                break;
-        }
-
         FragmentManager manager = getFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString("trimed_image_path",imagePath);
         bundle.putString("cst_file",getArguments().getString("cst_file"));
-        bundle.putInt("orientation",orentation);
         DrawLineFragment fragment = new DrawLineFragment();
         fragment.setArguments(bundle);
         transaction.replace(R.id.container,fragment,"drawline_fragment");

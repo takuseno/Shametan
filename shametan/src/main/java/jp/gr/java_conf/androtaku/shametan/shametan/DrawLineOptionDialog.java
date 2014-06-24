@@ -30,11 +30,11 @@ public class DrawLineOptionDialog extends DialogFragment{
     Button deleteButton,okButton,cancelButton;
 
     private int lineColor;
-    private int lineSize;
+    private float lineSize;
     private int selectedNum;
 
     private int sourceColor;
-    private int sourceSize;
+    private float sourceSize;
 
     private boolean changeFragColor = false;
     private boolean changeFragSize = false;
@@ -45,7 +45,7 @@ public class DrawLineOptionDialog extends DialogFragment{
 
     DrawLineView drawLineView;
 
-    public void setValue(int lineSize,int lineColor,DrawLineView view,int selectedNum){
+    public void setValue(float lineSize,int lineColor,DrawLineView view,int selectedNum){
         drawLineView = view;
 
         sourceSize = lineSize;
@@ -76,7 +76,7 @@ public class DrawLineOptionDialog extends DialogFragment{
 
     public void init(View v){
         lineSizeSeek = (SeekBar)v.findViewById(R.id.line_size_seek);
-        lineSizeSeek.setProgress(sourceSize);
+        lineSizeSeek.setProgress((int)sourceSize);
         lineSizeSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -186,7 +186,7 @@ public class DrawLineOptionDialog extends DialogFragment{
         changeFragSize = false;
     }
 
-    public int getChangeSize(){
+    public float getChangeSize(){
         return lineSize;
     }
 }
