@@ -1,34 +1,26 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.content.res.Resources;
+import android.content.pm.ActivityInfo;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Rect;
-import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -121,6 +113,13 @@ public class TrimFragment extends Fragment{
     }
 
     public void init(View v){
+        if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+        else if(getArguments().getInt("orientation") == ORIEN_HORIZON){
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
         imageView = (ImageView)v.findViewById(R.id.trimImageView);
         imagePath = getArguments().getString("image_path");
 

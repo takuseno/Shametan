@@ -1,6 +1,5 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.media.CameraProfile;
 import android.os.Build;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;

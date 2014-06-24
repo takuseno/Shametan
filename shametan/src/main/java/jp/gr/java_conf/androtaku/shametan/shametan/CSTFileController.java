@@ -2,7 +2,6 @@ package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 

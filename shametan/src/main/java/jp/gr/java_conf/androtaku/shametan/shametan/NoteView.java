@@ -1,19 +1,13 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
-import android.view.Surface;
 import android.view.View;
-import android.view.WindowManager;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 

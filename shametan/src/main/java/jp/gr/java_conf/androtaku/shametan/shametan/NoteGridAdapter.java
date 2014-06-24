@@ -1,7 +1,6 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Build;
 import android.view.Display;

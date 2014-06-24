@@ -1,32 +1,22 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Rect;
-import android.hardware.Camera;
-import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by takuma on 2014/05/06.
@@ -250,7 +240,7 @@ public class DrawLineView extends View{
             }
 
             for(int i = 0;i <numLines;++i){
-                output += String.valueOf((x2[i] - extraY) / imageWidth) + ",";
+                output += String.valueOf((x2[i] - extraX) / imageWidth) + ",";
             }
 
             for(int i = 0;i <numLines;++i){
