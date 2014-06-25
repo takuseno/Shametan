@@ -26,12 +26,8 @@
             android:layout_gravity="center"
             android:text="@string/no_notes"
             android:id="@+id/no_notes_text"
-            android:textColor="@android:color/background_light"
-            android:textSize="20dp"
-            android:shadowColor="#000000"
-            android:shadowDx="5"
-            android:shadowDy="5"
-            android:shadowRadius="25"/>
+            android:textColor="@android:color/black"
+            android:textSize="20dp"/>
 
     </FrameLayout>
 

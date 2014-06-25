@@ -178,7 +178,7 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
         //put whether from camera or not
         bundle.putString("from","camera");
         //put loaded cst file path
-        bundle.putString("cst_file",cstPath);
+        bundle.putString("cst_path",cstPath);
         bundle.putInt("orientation",orientation);
         TrimFragment fragment = new TrimFragment();
         fragment.setArguments(bundle);

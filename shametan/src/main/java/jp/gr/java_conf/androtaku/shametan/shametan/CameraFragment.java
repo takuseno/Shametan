@@ -35,7 +35,7 @@ public class CameraFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.camera_layout,container,false);
         //get cst file path
-        cstPath = getArguments().getString("cst_file");
+        cstPath = getArguments().getString("cst_path");
         //initialize views
         init(rootView);
         return rootView;

@@ -1,5 +1,6 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.content.res.Configuration;
 import android.media.ExifInterface;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -69,12 +70,10 @@ public class GetImageFromGalleryActivity extends ActionBarActivity {
             String imagePath = cursor.getString(index);
             cursor.close();
 
-
-
             FragmentManager manager = getSupportFragmentManager();
             FragmentTransaction transaction = manager.beginTransaction();
             Bundle bundle = new Bundle();
-            bundle.putString("cst_file",getIntent().getStringExtra("cst_file"));
+            bundle.putString("cst_path",getIntent().getStringExtra("cst_path"));
             bundle.putString("image_path",imagePath);
             bundle.putString("from","gallery");
             try {
@@ -107,6 +106,10 @@ public class GetImageFromGalleryActivity extends ActionBarActivity {
             transaction.addToBackStack("gallery_small");
             transaction.commit();
         }
+    }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){
+        super.onConfigurationChanged(newConfig);
     }
 }

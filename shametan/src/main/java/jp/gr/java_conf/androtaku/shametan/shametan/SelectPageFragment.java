@@ -29,6 +29,7 @@ public class SelectPageFragment extends Fragment {
     File[] pageFiles;
     PageGridAdapter pageAdapter;
 
+    int selectedPosition;
 
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,
@@ -54,6 +55,7 @@ public class SelectPageFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 int index = pageFiles[position].getPath().lastIndexOf(".");
                 String dataPath = pageFiles[position].getPath().substring(0, index) + ".st";
+                selectedPosition = position;
                 toNote(dataPath);
             }
         });
@@ -120,13 +122,13 @@ public class SelectPageFragment extends Fragment {
         switch(menuItem.getItemId()){
             case R.id.add_from_camera:
                 intent = new Intent(getActivity().getApplicationContext(),GetImageFromCameraActivity.class);
-                intent.putExtra("cst_file",getArguments().getString("cst_path"));
+                intent.putExtra("cst_path",getArguments().getString("cst_path"));
                 getActivity().startActivity(intent);
                 break;
 
             case R.id.add_from_gallery:
                 intent = new Intent(getActivity().getApplicationContext(),GetImageFromGalleryActivity.class);
-                intent.putExtra("cst_file",getArguments().getString("cst_path"));
+                intent.putExtra("cst_path",getArguments().getString("cst_path"));
                 getActivity().startActivity(intent);
                 break;
 
@@ -141,8 +143,9 @@ public class SelectPageFragment extends Fragment {
         FragmentTransaction transaction = manager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString("file_path",filePath);
-        bundle.putString("cst_file",getArguments().getString("cst_path"));
-        NoteFragment fragment = new NoteFragment();
+        bundle.putString("cst_path",getArguments().getString("cst_path"));
+        bundle.putInt("position",selectedPosition);
+        NotePagerFragment fragment = new NotePagerFragment();
         fragment.setArguments(bundle);
         transaction.replace(R.id.container,fragment);
         transaction.addToBackStack("pagelist");

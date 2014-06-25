@@ -1,6 +1,8 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.graphics.Matrix;
+import android.graphics.Point;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -8,10 +10,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -26,10 +30,7 @@ public class NoteFragment extends Fragment {
 
     String filePath,backgroundPath;
 
-    private float PIXEL_LIMIT;
-
     public NoteFragment(){
-
     }
 
     @Override
@@ -37,17 +38,15 @@ public class NoteFragment extends Fragment {
                              Bundle savedInstanceState){
         final View rootView = inflater.inflate(R.layout.note_layout,container,false);
 
-        filePath = getArguments().getString("file_path");
-        int index = filePath.lastIndexOf(".");
-        backgroundPath = filePath.substring(0,index) + ".jpg";
+        backgroundPath = getArguments().getString("file_path");
+        int index = backgroundPath.lastIndexOf(".");
+        filePath = backgroundPath.substring(0,index) + ".st";
 
         rootView.post(new Runnable() {
             @Override
             public void run() {
                 noteView.putDispWidth(rootView.getWidth());
                 noteView.putDispHeight(rootView.getHeight());
-                PIXEL_LIMIT = rootView.getWidth() * rootView.getHeight() * 3;
-                background.setImageBitmap(fitImage(backgroundPath));
                 background.post(new Runnable() {
                     @Override
                     public void run() {
@@ -63,7 +62,7 @@ public class NoteFragment extends Fragment {
 
         init(rootView);
 
-        NotebookActivity.menuType = NotebookActivity.MENU_NOTE;
+        //NotebookActivity.menuType = NotebookActivity.MENU_NOTE;
         setHasOptionsMenu(true);
 
         return rootView;
@@ -71,6 +70,8 @@ public class NoteFragment extends Fragment {
 
     public void init(View v){
         background = (ImageView)v.findViewById(R.id.noteBackground);
+        //background.setImageBitmap(fitImage(backgroundPath));
+        background.setImageBitmap(BitmapFactory.decodeFile(backgroundPath));
         noteView = new NoteView(getActivity().getApplicationContext(), filePath);
         frameLayout = (FrameLayout)v.findViewById(R.id.note_framelayout);
         frameLayout.addView(noteView);
@@ -79,29 +80,6 @@ public class NoteFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-    }
-
-    @Override
-    public void onDestroy(){
-        NotebookActivity.menuType = NotebookActivity.MENU_SELECT_NOTE;
-        super.onDestroy();
-    }
-
-    public Bitmap fitImage(String imageName){
-        Bitmap bmpSrc;
-        bmpSrc = BitmapFactory.decodeFile(imageName);
-        float srcWidth = bmpSrc.getWidth();
-        float srcHeight = bmpSrc.getHeight();
-
-        float rsz_ratio = (float)Math.sqrt(PIXEL_LIMIT / (srcWidth * srcHeight));
-        Log.i("ratio",String.valueOf(rsz_ratio));
-        Matrix matrix = new Matrix();
-
-        matrix.postScale(rsz_ratio,rsz_ratio);
-
-        Bitmap bmpRsz = Bitmap.createBitmap(bmpSrc,0,0,bmpSrc.getWidth(),
-                bmpSrc.getHeight(),matrix,true);
-        return bmpRsz;
     }
 
     @Override
@@ -117,12 +95,12 @@ public class NoteFragment extends Fragment {
     }
 
     public void toDrawLine(){
-        FragmentManager manager = getFragmentManager();
+        FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString("trimed_image_path",backgroundPath);
         DrawLineFragment fragment = new DrawLineFragment();
-        bundle.putString("cst_file",getArguments().getString("cst_file"));
+        bundle.putString("cst_path",getArguments().getString("cst_path"));
         fragment.setArguments(bundle);
         transaction.replace(R.id.container, fragment);
         transaction.addToBackStack("note");

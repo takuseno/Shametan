@@ -1,16 +1,20 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.graphics.Matrix;
+import android.graphics.Point;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -27,8 +31,6 @@ public class DrawLineFragment extends Fragment {
 
     //declare String of file path
     private String filePath;
-
-    private float PIXEL_LIMIT;
 
     public DrawLineFragment(){
 
@@ -55,8 +57,6 @@ public class DrawLineFragment extends Fragment {
             public void run() {
                 drawLineView.putDispWidth(rootView.getWidth());
                 drawLineView.putDispHeight(rootView.getHeight());
-                PIXEL_LIMIT = rootView.getWidth() * rootView.getHeight() * 3;
-                background.setImageBitmap(fitImage(filePath));
                 background.post(new Runnable() {
                     @Override
                     public void run() {
@@ -87,6 +87,8 @@ public class DrawLineFragment extends Fragment {
         background = (ImageView)v.findViewById(R.id.drawline_background);
         //get trimed image path
         filePath = getArguments().getString("trimed_image_path");
+        background.setImageBitmap(BitmapFactory.decodeFile(filePath));
+        //background.setImageBitmap(fitImage(filePath));
 
         frameLayout = (FrameLayout)v.findViewById(R.id.drawline_frameLayout);
 
@@ -110,29 +112,13 @@ public class DrawLineFragment extends Fragment {
         super.onDestroyView();
     }
 
-    public Bitmap fitImage(String imageName){
-        Bitmap bmpSrc;
-        bmpSrc = BitmapFactory.decodeFile(imageName);
-        float srcWidth = bmpSrc.getWidth();
-        float srcHeight = bmpSrc.getHeight();
-
-        float rsz_ratio = (float)Math.sqrt(PIXEL_LIMIT / (srcWidth * srcHeight));
-        Log.i("ratio", String.valueOf(rsz_ratio));
-        Matrix matrix = new Matrix();
-
-        matrix.postScale(rsz_ratio,rsz_ratio);
-
-        Bitmap bmpRsz = Bitmap.createBitmap(bmpSrc,0,0,bmpSrc.getWidth(),
-                bmpSrc.getHeight(),matrix,true);
-        return bmpRsz;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem){
         switch(menuItem.getItemId()){
             case R.id.save_line:
                 drawLineView.exportData();
-                CSTFileController cstFileController = new CSTFileController(getArguments().getString("cst_file"));
+                CSTFileController cstFileController = new CSTFileController(getArguments().getString("cst_path"));
                 cstFileController.saveCSTFile(new File(filePath));
                 if(getActivity().getClass() == GetImageFromCameraActivity.class
                         || getActivity().getClass() == GetImageFromGalleryActivity.class){

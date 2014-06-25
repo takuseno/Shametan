@@ -2,7 +2,9 @@ package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.content.pm.ActivityInfo;
 import android.graphics.BitmapRegionDecoder;
+import android.graphics.Point;
 import android.graphics.Rect;
+import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,9 +16,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -74,22 +78,6 @@ public class TrimFragment extends Fragment{
                 dispWidth = rootView.getWidth();
                 dispHeight = rootView.getHeight();
                 trimmingView.init(dispWidth,dispHeight);
-
-                PIXEL_LIMIT = dispWidth * dispHeight * 3;
-                Bitmap srcBmp = compressImage(imagePath);
-                if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
-                    Matrix matrix = new Matrix();
-                    matrix.postRotate(90);
-                    Bitmap rotatedBmp = Bitmap.createBitmap(srcBmp,0,0,
-                            srcBmp.getWidth(),srcBmp.getHeight(),matrix,true);
-                    imageView.setImageBitmap(rotatedBmp);
-                    setBmp = rotatedBmp;
-                }
-                else{
-                    imageView.setImageBitmap(srcBmp);
-                    setBmp = srcBmp;
-                }
-
                 imageView.post(new Runnable() {
                     @Override
                     public void run() {
@@ -101,7 +89,6 @@ public class TrimFragment extends Fragment{
                         Log.i("image height",String.valueOf(imageHeight));
                     }
                 });
-
             }
         });
         return rootView;
@@ -122,6 +109,32 @@ public class TrimFragment extends Fragment{
 
         imageView = (ImageView)v.findViewById(R.id.trimImageView);
         imagePath = getArguments().getString("image_path");
+        WindowManager wm = getActivity().getWindowManager();
+        Display disp = wm.getDefaultDisplay();
+        if(Build.VERSION.SDK_INT < 13){
+            dispWidth = disp.getWidth();
+            dispHeight = disp.getHeight();
+        }
+        else {
+            Point point = new Point();
+            disp.getSize(point);
+            dispWidth = point.x;
+            dispHeight = point.y;
+        }
+        PIXEL_LIMIT = dispWidth * dispHeight * 3;
+        Bitmap srcBmp = compressImage(imagePath);
+        if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
+            Matrix matrix = new Matrix();
+            matrix.postRotate(90);
+            Bitmap rotatedBmp = Bitmap.createBitmap(srcBmp,0,0,
+                    srcBmp.getWidth(),srcBmp.getHeight(),matrix,true);
+            imageView.setImageBitmap(rotatedBmp);
+            setBmp = rotatedBmp;
+        }
+        else{
+            imageView.setImageBitmap(srcBmp);
+            setBmp = srcBmp;
+        }
 
         trimButton = (Button)v.findViewById(R.id.trimButton);
         trimButton.setOnClickListener(new View.OnClickListener() {
@@ -201,6 +214,20 @@ public class TrimFragment extends Fragment{
                 matrix.postRotate(90);
                 saveBmp = Bitmap.createBitmap(tempBmp,0,0,
                         tempBmp.getWidth(),tempBmp.getHeight(),matrix,true);
+                tempBmp = saveBmp;
+                srcWidth = tempBmp.getWidth();
+                srcHeight = tempBmp.getHeight();
+
+                if(srcWidth < srcHeight * (dispWidth / dispHeight)){
+                    rsz_ratio = dispHeight / srcHeight;
+                }
+                else{
+                    rsz_ratio = dispWidth / srcWidth;
+                }
+                matrix = new Matrix();
+                matrix.postScale(rsz_ratio,rsz_ratio);
+                saveBmp = Bitmap.createBitmap(tempBmp,0,0,tempBmp.getWidth(),
+                        tempBmp.getHeight(),matrix,true);
             }
         }catch (IOException e){
             e.printStackTrace();
@@ -224,7 +251,7 @@ public class TrimFragment extends Fragment{
         FragmentTransaction transaction = manager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString("trimed_image_path",imagePath);
-        bundle.putString("cst_file",getArguments().getString("cst_file"));
+        bundle.putString("cst_path",getArguments().getString("cst_path"));
         DrawLineFragment fragment = new DrawLineFragment();
         fragment.setArguments(bundle);
         transaction.replace(R.id.container,fragment,"drawline_fragment");
