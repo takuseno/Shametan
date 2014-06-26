@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:shametan="http://schemas.android.com/apk/res-auto">
+
+    <item
+    android:id="@+id/ratate"
+    android:icon="@drawable/ic_action_rotate_right"
+    android:title="@string/rotate"
+    shametan:showAsAction="always"/>
+
+    <item
+        android:id="@+id/trimming"
+        android:icon="@drawable/ic_action_crop"
+        android:title="@string/trimming"
+        shametan:showAsAction="always"/>
+
+
+
+</menu>

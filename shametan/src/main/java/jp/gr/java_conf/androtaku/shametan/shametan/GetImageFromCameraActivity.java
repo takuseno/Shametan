@@ -12,6 +12,7 @@ public class GetImageFromCameraActivity extends ActionBarActivity {
     public static int menuType = 1;
     public static final int MENU_MAIN = 1;
     public static final int MENU_DRAWLINE = 2;
+    public static final int MENU_TRIM = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -20,7 +21,7 @@ public class GetImageFromCameraActivity extends ActionBarActivity {
 
         if (savedInstanceState == null) {
             Bundle bundle = new Bundle();
-            bundle.putString("cst_file",getIntent().getStringExtra("cst_file"));
+            bundle.putString("cst_path",getIntent().getStringExtra("cst_path"));
             CameraFragment fragment = new CameraFragment();
             fragment.setArguments(bundle);
             getSupportFragmentManager().beginTransaction()
@@ -39,6 +40,10 @@ public class GetImageFromCameraActivity extends ActionBarActivity {
 
             case MENU_DRAWLINE:
                 getMenuInflater().inflate(R.menu.drawline_menu,menu);
+                break;
+
+            case MENU_TRIM:
+                getMenuInflater().inflate(R.menu.trim_menu,menu);
                 break;
 
             default:

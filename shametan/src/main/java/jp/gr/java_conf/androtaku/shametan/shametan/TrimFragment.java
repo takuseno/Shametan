@@ -18,6 +18,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -25,6 +26,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -35,7 +37,6 @@ import java.util.Calendar;
  * Created by takuma on 2014/05/05.
  */
 public class TrimFragment extends Fragment{
-    Button trimButton;
     ImageView imageView;
     TrimmingView trimmingView;
     FrameLayout frameLayout;
@@ -91,6 +92,13 @@ public class TrimFragment extends Fragment{
                 });
             }
         });
+        if(getActivity().getClass() == GetImageFromCameraActivity.class) {
+            GetImageFromCameraActivity.menuType = GetImageFromCameraActivity.MENU_TRIM;
+        }
+        else if(getActivity().getClass() == GetImageFromGalleryActivity.class) {
+            GetImageFromGalleryActivity.menuType = GetImageFromGalleryActivity.MENU_TRIM;
+        }
+        setHasOptionsMenu(true);
         return rootView;
     }
 
@@ -100,12 +108,12 @@ public class TrimFragment extends Fragment{
     }
 
     public void init(View v){
-        if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
-            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
-        else if(getArguments().getInt("orientation") == ORIEN_HORIZON){
-            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        }
+        //if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
+          //  getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        //}
+        //else if(getArguments().getInt("orientation") == ORIEN_HORIZON){
+        //    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+      //  }
 
         imageView = (ImageView)v.findViewById(R.id.trimImageView);
         imagePath = getArguments().getString("image_path");
@@ -136,17 +144,6 @@ public class TrimFragment extends Fragment{
             setBmp = srcBmp;
         }
 
-        trimButton = (Button)v.findViewById(R.id.trimButton);
-        trimButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Calendar calendar = Calendar.getInstance();
-                String imagePath = basePath.getPath() + "/" + String.valueOf(calendar.getTimeInMillis()) + ".jpg";
-                saveImage(new File(imagePath));
-                toDrawLine(imagePath);
-            }
-        });
-
         frameLayout = (FrameLayout)v.findViewById(R.id.trim_framelayout);
 
         trimmingView = new TrimmingView(getActivity());
@@ -176,23 +173,26 @@ public class TrimFragment extends Fragment{
 
         float rszX1,rszX2,rszY1,rszY2;
 
-        if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
-            rszX1 = (pointY[0] / rsz_ratio) * ((float) setBmp.getWidth() / (float) imageWidth);
-            rszX2 = (pointY[1] / rsz_ratio) * ((float) setBmp.getWidth() / (float) imageWidth);
-            rszY1 = ((dispWidth - pointX[1]) / rsz_ratio) * ((float) setBmp.getHeight() / (float) imageHeight);
-            rszY2 = ((dispWidth - pointX[0]) / rsz_ratio) * ((float) setBmp.getHeight() / (float) imageHeight);
-        }
-        else {
-            rszX1 = (pointX[0] / rsz_ratio) * ((float) setBmp.getWidth() / (float) imageWidth);
-            rszX2 = (pointX[1] / rsz_ratio) * ((float) setBmp.getWidth() / (float) imageWidth);
-            rszY1 = (pointY[0] / rsz_ratio) * ((float) setBmp.getHeight() / (float) imageHeight);
-            rszY2 = (pointY[1] / rsz_ratio) * ((float) setBmp.getHeight() / (float) imageHeight);
-        }
+       // if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
+        //    rszX1 = (pointY[0]) * ((float) setBmp.getWidth() / (float) imageWidth);
+       //     rszX2 = (pointY[1]) * ((float) setBmp.getWidth() / (float) imageWidth);
+       //     rszY1 = ((dispWidth - pointX[1])) * ((float) setBmp.getHeight() / (float) imageHeight);
+       //     rszY2 = ((dispWidth - pointX[0])) * ((float) setBmp.getHeight() / (float) imageHeight);
+        //}
+       // else {
+            rszX1 = (pointX[0]) * ((float) setBmp.getWidth() / (float) imageWidth);
+            rszX2 = (pointX[1]) * ((float) setBmp.getWidth() / (float) imageWidth);
+            rszY1 = (pointY[0]) * ((float) setBmp.getHeight() / (float) imageHeight);
+            rszY2 = (pointY[1]) * ((float) setBmp.getHeight() / (float) imageHeight);
+       // }
 
         Bitmap saveBmp = null;
 
         try {
-            BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(this.imagePath, false);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            setBmp.compress(Bitmap.CompressFormat.JPEG,100,baos);
+            byte[] bytes = baos.toByteArray();
+            BitmapRegionDecoder regionDecoder = BitmapRegionDecoder.newInstance(bytes,0,bytes.length,false);
             Rect rect = new Rect((int)rszX1,(int)rszY1,(int)rszX2,(int)rszY2);
             Bitmap tempBmp = regionDecoder.decodeRegion(rect,null);
             float srcWidth = tempBmp.getWidth();
@@ -208,7 +208,7 @@ public class TrimFragment extends Fragment{
             matrix.postScale(rsz_ratio,rsz_ratio);
             saveBmp = Bitmap.createBitmap(tempBmp,0,0,tempBmp.getWidth(),
                     tempBmp.getHeight(),matrix,true);
-            if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
+            /*if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
                 tempBmp = saveBmp;
                 matrix = new Matrix();
                 matrix.postRotate(90);
@@ -228,7 +228,7 @@ public class TrimFragment extends Fragment{
                 matrix.postScale(rsz_ratio,rsz_ratio);
                 saveBmp = Bitmap.createBitmap(tempBmp,0,0,tempBmp.getWidth(),
                         tempBmp.getHeight(),matrix,true);
-            }
+            }*/
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -245,7 +245,40 @@ public class TrimFragment extends Fragment{
             e.printStackTrace();
         }
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        switch(menuItem.getItemId()){
+            case R.id.trimming:
+                final Calendar calendar = Calendar.getInstance();
+                String imagePath = basePath.getPath() + "/" + String.valueOf(calendar.getTimeInMillis()) + ".jpg";
+                saveImage(new File(imagePath));
+                toDrawLine(imagePath);
+                break;
 
+            case R.id.ratate:
+                Matrix matrix = new Matrix();
+                matrix.postRotate(90);
+                Bitmap tempBmp = setBmp;
+                Bitmap rotatedBmp = Bitmap.createBitmap(tempBmp,0,0,
+                        tempBmp.getWidth(),tempBmp.getHeight(),matrix,true);
+                imageView.setImageBitmap(rotatedBmp);
+                setBmp = rotatedBmp;
+                imageView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageWidth = imageView.getWidth();
+                        imageHeight = imageView.getHeight();
+                        trimmingView.putWidth(imageWidth);
+                        trimmingView.putHeight(imageHeight);
+                    }
+                });
+                break;
+
+            default:
+        }
+
+        return super.onOptionsItemSelected(menuItem);
+    }
     public void toDrawLine(String imagePath){
         FragmentManager manager = getFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();

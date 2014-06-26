@@ -22,6 +22,7 @@ public class GetImageFromGalleryActivity extends ActionBarActivity {
     public static int menuType = 1;
     public static final int MENU_MAIN = 1;
     public static final int MENU_DRAWLINE = 2;
+    public static final int MENU_TRIM = 3;
 
     private static final int ORIEN_VERTICAL = 1;
     private static final int ORIEN_HORIZON = 2;
@@ -47,6 +48,10 @@ public class GetImageFromGalleryActivity extends ActionBarActivity {
 
             case MENU_DRAWLINE:
                 getMenuInflater().inflate(R.menu.drawline_menu,menu);
+                break;
+
+            case MENU_TRIM:
+                getMenuInflater().inflate(R.menu.trim_menu,menu);
                 break;
 
             default:

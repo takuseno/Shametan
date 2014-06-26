@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -22,6 +23,8 @@ public class CameraFragment extends Fragment {
 
     //declare String of cst file path
     String cstPath;
+
+    private boolean isTaking = false;
 
     //constructor
     public CameraFragment(){
@@ -48,13 +51,25 @@ public class CameraFragment extends Fragment {
         cameraLayout = (LinearLayout)v.findViewById(R.id.camera_view);
         cameraLayout.addView(cameraView);
 
+        cameraView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                //cameraView.myAutoFocus(false);
+                return true;
+            }
+        });
+
         shutter = (ImageButton)v.findViewById(R.id.shutter);
         shutter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                cameraView.myAutoFocus();
+                if(!isTaking) {
+                    isTaking = true;
+                    cameraView.myAutoFocus(true);
+                }
             }
         });
+        isTaking = false;
     }
 
 

@@ -16,5 +16,6 @@
     <string name="no_notes">ノートを追加してください</string>
     <string name="no_pages">ページを追加してください</string>
     <string name="trimming">トリミング</string>
+    <string name="rotate">回転</string>
 
 </resources>

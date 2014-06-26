@@ -39,6 +39,9 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
     //declare File of base directory path
     private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
 
+    private boolean isTaking = false;
+    private boolean isFocused = false;
+
     //constructor
     public CameraView(Context context,FragmentManager manager,String cstPath){
         super(context);
@@ -81,6 +84,7 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     @Override
@@ -129,13 +133,22 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
     }
 
 
-    public void myAutoFocus(){
-        camera.autoFocus(this);
+    public void myAutoFocus(boolean isTaking){
+        this.isTaking = isTaking;
+        if(isTaking && isFocused){
+            camera.takePicture(null,null,this);
+        }
+        else {
+            camera.autoFocus(this);
+        }
     }
 
     @Override
     public void onAutoFocus(boolean success,Camera camera){
-        camera.takePicture(null,null,this);
+        isFocused = success;
+        if(isTaking) {
+            camera.takePicture(null, null, this);
+        }
     }
 
     @Override
