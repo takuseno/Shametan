@@ -3,6 +3,11 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light">
         <!-- Customize your theme here. -->
+        <item name="android:actionBarStyle">@style/actionBar</item>
+    </style>
+
+    <style name="actionBar" parent="Widget.AppCompat.ActionBar">
+        <item name="android:background">#bcdfe7</item>
     </style>
 
     <style name="MyDialogTheme" parent="Theme.AppCompat.Light">

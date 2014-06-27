@@ -10,65 +10,38 @@ import android.view.animation.TranslateAnimation;
  * Created by takuma on 2014/06/25.
  */
 public class ZoomOutPageTransformer implements ViewPager.PageTransformer {
-    private static final float MIN_SCALE = 0.85f;
-    private static final float MIN_ALPHA = 0.5f;
+    private static final float MIN_SCALE = 0.75f;
 
     public void transformPage(View view, float position) {
         int pageWidth = view.getWidth();
-        int pageHeight = view.getHeight();
 
         if (position < -1) { // [-Infinity,-1)
             // This page is way off-screen to the left.
-            AlphaAnimation animation = new AlphaAnimation(0,0);
-            animation.setDuration(0);
-            animation.setFillAfter(true);
-            view.startAnimation(animation);
-            //view.setAlpha(0);
-        } else if (position <= 1) { // [-1,1]
-            // Modify the default slide transition to shrink the page as well
-            float scaleFactor = Math.max(MIN_SCALE, 1 - Math.abs(position));
-            float vertMargin = pageHeight * (1 - scaleFactor) / 2;
-            float horzMargin = pageWidth * (1 - scaleFactor) / 2;
-            if (position < 0) {
-                TranslateAnimation animation = new TranslateAnimation(0,0,horzMargin - vertMargin / 2,0);
-                animation.setDuration(0);
-                animation.setFillAfter(true);
-                view.startAnimation(animation);
-                //view.setTranslationX(horzMargin - vertMargin / 2);
-            } else {
-                TranslateAnimation animation = new TranslateAnimation(0,0,-horzMargin + vertMargin / 2,0);
-                animation.setDuration(0);
-                animation.setFillAfter(true);
-                view.startAnimation(animation);
-                //view.setTranslationX(-horzMargin + vertMargin / 2);
-            }
+            view.setAlpha(0);
+
+        } else if (position <= 0) { // [-1,0]
+            // Use the default slide transition when moving to the left page
+            view.setAlpha(1);
+            view.setTranslationX(0);
+            view.setScaleX(1);
+            view.setScaleY(1);
+
+        } else if (position <= 1) { // (0,1]
+            // Fade the page out.
+            view.setAlpha(1 - position);
+
+            // Counteract the default slide transition
+            view.setTranslationX(pageWidth * -position);
 
             // Scale the page down (between MIN_SCALE and 1)
-            ScaleAnimation scaleAnimation = new ScaleAnimation(1,scaleFactor,1,scaleFactor);
-            scaleAnimation.setDuration(0);
-            //scaleAnimation.setFillAfter(true);
-            view.startAnimation(scaleAnimation);
-            //view.setScaleX(scaleFactor);
-            //view.setScaleY(scaleFactor);
-
-            // Fade the page relative to its size.
-            AlphaAnimation alphaAnimation = new AlphaAnimation(0,MIN_ALPHA +
-                    (scaleFactor - MIN_SCALE) /
-                            (1 - MIN_SCALE) * (1 - MIN_ALPHA));
-            alphaAnimation.setDuration(0);
-            alphaAnimation.setFillAfter(true);
-            view.startAnimation(alphaAnimation);
-            //view.setAlpha(MIN_ALPHA +
-              //      (scaleFactor - MIN_SCALE) /
-                //            (1 - MIN_SCALE) * (1 - MIN_ALPHA));
+            float scaleFactor = MIN_SCALE
+                    + (1 - MIN_SCALE) * (1 - Math.abs(position));
+            view.setScaleX(scaleFactor);
+            view.setScaleY(scaleFactor);
 
         } else { // (1,+Infinity]
             // This page is way off-screen to the right.
-            AlphaAnimation alphaAnimation = new AlphaAnimation(0,0);
-            alphaAnimation.setDuration(0);
-            alphaAnimation.setFillAfter(true);
-            view.startAnimation(alphaAnimation);
-            //view.setAlpha(0);
+            view.setAlpha(0);
         }
     }
 }

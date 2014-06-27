@@ -4,13 +4,17 @@ package jp.gr.java_conf.androtaku.shametan.shametan;
  * Created by takuma on 2014/05/31.
  */
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.io.File;
@@ -29,9 +34,11 @@ public class SelectNoteFragment extends Fragment {
     private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
     GridView gridNoteView;
     TextView noNoteText;
+    ImageButton addNoteButton;
     NoteGridAdapter noteAdapter;
     CSTFileController rootCSTFileController;
     File[] noteFiles;
+    SelectNoteFragment noteFragment;
 
     public static SelectNoteFragment newInstance(){
         SelectNoteFragment fragment = new SelectNoteFragment();
@@ -42,6 +49,9 @@ public class SelectNoteFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,ViewGroup container,
                              Bundle savedInstanceState){
         View rootView = inflater.inflate(R.layout.note_select_layout,container,false);
+        ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
+        noteFragment = this;
+        actionBar.setTitle("ノート");
         init(rootView);
         setHasOptionsMenu(true);
         return rootView;
@@ -52,7 +62,7 @@ public class SelectNoteFragment extends Fragment {
         rootCSTFileController.importCSTFile();
         noteFiles = rootCSTFileController.getNoteFiles();
         gridNoteView = (GridView)v.findViewById(R.id.noteList);
-        gridNoteView.setNumColumns(3);
+        gridNoteView.setNumColumns(2);
         noteAdapter = new NoteGridAdapter(getActivity(),R.layout.select_note_item,noteFiles);
         gridNoteView.setAdapter(noteAdapter);
         gridNoteView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -66,6 +76,34 @@ public class SelectNoteFragment extends Fragment {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 showDeleteDialog(noteFiles[position]);
                 return true;
+            }
+        });
+
+        addNoteButton = (ImageButton)v.findViewById(R.id.addNoteButton);
+        addNoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*final EditText inputName = new EditText(getActivity());
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                        .setTitle("ノートの追加")
+                        .setView(inputName)
+                        .setPositiveButton("決定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String newPath = basePath + "/" + inputName.getText() + ".cst";
+                                File newDirectory = new File(newPath);
+                                rootCSTFileController.makeCST(newDirectory);
+                                rootCSTFileController.saveCSTFile(newDirectory);
+                                refreshNoteAdapter();
+                            }
+                        })
+                        .setNegativeButton("キャンセル", null);
+
+                AlertDialog dialog = builder.create();
+                dialog.show();*/
+                NoteCreateDialog dialog = new NoteCreateDialog();
+                dialog.setFragment(noteFragment);
+                dialog.show(((Activity)getActivity()).getFragmentManager(),"createDialog");
             }
         });
 

@@ -2,7 +2,6 @@
 <resources>
 
     <string name="app_name">写メタン</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="get_from_camera">カメラ</string>
     <string name="get_from_sd">保存済み</string>
@@ -17,5 +16,6 @@
     <string name="no_pages">ページを追加してください</string>
     <string name="trimming">トリミング</string>
     <string name="rotate">回転</string>
+    <string name="notes_name">ノートのタイトル</string>
 
 </resources>

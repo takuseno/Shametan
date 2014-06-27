@@ -1,5 +1,6 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -39,7 +40,9 @@ public class NotePagerFragment extends Fragment {
         viewPager = (ViewPager)v.findViewById(R.id.viewpager);
         viewPager.setAdapter(new NoteFragmentPagerAdapter(getChildFragmentManager(),
                 getArguments().getString("cst_path")));
-        viewPager.setPageTransformer(true,new ZoomOutPageTransformer());
+        if(Build.VERSION.SDK_INT > 12) {
+            viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+        }
         viewPager.setCurrentItem(getArguments().getInt("position"));
     }
 

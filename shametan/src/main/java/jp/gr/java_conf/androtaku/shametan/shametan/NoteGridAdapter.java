@@ -57,8 +57,8 @@ public class NoteGridAdapter extends BaseAdapter{
             holder = new SelectNoteHolder();
             convertView = inflater.inflate(layoutId, parent, false);
             ViewGroup.LayoutParams params = convertView.getLayoutParams();
-            params.width = dispWidth/3;
-            params.height = (int)(dispWidth/3*1.5);
+            params.width = dispWidth/2;
+            params.height = dispWidth/2;
             convertView.setLayoutParams(params);
 
             holder.imageView = (ImageView) convertView.findViewById(R.id.select_note_image);

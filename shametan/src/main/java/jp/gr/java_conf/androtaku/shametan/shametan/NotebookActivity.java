@@ -70,7 +70,7 @@ public class NotebookActivity extends ActionBarActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         switch(menuType) {
             case MENU_SELECT_NOTE:
-                getMenuInflater().inflate(R.menu.select_note_menu, menu);
+                //getMenuInflater().inflate(R.menu.select_note_menu, menu);
                 break;
 
             case MENU_NOTE:
@@ -82,7 +82,7 @@ public class NotebookActivity extends ActionBarActivity {
                 break;
 
             case  MENU_SELECT_PAGE:
-                getMenuInflater().inflate(R.menu.select_page_menu,menu);
+                //getMenuInflater().inflate(R.menu.select_page_menu,menu);
                 break;
 
             default:
