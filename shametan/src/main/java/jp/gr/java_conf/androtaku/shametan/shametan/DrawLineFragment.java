@@ -8,6 +8,8 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -40,6 +42,9 @@ public class DrawLineFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,ViewGroup container,
                              Bundle savedInstanceState){
         final View rootView = inflater.inflate(R.layout.drawline_layout,container,false);
+
+        ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         //set menu as activity
         if(getActivity().getClass() == GetImageFromCameraActivity.class) {
@@ -127,6 +132,10 @@ public class DrawLineFragment extends Fragment {
                 else{
                     getFragmentManager().popBackStack();
                 }
+                break;
+
+            case android.R.id.home:
+                getFragmentManager().popBackStack();
                 break;
 
             default:

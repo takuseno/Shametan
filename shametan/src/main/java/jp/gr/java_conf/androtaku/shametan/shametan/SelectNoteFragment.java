@@ -6,7 +6,6 @@ package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -50,8 +49,9 @@ public class SelectNoteFragment extends Fragment {
                              Bundle savedInstanceState){
         View rootView = inflater.inflate(R.layout.note_select_layout,container,false);
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(false);
         noteFragment = this;
-        actionBar.setTitle("ノート");
+        actionBar.setTitle(getString(R.string.notes));
         init(rootView);
         setHasOptionsMenu(true);
         return rootView;
@@ -74,7 +74,7 @@ public class SelectNoteFragment extends Fragment {
         gridNoteView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                showDeleteDialog(noteFiles[position]);
+                longPressedDialog(noteFiles[position]);
                 return true;
             }
         });
@@ -83,27 +83,9 @@ public class SelectNoteFragment extends Fragment {
         addNoteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*final EditText inputName = new EditText(getActivity());
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                        .setTitle("ノートの追加")
-                        .setView(inputName)
-                        .setPositiveButton("決定", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                String newPath = basePath + "/" + inputName.getText() + ".cst";
-                                File newDirectory = new File(newPath);
-                                rootCSTFileController.makeCST(newDirectory);
-                                rootCSTFileController.saveCSTFile(newDirectory);
-                                refreshNoteAdapter();
-                            }
-                        })
-                        .setNegativeButton("キャンセル", null);
-
-                AlertDialog dialog = builder.create();
-                dialog.show();*/
                 NoteCreateDialog dialog = new NoteCreateDialog();
                 dialog.setFragment(noteFragment);
-                dialog.show(((Activity)getActivity()).getFragmentManager(),"createDialog");
+                dialog.show(((Activity) getActivity()).getFragmentManager(), "createDialog");
             }
         });
 
@@ -134,17 +116,19 @@ public class SelectNoteFragment extends Fragment {
 
     public void showDeleteDialog(File file){
         final File deleteItem = file;
+        int index = file.getName().indexOf(".");
+        String name = file.getName().substring(0,index);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle("削除")
-                .setMessage("選択したものを削除しますか？")
-                .setPositiveButton("削除", new DialogInterface.OnClickListener() {
+                .setTitle(getString(R.string.delete))
+                .setMessage(name + getString(R.string.isdelete))
+                .setPositiveButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         rootCSTFileController.deleteItem(deleteItem);
                         refreshNoteAdapter();
                     }
                 })
-                .setNegativeButton("キャンセル", null);
+                .setNegativeButton(getString(R.string.cancel), null);
 
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -156,9 +140,9 @@ public class SelectNoteFragment extends Fragment {
             case R.id.add_directory:
                 final EditText inputName = new EditText(getActivity());
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                        .setTitle("ノートの追加")
+                        .setTitle(getString(R.string.add_note))
                         .setView(inputName)
-                        .setPositiveButton("決定", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 String newPath = basePath + "/" + inputName.getText() + ".cst";
@@ -168,7 +152,7 @@ public class SelectNoteFragment extends Fragment {
                                 refreshNoteAdapter();
                             }
                         })
-                        .setNegativeButton("キャンセル", null);
+                        .setNegativeButton(getString(R.string.cancel), null);
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
@@ -178,6 +162,38 @@ public class SelectNoteFragment extends Fragment {
         }
         return true;
 
+    }
+
+    public void longPressedDialog(final File file){
+        final File selectedFile = file;
+        final CharSequence[] items = {getString(R.string.delete),getString(R.string.edit)};
+        AlertDialog dialog;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.editing_note))
+                .setItems(items,new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case 0:
+                                showDeleteDialog(selectedFile);
+                                dialog.dismiss();
+                                break;
+                            case 1:
+                                NoteCreateDialog createDialog = new NoteCreateDialog();
+                                createDialog.setFragment(noteFragment);
+                                int index = file.getName().indexOf(".");
+                                createDialog.setEditText(file.getName().substring(0,index));
+                                createDialog.setColor(new NoteColorManagement().getColor(file.getName().substring(0,index) + ".ns"));
+                                createDialog.setCSTFile(selectedFile.getPath());
+                                createDialog.setMode(2);
+                                createDialog.show(((Activity) getActivity()).getFragmentManager(), "createDialog");
+                                dialog.dismiss();
+                                break;
+                        }
+                    }
+                });
+        dialog = builder.create();
+        dialog.show();
     }
 
     public void toPage(String filePath){

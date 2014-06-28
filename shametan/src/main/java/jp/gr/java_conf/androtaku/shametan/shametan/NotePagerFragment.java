@@ -4,7 +4,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -23,6 +26,9 @@ public class NotePagerFragment extends Fragment {
                              Bundle savedInstanceState){
         View rootView = inflater.inflate(R.layout.viewpager_layout,container,false);
         init(rootView);
+
+        ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         NotebookActivity.menuType = NotebookActivity.MENU_NOTE;
         setHasOptionsMenu(true);
@@ -46,4 +52,15 @@ public class NotePagerFragment extends Fragment {
         viewPager.setCurrentItem(getArguments().getInt("position"));
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        switch(menuItem.getItemId()){
+            case android.R.id.home:
+                getFragmentManager().popBackStack();
+                break;
+
+            default:
+        }
+        return true;
+    }
 }

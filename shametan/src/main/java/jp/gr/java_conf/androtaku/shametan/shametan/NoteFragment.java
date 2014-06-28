@@ -1,23 +1,17 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.graphics.Matrix;
-import android.graphics.Point;
-import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -40,7 +34,7 @@ public class NoteFragment extends Fragment {
                              Bundle savedInstanceState){
         final View rootView = inflater.inflate(R.layout.note_layout,container,false);
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
-        actionBar.setTitle("ページ");
+        actionBar.setTitle(getString(R.string.note));
 
         backgroundPath = getArguments().getString("file_path");
         int index = backgroundPath.lastIndexOf(".");

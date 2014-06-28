@@ -1,5 +1,7 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.os.Environment;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,6 +11,7 @@ import java.io.IOException;
  * Created by takuma on 2014/06/03.
  */
 public class CSTFileController {
+    private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
 
     //declare cst file path
     private File path;
@@ -132,6 +135,9 @@ public class CSTFileController {
                     deleteSTFile.delete();
                     restString = temp.substring(index + 1);
                 }
+                index = file.getName().indexOf(".");
+                File nsFile = new File(basePath + "/" + file.getName().substring(0,index) + ".ns");
+                nsFile.delete();
             } catch(IOException e){
                 e.printStackTrace();
             }
@@ -159,6 +165,28 @@ public class CSTFileController {
         }
 
         file.delete();
+    }
+
+    public void reviseCSTFile(File file,String newPath){
+        importCSTFile();
+        //revise loaded cst file
+        int index = readString.indexOf(file.getPath());
+        String foreString = readString.substring(readString.indexOf(",") + 1, index);
+        String backString = readString.substring(index + file.getPath().length() + 1);
+        try {
+            FileOutputStream fos = new FileOutputStream(path);
+            String output = String.valueOf(files.length) + "," + foreString + newPath + "," + backString;
+            fos.write(output.getBytes());
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        index = file.getName().indexOf(".");
+        File nsFile = new File(basePath + "/" + file.getName().substring(0,index) + ".ns");
+        index = newPath.indexOf(".");
+        File newNsFile = new File(newPath.substring(0,index) + ".ns");
+        nsFile.renameTo(newNsFile);
+        file.renameTo(new File(newPath));
     }
 
     public void saveCSTFile(File file){

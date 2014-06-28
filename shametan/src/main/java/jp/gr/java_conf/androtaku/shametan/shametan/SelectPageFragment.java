@@ -41,7 +41,8 @@ public class SelectPageFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.page_select_layout,container,false);
         init(rootView);
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
-        actionBar.setTitle("ページ");
+        actionBar.setTitle(getString(R.string.pages));
+        actionBar.setDisplayHomeAsUpEnabled(true);
         NotebookActivity.menuType = NotebookActivity.MENU_SELECT_PAGE;
         setHasOptionsMenu(true);
         return rootView;
@@ -113,25 +114,25 @@ public class SelectPageFragment extends Fragment {
     public void showDeleteDialog(File file){
         final File deleteItem = file;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle("削除")
-                .setMessage("選択したものを削除しますか？")
-                .setPositiveButton("削除", new DialogInterface.OnClickListener() {
+                .setTitle(getString(R.string.delete))
+                .setMessage(getString(R.string.chosendelete))
+                .setPositiveButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         cstFileController.deleteItem(deleteItem);
                         refreshPageAdapter();
                     }
                 })
-                .setNegativeButton("キャンセル", null);
+                .setNegativeButton(getString(R.string.cancel), null);
 
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
     public void showAddDialog(){
-        final CharSequence[] items = {"カメラから追加","端末内から追加"};
+        final CharSequence[] items = {getString(R.string.add_from_camera),getString(R.string.add_from_gallery)};
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle("ページを追加")
+                .setTitle(getString(R.string.adding_page))
                 .setItems(items,new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -168,6 +169,10 @@ public class SelectPageFragment extends Fragment {
                 intent = new Intent(getActivity().getApplicationContext(),GetImageFromGalleryActivity.class);
                 intent.putExtra("cst_path",getArguments().getString("cst_path"));
                 getActivity().startActivity(intent);
+                break;
+
+            case android.R.id.home:
+                getFragmentManager().popBackStack();
                 break;
 
             default:

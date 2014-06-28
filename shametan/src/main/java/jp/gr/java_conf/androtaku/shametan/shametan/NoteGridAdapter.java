@@ -27,6 +27,13 @@ public class NoteGridAdapter extends BaseAdapter{
 
     int dispWidth;
 
+    int[] colorIds = {
+            R.drawable.note_title_blue,
+            R.drawable.note_title_blue,R.drawable.note_title_green,
+            R.drawable.note_title_pink,R.drawable.note_title_yellow,
+            R.drawable.note_title_violet,R.drawable.note_title_orange
+    };
+
     public NoteGridAdapter(Context context,int layoutId,File[] noteList){
         super();
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -70,10 +77,10 @@ public class NoteGridAdapter extends BaseAdapter{
         }
 
         holder.imageView.setTag(mFilePath);
-        holder.imageView.setImageResource(R.drawable.note_title);
         int index = mFilePath.getName().indexOf(".");
         holder.textView.setText(mFilePath.getName().substring(0,index));
-
+        NoteColorManagement noteColorManagement = new NoteColorManagement();
+        holder.imageView.setImageResource(colorIds[noteColorManagement.getColor(mFilePath.getName().substring(0,index) + ".ns")]);
         convertView.startAnimation(anim);
 
         return convertView;
