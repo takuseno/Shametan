@@ -28,7 +28,6 @@ public class NotePagerFragment extends Fragment {
         init(rootView);
 
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
 
         NotebookActivity.menuType = NotebookActivity.MENU_NOTE;
         setHasOptionsMenu(true);
@@ -46,21 +45,7 @@ public class NotePagerFragment extends Fragment {
         viewPager = (ViewPager)v.findViewById(R.id.viewpager);
         viewPager.setAdapter(new NoteFragmentPagerAdapter(getChildFragmentManager(),
                 getArguments().getString("cst_path")));
-        if(Build.VERSION.SDK_INT > 12) {
-            viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
-        }
+        viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
         viewPager.setCurrentItem(getArguments().getInt("position"));
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem){
-        switch(menuItem.getItemId()){
-            case android.R.id.home:
-                getFragmentManager().popBackStack();
-                break;
-
-            default:
-        }
-        return true;
     }
 }

@@ -34,6 +34,7 @@ public class NoteFragment extends Fragment {
                              Bundle savedInstanceState){
         final View rootView = inflater.inflate(R.layout.note_layout,container,false);
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle(getString(R.string.note));
 
         backgroundPath = getArguments().getString("file_path");
@@ -60,7 +61,8 @@ public class NoteFragment extends Fragment {
 
         init(rootView);
 
-        //NotebookActivity.menuType = NotebookActivity.MENU_NOTE;
+        NotebookActivity.menuType = NotebookActivity.MENU_NOTE;
+        //getFragmentManager().invalidOptionsMenu();
         setHasOptionsMenu(true);
 
         return rootView;
@@ -68,7 +70,6 @@ public class NoteFragment extends Fragment {
 
     public void init(View v){
         background = (ImageView)v.findViewById(R.id.noteBackground);
-        //background.setImageBitmap(fitImage(backgroundPath));
         background.setImageBitmap(BitmapFactory.decodeFile(backgroundPath));
         noteView = new NoteView(getActivity().getApplicationContext(), filePath);
         frameLayout = (FrameLayout)v.findViewById(R.id.note_framelayout);
@@ -87,6 +88,9 @@ public class NoteFragment extends Fragment {
                 toDrawLine();
                 break;
 
+            case android.R.id.home:
+                getParentFragment().getFragmentManager().popBackStack();
+                break;
             default:
         }
         return super.onOptionsItemSelected(menuItem);
