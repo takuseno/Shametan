@@ -49,8 +49,8 @@ public class PagePhotoAsync extends AsyncTask<String,Void,Bitmap> {
 
         BitmapFactory.decodeFile(imageName, opt);
 
-        int scaleW = opt.outWidth / (width/2);
-        int scaleH = opt.outHeight / (width/2);
+        int scaleW = opt.outWidth / (width/3);
+        int scaleH = opt.outHeight / (width/3);
 
         opt.inSampleSize = Math.max(scaleW, scaleH);
         opt.inJustDecodeBounds = false;
@@ -58,7 +58,7 @@ public class PagePhotoAsync extends AsyncTask<String,Void,Bitmap> {
 
         int w = bmp.getWidth();
         int h = bmp.getHeight();
-        float scale = Math.min((float)(width/2)/w, (float)(width/2)/h);
+        float scale = Math.min((float)(width/3)/w, (float)(width/3)/h);
 
         Matrix matrix = new Matrix();
         matrix.postScale(scale, scale);

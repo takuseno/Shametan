@@ -444,13 +444,16 @@ public class DrawLineView extends View{
             case MotionEvent.ACTION_MOVE:
                 movePoint(event.getX(),event.getY());
                 if(selected == SELECTED_WAITING_ADDITION){
-                    addLine();
-                    selected = SELECTED_END;
-                    selectedNum = numLines - 1;
-                    x1[selectedNum] = startX;
-                    x2[selectedNum] = startX;
-                    y1[selectedNum] = startY;
-                    y2[selectedNum] = startY;
+                    if(Math.abs(startX - event.getX()) > 30
+                            || Math.abs(startY - event.getY()) > 30) {
+                        addLine();
+                        selected = SELECTED_END;
+                        selectedNum = numLines - 1;
+                        x1[selectedNum] = startX;
+                        x2[selectedNum] = event.getX();
+                        y1[selectedNum] = startY;
+                        y2[selectedNum] = event.getY();
+                    }
                 }
                 break;
 

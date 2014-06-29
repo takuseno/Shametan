@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import java.io.File;
 
@@ -73,6 +74,7 @@ public class DrawLineFragment extends Fragment {
                             public void run() {
                                 frameLayout.setDrawingCacheEnabled(true);
                                 drawLineView.putBackgroundCash(frameLayout.getDrawingCache());
+                                frameLayout.addView(drawLineView);
                             }
                         });
                     }
@@ -98,7 +100,7 @@ public class DrawLineFragment extends Fragment {
         frameLayout = (FrameLayout)v.findViewById(R.id.drawline_frameLayout);
 
         drawLineView = new DrawLineView(getActivity(),filePath);
-        frameLayout.addView(drawLineView);
+
     }
 
     @Override
