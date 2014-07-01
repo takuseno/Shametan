@@ -1,5 +1,6 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
@@ -28,6 +29,9 @@ public class NotebookActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SharedPreferences prefs = getSharedPreferences("prefs",MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
         if(!basePath.exists()){
             if(!basePath.mkdir()){
                 Toast.makeText(this, "failed to make a root folder", Toast.LENGTH_SHORT).show();
@@ -55,13 +59,21 @@ public class NotebookActivity extends ActionBarActivity {
         }
 
         if (savedInstanceState == null) {
-            Bundle bundle = new Bundle();
-            bundle.putString("cst_file","/root.cst");
-            SelectNoteFragment fragment = new SelectNoteFragment();
-            fragment.setArguments(bundle);
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, fragment)
-                    .commit();
+            if(prefs.getBoolean("isActivated",false)){
+                ActivationFragment fragment = new ActivationFragment();
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, fragment)
+                        .commit();
+            }
+            else {
+                Bundle bundle = new Bundle();
+                bundle.putString("cst_file", "/root.cst");
+                SelectNoteFragment fragment = new SelectNoteFragment();
+                fragment.setArguments(bundle);
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, fragment)
+                        .commit();
+            }
         }
     }
 

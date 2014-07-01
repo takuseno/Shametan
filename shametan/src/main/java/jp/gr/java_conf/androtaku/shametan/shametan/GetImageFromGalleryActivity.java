@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 
 import java.io.IOException;
@@ -111,10 +112,5 @@ public class GetImageFromGalleryActivity extends ActionBarActivity {
             transaction.addToBackStack("gallery_small");
             transaction.commit();
         }
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig){
-        super.onConfigurationChanged(newConfig);
     }
 }

@@ -27,4 +27,7 @@
     <string name="making_note">Making a Note</string>
     <string name="editing_note">Edit Note</string>
     <string name="adding_page">Add a Page</string>
+    <string name="activation_text">Rotate screen to get the screen size exactly. This is shown only at the first activation.</string>
+    <string name="activated_text">Successful to get the screen size! Let's start to push the below button!</string>
+    <string name="start_text">Start</string>
 </resources>

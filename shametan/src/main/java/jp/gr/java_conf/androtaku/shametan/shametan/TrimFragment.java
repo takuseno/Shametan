@@ -1,6 +1,7 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -54,6 +55,7 @@ public class TrimFragment extends Fragment{
     private int dispWidth,dispHeight;
     private int imageWidth,imageHeight;
 
+    private View stockRootView;
 
     public TrimFragment(){
 
@@ -99,6 +101,7 @@ public class TrimFragment extends Fragment{
             GetImageFromGalleryActivity.menuType = GetImageFromGalleryActivity.MENU_TRIM;
         }
         setHasOptionsMenu(true);
+        stockRootView = rootView;
         return rootView;
     }
 
@@ -172,19 +175,10 @@ public class TrimFragment extends Fragment{
         float[] pointY = trimmingView.getPointsY();
 
         float rszX1,rszX2,rszY1,rszY2;
-
-       // if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
-        //    rszX1 = (pointY[0]) * ((float) setBmp.getWidth() / (float) imageWidth);
-       //     rszX2 = (pointY[1]) * ((float) setBmp.getWidth() / (float) imageWidth);
-       //     rszY1 = ((dispWidth - pointX[1])) * ((float) setBmp.getHeight() / (float) imageHeight);
-       //     rszY2 = ((dispWidth - pointX[0])) * ((float) setBmp.getHeight() / (float) imageHeight);
-        //}
-       // else {
-            rszX1 = (pointX[0]) * ((float) setBmp.getWidth() / (float) imageWidth);
-            rszX2 = (pointX[1]) * ((float) setBmp.getWidth() / (float) imageWidth);
-            rszY1 = (pointY[0]) * ((float) setBmp.getHeight() / (float) imageHeight);
-            rszY2 = (pointY[1]) * ((float) setBmp.getHeight() / (float) imageHeight);
-       // }
+        rszX1 = (pointX[0]) * ((float) setBmp.getWidth() / (float) imageWidth);
+        rszX2 = (pointX[1]) * ((float) setBmp.getWidth() / (float) imageWidth);
+        rszY1 = (pointY[0]) * ((float) setBmp.getHeight() / (float) imageHeight);
+        rszY2 = (pointY[1]) * ((float) setBmp.getHeight() / (float) imageHeight);
 
         Bitmap saveBmp = null;
 
@@ -208,27 +202,6 @@ public class TrimFragment extends Fragment{
             matrix.postScale(rsz_ratio,rsz_ratio);
             saveBmp = Bitmap.createBitmap(tempBmp,0,0,tempBmp.getWidth(),
                     tempBmp.getHeight(),matrix,true);
-            /*if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
-                tempBmp = saveBmp;
-                matrix = new Matrix();
-                matrix.postRotate(90);
-                saveBmp = Bitmap.createBitmap(tempBmp,0,0,
-                        tempBmp.getWidth(),tempBmp.getHeight(),matrix,true);
-                tempBmp = saveBmp;
-                srcWidth = tempBmp.getWidth();
-                srcHeight = tempBmp.getHeight();
-
-                if(srcWidth < srcHeight * (dispWidth / dispHeight)){
-                    rsz_ratio = dispHeight / srcHeight;
-                }
-                else{
-                    rsz_ratio = dispWidth / srcWidth;
-                }
-                matrix = new Matrix();
-                matrix.postScale(rsz_ratio,rsz_ratio);
-                saveBmp = Bitmap.createBitmap(tempBmp,0,0,tempBmp.getWidth(),
-                        tempBmp.getHeight(),matrix,true);
-            }*/
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -290,5 +263,37 @@ public class TrimFragment extends Fragment{
         transaction.replace(R.id.container,fragment,"drawline_fragment");
         transaction.addToBackStack("trim");
         transaction.commit();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){
+        super.onConfigurationChanged(newConfig);
+        Log.i("rotate", "rotate");
+        frameLayout.removeView(trimmingView);
+        trimmingView = null;
+        stockRootView = getView();
+        init(stockRootView);
+        stockRootView.post(new Runnable() {
+            @Override
+            public void run() {
+               // dispWidth = stockRootView.getMeasuredHeight();
+                //dispHeight = stockRootView.getMeasuredWidth();
+                Log.i("dispHeight",""+dispHeight);
+                Log.i("dispWidth",""+dispWidth);
+                trimmingView.init(dispWidth,dispHeight);
+                imageView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageWidth = imageView.getWidth();
+                        imageHeight = imageView.getHeight();
+                        trimmingView.putWidth(imageWidth);
+                        trimmingView.putHeight(imageHeight);
+                        Log.i("image width",String.valueOf(imageWidth));
+                        Log.i("image height",String.valueOf(imageHeight));
+                    }
+                });
+            }
+        });
+
     }
 }

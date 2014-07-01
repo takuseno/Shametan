@@ -28,5 +28,8 @@
     <string name="making_note">ノートの作成</string>
     <string name="editing_note">ノートの編集</string>
     <string name="adding_page">ページを追加</string>
+    <string name="activation_text">画面のサイズを正しく取得するために画面の向きを回転してください。これは初回起動時にしか表示されません。</string>
+    <string name="activted_text">画面のサイズが取得出来ました。下のボタンを押して始めましょう。</string>
+    <string name="start_text">始める</string>
 
 </resources>

@@ -46,6 +46,7 @@ public class DrawLineOptionDialog extends DialogFragment{
         sourceSize = lineSize;
         sourceColor = lineColor;
         this.selectedNum = selectedNum;
+
     }
 
     @Override
@@ -159,6 +160,16 @@ public class DrawLineOptionDialog extends DialogFragment{
                 getDialog().dismiss();
             }
         });
+
+        if(sourceColor == red){
+            redButton.setBackgroundResource(R.drawable.red_clicked);
+        }
+        else if(sourceColor == green){
+            greenButton.setBackgroundResource(R.drawable.green_clicked);
+        }
+        else if(sourceColor == blue){
+            blueButton.setBackgroundResource(R.drawable.blue_clicked);
+        }
     }
 
     public boolean isChangeFragColor(){
