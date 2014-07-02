@@ -59,7 +59,7 @@ public class NotebookActivity extends ActionBarActivity {
         }
 
         if (savedInstanceState == null) {
-            if(prefs.getBoolean("isActivated",false)){
+            if(!prefs.getBoolean("isActivated",false)){
                 ActivationFragment fragment = new ActivationFragment();
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.container, fragment)

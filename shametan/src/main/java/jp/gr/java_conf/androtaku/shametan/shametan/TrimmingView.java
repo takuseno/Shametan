@@ -128,7 +128,6 @@ public class TrimmingView extends View {
     public float[] getPointsY(){
         float[] pointsY = new float[2];
         int extraSpace = (dispHeight - imageHeight) / 2;
-
         pointsY[0] = centerY - (recHeight / 2) - extraSpace;
         pointsY[1] = centerY + (recHeight / 2) - extraSpace;
         return pointsY;

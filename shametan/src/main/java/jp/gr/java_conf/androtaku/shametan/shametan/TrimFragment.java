@@ -1,5 +1,7 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.BitmapRegionDecoder;
@@ -20,6 +22,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -45,6 +48,7 @@ public class TrimFragment extends Fragment{
 
     private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
 
+    private int orientation;
     private final static int ORIEN_VERTICAL = 1;
     private final static int ORIEN_HORIZON = 2;
 
@@ -75,25 +79,6 @@ public class TrimFragment extends Fragment{
         final View rootView = inflater.inflate(R.layout.trim_layout,container,false);
         init(rootView);
 
-        rootView.post(new Runnable() {
-            @Override
-            public void run() {
-                dispWidth = rootView.getWidth();
-                dispHeight = rootView.getHeight();
-                trimmingView.init(dispWidth,dispHeight);
-                imageView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        imageWidth = imageView.getWidth();
-                        imageHeight = imageView.getHeight();
-                        trimmingView.putWidth(imageWidth);
-                        trimmingView.putHeight(imageHeight);
-                        Log.i("image width",String.valueOf(imageWidth));
-                        Log.i("image height",String.valueOf(imageHeight));
-                    }
-                });
-            }
-        });
         if(getActivity().getClass() == GetImageFromCameraActivity.class) {
             GetImageFromCameraActivity.menuType = GetImageFromCameraActivity.MENU_TRIM;
         }
@@ -111,27 +96,34 @@ public class TrimFragment extends Fragment{
     }
 
     public void init(View v){
-        //if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
-          //  getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        //}
-        //else if(getArguments().getInt("orientation") == ORIEN_HORIZON){
-        //    getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-      //  }
-
+        SharedPreferences prefs = getActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        WindowManager windowManager = (WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE);
+        int rotation = windowManager.getDefaultDisplay().getRotation();
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                orientation = ORIEN_VERTICAL;
+                break;
+            case Surface.ROTATION_90:
+                orientation = ORIEN_HORIZON;
+                break;
+            case Surface.ROTATION_180:
+                orientation = ORIEN_VERTICAL;
+                break;
+            case Surface.ROTATION_270:
+                orientation = ORIEN_HORIZON;
+                break;
+        }
+        if(orientation == ORIEN_VERTICAL){
+            dispWidth = prefs.getInt("vDispWidth",0);
+            dispHeight = prefs.getInt("vDispHeight",0);
+        }
+        else{
+            dispWidth = prefs.getInt("lDispWidth",0);
+            dispHeight = prefs.getInt("lDispHeight",0);
+        }
         imageView = (ImageView)v.findViewById(R.id.trimImageView);
         imagePath = getArguments().getString("image_path");
-        WindowManager wm = getActivity().getWindowManager();
-        Display disp = wm.getDefaultDisplay();
-        if(Build.VERSION.SDK_INT < 13){
-            dispWidth = disp.getWidth();
-            dispHeight = disp.getHeight();
-        }
-        else {
-            Point point = new Point();
-            disp.getSize(point);
-            dispWidth = point.x;
-            dispHeight = point.y;
-        }
+
         PIXEL_LIMIT = dispWidth * dispHeight * 3;
         Bitmap srcBmp = compressImage(imagePath);
         if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
@@ -146,11 +138,25 @@ public class TrimFragment extends Fragment{
             imageView.setImageBitmap(srcBmp);
             setBmp = srcBmp;
         }
-
+        imageView.post(new Runnable() {
+            @Override
+            public void run() {
+                imageWidth = imageView.getWidth();
+                imageHeight = imageView.getHeight();
+                trimmingView.putWidth(imageWidth);
+                trimmingView.putHeight(imageHeight);
+                Log.i("image width",String.valueOf(imageWidth));
+                Log.i("image height",String.valueOf(imageHeight));
+            }
+        });
         frameLayout = (FrameLayout)v.findViewById(R.id.trim_framelayout);
 
         trimmingView = new TrimmingView(getActivity());
         frameLayout.addView(trimmingView);
+
+        trimmingView.init(dispWidth,dispHeight);
+
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
     }
 
     public Bitmap compressImage(String imageName){
@@ -270,30 +276,51 @@ public class TrimFragment extends Fragment{
         super.onConfigurationChanged(newConfig);
         Log.i("rotate", "rotate");
         frameLayout.removeView(trimmingView);
-        trimmingView = null;
-        stockRootView = getView();
-        init(stockRootView);
-        stockRootView.post(new Runnable() {
-            @Override
-            public void run() {
-               // dispWidth = stockRootView.getMeasuredHeight();
-                //dispHeight = stockRootView.getMeasuredWidth();
-                Log.i("dispHeight",""+dispHeight);
-                Log.i("dispWidth",""+dispWidth);
-                trimmingView.init(dispWidth,dispHeight);
-                imageView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        imageWidth = imageView.getWidth();
-                        imageHeight = imageView.getHeight();
-                        trimmingView.putWidth(imageWidth);
-                        trimmingView.putHeight(imageHeight);
-                        Log.i("image width",String.valueOf(imageWidth));
-                        Log.i("image height",String.valueOf(imageHeight));
-                    }
-                });
-            }
-        });
+        trimmingView = new TrimmingView(getActivity());
+        frameLayout.addView(trimmingView);
 
+        SharedPreferences prefs = getActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        WindowManager windowManager = (WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE);
+        int rotation = windowManager.getDefaultDisplay().getRotation();
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                orientation = ORIEN_VERTICAL;
+                break;
+            case Surface.ROTATION_90:
+                orientation = ORIEN_HORIZON;
+                break;
+            case Surface.ROTATION_180:
+                orientation = ORIEN_VERTICAL;
+                break;
+            case Surface.ROTATION_270:
+                orientation = ORIEN_HORIZON;
+                break;
+        }
+        if(orientation == ORIEN_VERTICAL){
+            dispWidth = prefs.getInt("vDispWidth",0);
+            dispHeight = prefs.getInt("vDispHeight",0);
+        }
+        else{
+            dispWidth = prefs.getInt("lDispWidth",0);
+            dispHeight = prefs.getInt("lDispHeight",0);
+        }
+        trimmingView.init(dispWidth,dispHeight);
+
+        int tempWidth = imageWidth;
+        int tempHeight = imageHeight;
+        if(imageWidth / imageHeight <= dispWidth / dispHeight){
+            float ratio = (float)dispHeight / (float)imageHeight;
+            imageWidth = (int)((float)tempWidth * ratio);
+            imageHeight = (int)((float)tempHeight * ratio);
+        }
+        else{
+            float ratio = (float)dispWidth / (float)imageWidth;
+            imageWidth = (int)((float)tempWidth * ratio);
+            imageHeight = (int)((float)tempHeight * ratio);
+        }
+        trimmingView.putWidth(imageWidth);
+        trimmingView.putHeight(imageHeight);
+        Log.i("image width",String.valueOf(imageWidth));
+        Log.i("image height",String.valueOf(imageHeight));
     }
 }

@@ -1,5 +1,8 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.os.Build;
@@ -14,6 +17,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -34,6 +38,10 @@ public class DrawLineFragment extends Fragment {
 
     //declare String of file path
     private String filePath;
+
+    private int orientation;
+    private static final int ORIEN_VERTICAL = 1;
+    private static final int ORIEN_HORIZON = 2;
 
     public DrawLineFragment(){
 
@@ -57,31 +65,6 @@ public class DrawLineFragment extends Fragment {
         else if(getActivity().getClass() == NotebookActivity.class){
             NotebookActivity.menuType = NotebookActivity.MENU_DRAWLINE;
         }
-
-        rootView.post(new Runnable() {
-            @Override
-            public void run() {
-                drawLineView.putDispWidth(rootView.getWidth());
-                drawLineView.putDispHeight(rootView.getHeight());
-                background.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        drawLineView.putImageWidth(background.getWidth());
-                        drawLineView.putImageHeight(background.getHeight());
-                        drawLineView.init();
-                        frameLayout.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                frameLayout.setDrawingCacheEnabled(true);
-                                drawLineView.putBackgroundCash(frameLayout.getDrawingCache());
-                                frameLayout.addView(drawLineView);
-                            }
-                        });
-                    }
-                });
-            }
-        });
-
         //getFragmentManager().invalidateOptionsMenu();
         setHasOptionsMenu(true);
         //initialize views
@@ -94,13 +77,82 @@ public class DrawLineFragment extends Fragment {
         background = (ImageView)v.findViewById(R.id.drawline_background);
         //get trimed image path
         filePath = getArguments().getString("trimed_image_path");
-        background.setImageBitmap(BitmapFactory.decodeFile(filePath));
-        //background.setImageBitmap(fitImage(filePath));
+        Bitmap backgroundBmp = BitmapFactory.decodeFile(filePath);
+        background.setImageBitmap(backgroundBmp);
+        background.post(new Runnable() {
+            @Override
+            public void run() {
+                frameLayout.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        frameLayout.setDrawingCacheEnabled(true);
+                        drawLineView.putBackgroundCash(frameLayout.getDrawingCache());
+                        frameLayout.addView(drawLineView);
+                    }
+                });
+            }
+        });
 
         frameLayout = (FrameLayout)v.findViewById(R.id.drawline_frameLayout);
 
         drawLineView = new DrawLineView(getActivity(),filePath);
 
+        SharedPreferences prefs = getActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        WindowManager windowManager = (WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE);
+        int rotation = windowManager.getDefaultDisplay().getRotation();
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                orientation = ORIEN_VERTICAL;
+                break;
+            case Surface.ROTATION_90:
+                orientation = ORIEN_HORIZON;
+                break;
+            case Surface.ROTATION_180:
+                orientation = ORIEN_VERTICAL;
+                break;
+            case Surface.ROTATION_270:
+                orientation = ORIEN_HORIZON;
+                break;
+        }
+        float dispWidth,dispHeight;
+        if(orientation == ORIEN_VERTICAL){
+            dispWidth = prefs.getInt("vDispWidth",0);
+            dispHeight = prefs.getInt("vDispHeight",0);
+        }
+        else{
+            dispWidth = prefs.getInt("lDispWidth",0);
+            dispHeight = prefs.getInt("lDispHeight",0);
+        }
+        drawLineView.putDispWidth((int)dispWidth);
+        drawLineView.putDispHeight((int)dispHeight);
+
+        float bmpWidth = backgroundBmp.getWidth();
+        float bmpHeight = backgroundBmp.getHeight();
+        if(bmpWidth / bmpHeight > dispWidth / dispHeight){
+            float ratio = dispWidth / bmpWidth;
+            drawLineView.putImageWidth((int)dispWidth);
+            Log.i("imagewidth",""+dispWidth);
+            drawLineView.putImageHeight((int)(bmpHeight * ratio));
+            Log.i("imageHeight",""+(int)(bmpHeight * ratio));
+            drawLineView.init();
+        }
+        else{
+            float ratio = dispHeight / bmpHeight;
+            drawLineView.putImageWidth((int)(bmpWidth * ratio));
+            Log.i("imagewidth",""+dispWidth * ratio);
+            drawLineView.putImageHeight((int)dispHeight);
+            Log.i("imageHeight",""+(int)dispHeight);
+            drawLineView.init();
+        }
+
+        if(getActivity().getClass() == GetImageFromGalleryActivity.class){
+            if(orientation == ORIEN_VERTICAL){
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            }
+            else{
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            }
+        }
     }
 
     @Override
@@ -144,5 +196,10 @@ public class DrawLineFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(menuItem);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){
+        super.onConfigurationChanged(newConfig);
     }
 }
