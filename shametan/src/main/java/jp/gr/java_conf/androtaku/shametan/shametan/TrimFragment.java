@@ -52,14 +52,12 @@ public class TrimFragment extends Fragment{
     private final static int ORIEN_VERTICAL = 1;
     private final static int ORIEN_HORIZON = 2;
 
-    private float PIXEL_LIMIT;
     private float rsz_ratio;
     private Bitmap setBmp;
 
-    private int dispWidth,dispHeight;
-    private int imageWidth,imageHeight;
-
-    private View stockRootView;
+    private float dispWidth,dispHeight;
+    private float imageWidth,imageHeight;
+    private float bmpWidth,bmpHeight;
 
     public TrimFragment(){
 
@@ -85,8 +83,8 @@ public class TrimFragment extends Fragment{
         else if(getActivity().getClass() == GetImageFromGalleryActivity.class) {
             GetImageFromGalleryActivity.menuType = GetImageFromGalleryActivity.MENU_TRIM;
         }
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
         setHasOptionsMenu(true);
-        stockRootView = rootView;
         return rootView;
     }
 
@@ -124,7 +122,6 @@ public class TrimFragment extends Fragment{
         imageView = (ImageView)v.findViewById(R.id.trimImageView);
         imagePath = getArguments().getString("image_path");
 
-        PIXEL_LIMIT = dispWidth * dispHeight * 3;
         Bitmap srcBmp = compressImage(imagePath);
         if(getArguments().getInt("orientation") == ORIEN_VERTICAL){
             Matrix matrix = new Matrix();
@@ -138,34 +135,35 @@ public class TrimFragment extends Fragment{
             imageView.setImageBitmap(srcBmp);
             setBmp = srcBmp;
         }
-        imageView.post(new Runnable() {
-            @Override
-            public void run() {
-                imageWidth = imageView.getWidth();
-                imageHeight = imageView.getHeight();
-                trimmingView.putWidth(imageWidth);
-                trimmingView.putHeight(imageHeight);
-                Log.i("image width",String.valueOf(imageWidth));
-                Log.i("image height",String.valueOf(imageHeight));
-            }
-        });
+        float bmpWidth = setBmp.getWidth();
+        float bmpHeight = setBmp.getHeight();
+        if(bmpWidth / bmpHeight > dispWidth / dispHeight){
+            float ratio = dispWidth / bmpWidth;
+            imageWidth = dispWidth;
+            Log.i("imagewidth",""+dispWidth);
+            imageHeight = bmpHeight * ratio;
+            Log.i("imageHeight",""+(int)(bmpHeight * ratio));
+        }
+        else{
+            float ratio = dispHeight / bmpHeight;
+            imageWidth = bmpWidth * ratio;
+            Log.i("imagewidth",""+dispWidth * ratio);
+            imageHeight = dispHeight;
+            Log.i("imageHeight",""+dispHeight);
+        }
         frameLayout = (FrameLayout)v.findViewById(R.id.trim_framelayout);
 
         trimmingView = new TrimmingView(getActivity());
         frameLayout.addView(trimmingView);
 
-        trimmingView.init(dispWidth,dispHeight);
-
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+        trimmingView.init((int)dispWidth,(int)dispHeight,(int)imageWidth,(int)imageHeight);
     }
 
     public Bitmap compressImage(String imageName){
         Bitmap bmpSrc;
         bmpSrc = BitmapFactory.decodeFile(imageName);
-        float srcWidth = bmpSrc.getWidth();
-        float srcHeight = bmpSrc.getHeight();
 
-        rsz_ratio = (float)Math.sqrt(PIXEL_LIMIT / (srcWidth * srcHeight));
+        rsz_ratio = 0.5f;
         Log.i("ratio",String.valueOf(rsz_ratio));
         Matrix matrix = new Matrix();
 
@@ -181,10 +179,10 @@ public class TrimFragment extends Fragment{
         float[] pointY = trimmingView.getPointsY();
 
         float rszX1,rszX2,rszY1,rszY2;
-        rszX1 = (pointX[0]) * ((float) setBmp.getWidth() / (float) imageWidth);
-        rszX2 = (pointX[1]) * ((float) setBmp.getWidth() / (float) imageWidth);
-        rszY1 = (pointY[0]) * ((float) setBmp.getHeight() / (float) imageHeight);
-        rszY2 = (pointY[1]) * ((float) setBmp.getHeight() / (float) imageHeight);
+        rszX1 = (pointX[0]) * ((float) setBmp.getWidth() / imageWidth);
+        rszX2 = (pointX[1]) * ((float) setBmp.getWidth() / imageWidth);
+        rszY1 = (pointY[0]) * ((float) setBmp.getHeight() / imageHeight);
+        rszY2 = (pointY[1]) * ((float) setBmp.getHeight() / imageHeight);
 
         Bitmap saveBmp = null;
 
@@ -242,15 +240,24 @@ public class TrimFragment extends Fragment{
                         tempBmp.getWidth(),tempBmp.getHeight(),matrix,true);
                 imageView.setImageBitmap(rotatedBmp);
                 setBmp = rotatedBmp;
-                imageView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        imageWidth = imageView.getWidth();
-                        imageHeight = imageView.getHeight();
-                        trimmingView.putWidth(imageWidth);
-                        trimmingView.putHeight(imageHeight);
-                    }
-                });
+                float bmpWidth = setBmp.getWidth();
+                float bmpHeight = setBmp.getHeight();
+                if(bmpWidth / bmpHeight > dispWidth / dispHeight){
+                    float ratio = dispWidth / bmpWidth;
+                    imageWidth = dispWidth;
+                    Log.i("imagewidth",""+dispWidth);
+                    imageHeight = bmpHeight * ratio;
+                    Log.i("imageHeight",""+(int)(bmpHeight * ratio));
+                }
+                else{
+                    float ratio = dispHeight / bmpHeight;
+                    imageWidth = bmpWidth * ratio;
+                    Log.i("imagewidth",""+dispWidth * ratio);
+                    imageHeight = dispHeight;
+                    Log.i("imageHeight",""+dispHeight);
+                }
+                trimmingView.putWidth((int)imageWidth);
+                trimmingView.putHeight((int)imageHeight);
                 break;
 
             default:
@@ -304,22 +311,20 @@ public class TrimFragment extends Fragment{
             dispWidth = prefs.getInt("lDispWidth",0);
             dispHeight = prefs.getInt("lDispHeight",0);
         }
-        trimmingView.init(dispWidth,dispHeight);
 
-        int tempWidth = imageWidth;
-        int tempHeight = imageHeight;
+        float tempWidth = imageWidth;
+        float tempHeight = imageHeight;
         if(imageWidth / imageHeight <= dispWidth / dispHeight){
-            float ratio = (float)dispHeight / (float)imageHeight;
-            imageWidth = (int)((float)tempWidth * ratio);
-            imageHeight = (int)((float)tempHeight * ratio);
+            float ratio = dispHeight / imageHeight;
+            imageWidth = (int)(tempWidth * ratio);
+            imageHeight = (int)(tempHeight * ratio);
         }
         else{
-            float ratio = (float)dispWidth / (float)imageWidth;
-            imageWidth = (int)((float)tempWidth * ratio);
-            imageHeight = (int)((float)tempHeight * ratio);
+            float ratio = dispWidth / imageWidth;
+            imageWidth = (int)(tempWidth * ratio);
+            imageHeight = (int)(tempHeight * ratio);
         }
-        trimmingView.putWidth(imageWidth);
-        trimmingView.putHeight(imageHeight);
+        trimmingView.init((int)dispWidth,(int)dispHeight,(int)imageWidth,(int)imageHeight);
         Log.i("image width",String.valueOf(imageWidth));
         Log.i("image height",String.valueOf(imageHeight));
     }

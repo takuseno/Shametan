@@ -35,6 +35,7 @@ public class DrawLineFragment extends Fragment {
     private ImageView background;
     private DrawLineView drawLineView;
     private FrameLayout frameLayout;
+    private View stockView;
 
     //declare String of file path
     private String filePath;
@@ -69,6 +70,8 @@ public class DrawLineFragment extends Fragment {
         setHasOptionsMenu(true);
         //initialize views
         init(rootView);
+
+        stockView = rootView;
 
         return rootView;
     }
@@ -118,10 +121,16 @@ public class DrawLineFragment extends Fragment {
         if(orientation == ORIEN_VERTICAL){
             dispWidth = prefs.getInt("vDispWidth",0);
             dispHeight = prefs.getInt("vDispHeight",0);
+            if(getActivity().getClass() == GetImageFromGalleryActivity.class) {
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            }
         }
         else{
             dispWidth = prefs.getInt("lDispWidth",0);
             dispHeight = prefs.getInt("lDispHeight",0);
+            if(getActivity().getClass() == GetImageFromGalleryActivity.class) {
+                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            }
         }
         drawLineView.putDispWidth((int)dispWidth);
         drawLineView.putDispHeight((int)dispHeight);
@@ -143,15 +152,6 @@ public class DrawLineFragment extends Fragment {
             drawLineView.putImageHeight((int)dispHeight);
             Log.i("imageHeight",""+(int)dispHeight);
             drawLineView.init();
-        }
-
-        if(getActivity().getClass() == GetImageFromGalleryActivity.class){
-            if(orientation == ORIEN_VERTICAL){
-                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            }
-            else{
-                getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            }
         }
     }
 
@@ -201,5 +201,6 @@ public class DrawLineFragment extends Fragment {
     @Override
     public void onConfigurationChanged(Configuration newConfig){
         super.onConfigurationChanged(newConfig);
+        init(stockView);
     }
 }

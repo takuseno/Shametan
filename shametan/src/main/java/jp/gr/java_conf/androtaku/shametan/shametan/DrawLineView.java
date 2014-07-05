@@ -35,7 +35,7 @@ public class DrawLineView extends View{
     private float startX,startY;
 
     private float[] lineWidth;
-    private float lastModifiedWidth = 40;
+    private float lastModifiedWidth = 80;
 
     private int numLines = 0;
     private static final int MAX_LINES = 40;
@@ -89,7 +89,7 @@ public class DrawLineView extends View{
 
         lineWidth = new float[MAX_LINES];
         for(int i = 0;i < MAX_LINES;++i){
-            lineWidth[i] = 40;
+            lineWidth[i] = 80;
         }
 
         lineColors = new int[MAX_LINES];
@@ -116,6 +116,8 @@ public class DrawLineView extends View{
         paintOpt.setColor(Color.BLUE);
         paintOpt.setAntiAlias(true);
         paintOpt.setStrokeWidth(30);
+
+        addLine();
 
         int index = backgroundFile.lastIndexOf(".");
         dataPath = backgroundFile.substring(0,index) + ".st";
@@ -275,8 +277,8 @@ public class DrawLineView extends View{
     }
 
     public void addLine(){
-        x1[numLines] = (dispWidth/2) - 100;
-        x2[numLines] = (dispWidth/2) + 100;
+        x1[numLines] = (dispWidth/2) - 150;
+        x2[numLines] = (dispWidth/2) + 150;
         y1[numLines] = (dispHeight/2);
         y2[numLines] = (dispHeight/2);
 
@@ -285,7 +287,6 @@ public class DrawLineView extends View{
 
         ++numLines;
         refreshPaints();
-        invalidate();
     }
 
     public void deleteLine(int num){

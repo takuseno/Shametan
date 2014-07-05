@@ -170,25 +170,28 @@ public class NoteView extends View{
     }
 
     public void judgeTouched(float x,float y){
-        float distant = 10000;
         int tempId = -1;
+        float preDistant = 10000;
         for (int i = 0; i < numLines; ++i) {
             float tilt = (y2[i] - y1[i]) / (x2[i] - x1[i]);
-            float lineY = tilt * (x - x1[i]) + y1[i];
-            if (y < lineY + lineWidth[i] && y > lineY - lineWidth[i]) {
-                if (x1[i] < x2[i]) {
-                    if (x > x1[i] && x < x2[i]) {
-                        if (distant > Math.abs(lineY - y)) {
-                            distant = Math.abs(lineY - y);
-                            tempId = i;
-                        }
+            float distant = Math.abs((tilt * x) - y - (tilt * x1[i]) + y1[i]) / (float)Math.sqrt((tilt * tilt) + 1);
+            if (distant < lineWidth[i] && distant < preDistant) {
+                if(tilt < 1) {
+                    if (x1[i] < x2[i] && x > x1[i] && x < x2[i]) {
+                        preDistant = distant;
+                        tempId = i;
+                    } else if (x1[i] > x2[i] && x < x1[i] && x > x2[i]) {
+                        preDistant = distant;
+                        tempId = i;
                     }
-                } else if (x1[i] > x2[i]) {
-                    if (x < x1[i] && x > x2[i]) {
-                        if (distant > Math.abs(lineY - y)) {
-                            distant = Math.abs(lineY - y);
-                            tempId = i;
-                        }
+                }
+                else{
+                    if (y1[i] < y2[i] && y > y1[i] && y < y2[i]) {
+                        preDistant = distant;
+                        tempId = i;
+                    } else if (y1[i] > y2[i] && y < y1[i] && y > y2[i]) {
+                        preDistant = distant;
+                        tempId = i;
                     }
                 }
             }

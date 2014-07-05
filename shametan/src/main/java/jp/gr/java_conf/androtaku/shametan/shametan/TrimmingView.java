@@ -26,7 +26,9 @@ public class TrimmingView extends View {
 
     private Paint rectanglePaint,pointPaint;
 
-    private int dispWidth,dispHeight,imageWidth,imageHeight;
+    private int dispWidth,dispHeight;
+    private int imageWidth,imageHeight;
+    private int extraX,extraY;
 
     private Context context;
 
@@ -57,13 +59,17 @@ public class TrimmingView extends View {
 
         pointPaint = new Paint();
         pointPaint.setColor(Color.WHITE);
-        pointPaint.setStrokeWidth(30);
+        pointPaint.setStrokeWidth(60);
         pointPaint.setStyle(Paint.Style.STROKE);
     }
 
-    public void init(int width,int height){
+    public void init(int width,int height,int imgWidth,int imgHeight){
         dispWidth = width;
         dispHeight = height;
+        imageWidth = imgWidth;
+        imageHeight = imgHeight;
+        extraX = (dispWidth - imgWidth) / 2;
+        extraY = (dispHeight - imgHeight) / 2;
 
         recWidth = dispWidth / 2;
         centerX = dispWidth / 2;
@@ -98,6 +104,7 @@ public class TrimmingView extends View {
     public void onDraw(Canvas canvas){
         super.onDraw(canvas);
         if(initalized) {
+            adjustRecPosition();
             canvas.drawRect(centerX - (recWidth / 2), centerY - (recHeight / 2),
                     centerX + (recWidth / 2), centerY + (recHeight / 2), rectanglePaint);
 
@@ -110,10 +117,12 @@ public class TrimmingView extends View {
 
     public void putWidth(int width){
         imageWidth = width;
+        extraX = (dispWidth - imageWidth) / 2;
     }
 
     public void putHeight(int height){
         imageHeight = height;
+        extraY = (dispHeight - imageHeight) / 2;
     }
 
     public float[] getPointsX(){
@@ -167,26 +176,26 @@ public class TrimmingView extends View {
     }
 
     public void touchPoint(float x,float y){
-        if(x < centerX + 30 && x > centerX - 30){
-            if(y < centerY - (recHeight / 2) + 30 && y > centerY - (recHeight / 2) - 30){
+        if(x < centerX + 60 && x > centerX - 60){
+            if(y < centerY - (recHeight / 2) + 60 && y > centerY - (recHeight / 2) - 60){
                 startX = x;
                 startY = y;
                 touchState = TOUCH_POINT_TOP;
             }
-            else if(y < centerY + (recHeight / 2) + 30 && y > centerY + (recHeight / 2) - 30){
+            else if(y < centerY + (recHeight / 2) + 60 && y > centerY + (recHeight / 2) - 60){
                 startX = x;
                 startY = y;
                 touchState = TOUCH_POINT_BOTTOM;
             }
         }
 
-        else if(y < centerY + 30 && y > centerY - 30){
-            if(x < centerX - (recWidth / 2) + 30 && x > centerX - (recWidth / 2) - 30){
+        else if(y < centerY + 60 && y > centerY - 60){
+            if(x < centerX - (recWidth / 2) + 60 && x > centerX - (recWidth / 2) - 60){
                 startX = x;
                 startY = y;
                 touchState = TOUCH_POINT_LEFT;
             }
-            else if(x < centerX + (recWidth / 2) + 30 && x > centerX + (recWidth / 2) - 30){
+            else if(x < centerX + (recWidth / 2) + 60 && x > centerX + (recWidth / 2) - 60){
                 startX = x;
                 startY = y;
                 touchState = TOUCH_POINT_RIGHT;
@@ -197,18 +206,6 @@ public class TrimmingView extends View {
     public void moveRectangle(float x,float y){
         centerX -= startX - x;
         centerY -= startY - y;
-        if(centerX - (recWidth / 2) < 0){
-            centerX = recWidth / 2;
-        }
-        else if(centerX + (recWidth / 2) > dispWidth){
-            centerX = dispWidth - (recWidth / 2);
-        }
-        if(centerY - (recHeight / 2) < 0){
-            centerY = recHeight / 2;
-        }
-        else if(centerY + (recHeight / 2) > dispHeight){
-            centerY = dispHeight - (recHeight / 2);
-        }
         startX = x;
         startY = y;
     }
@@ -238,5 +235,28 @@ public class TrimmingView extends View {
 
         startX = x;
         startY = y;
+    }
+
+    public void adjustRecPosition(){
+        if(recWidth > imageWidth){
+            recWidth = imageWidth;
+        }
+        if(recHeight > imageHeight){
+            recHeight = imageHeight;
+        }
+
+        if(centerX + (recWidth/2) > dispWidth - extraX){
+            centerX = dispWidth - extraX - (recWidth / 2);
+        }
+        if(centerX - (recWidth/2) < extraX){
+            centerX = extraX + (recWidth / 2);
+        }
+
+        if(centerY + (recHeight/2) > dispHeight - extraY){
+            centerY = dispHeight - extraY - (recHeight / 2);
+        }
+        if(centerY - (recHeight/2) < extraY){
+            centerY = extraY + (recHeight/2);
+        }
     }
 }
