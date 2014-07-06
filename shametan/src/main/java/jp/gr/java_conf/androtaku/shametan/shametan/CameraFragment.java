@@ -71,6 +71,4 @@ public class CameraFragment extends Fragment {
         });
         isTaking = false;
     }
-
-
 }

@@ -57,7 +57,6 @@ public class TrimFragment extends Fragment{
 
     private float dispWidth,dispHeight;
     private float imageWidth,imageHeight;
-    private float bmpWidth,bmpHeight;
 
     public TrimFragment(){
 
