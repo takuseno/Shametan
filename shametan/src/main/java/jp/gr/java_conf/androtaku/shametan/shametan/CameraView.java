@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Created by takuma on 2014/05/03.
  */
-public class CameraView extends SurfaceView implements Callback{
+public class CameraView extends SurfaceView implements Callback,Camera.PictureCallback,Camera.AutoFocusCallback{
 
     //declare camera
     private Camera camera;
@@ -57,6 +57,20 @@ public class CameraView extends SurfaceView implements Callback{
                                int height) {
         // TODO Auto-generated method stub
         Camera.Parameters parameters = camera.getParameters();
+
+        List<Camera.Size> supportedSize = parameters.getSupportedPictureSizes();
+        int id = 0;
+        int product = 0;
+        for(int i = 0;i < supportedSize.size();++i){
+            Camera.Size size = supportedSize.get(i);
+            if(product > size.width * size.height){
+                product = size.width * size.height;
+                id = i;
+            }
+        }
+        Camera.Size size = supportedSize.get(id);
+        parameters.setPictureSize(size.width,size.height);
+
         //rotate camera preview because of vertical handed as default
         parameters.setRotation(90);
         List<Camera.Size> previewSizes = parameters.getSupportedPreviewSizes();
@@ -133,34 +147,30 @@ public class CameraView extends SurfaceView implements Callback{
     public void myAutoFocus(boolean isTaking){
         this.isTaking = isTaking;
         if(isTaking && isFocused){
-            camera.takePicture(null,null,mPictureListener);
+            camera.takePicture(null,null,this);
         }
         else {
-            camera.autoFocus(mAutoFocusListener);
+            camera.autoFocus(this);
         }
     }
 
-    private Camera.AutoFocusCallback mAutoFocusListener = new Camera.AutoFocusCallback() {
-        @Override
-        public void onAutoFocus(boolean success, Camera camera) {
-            isFocused = success;
-            if(isTaking) {
-                camera.takePicture(null, null, mPictureListener);
-            }
+    @Override
+    public void onAutoFocus(boolean success, Camera camera) {
+        isFocused = success;
+        if(isTaking) {
+            camera.takePicture(null, null, this);
         }
-    };
+    }
 
-    private Camera.PictureCallback mPictureListener = new Camera.PictureCallback() {
-        @Override
-        public void onPictureTaken(byte[] data, Camera camera) {
-            //temporary image file path
-            String imagePath = basePath.getPath() + "/temp.jpg";
-            //save image
-            saveImage(data,new File(imagePath));
-            //fragment transition to TrimFragment
-            toTrim(imagePath);
-        }
-    };
+    @Override
+    public void onPictureTaken(byte[] data, Camera camera) {
+        //temporary image file path
+        String imagePath = basePath.getPath() + "/temp.jpg";
+        //save image
+        saveImage(data,new File(imagePath));
+        //fragment transition to TrimFragment
+        toTrim(imagePath);
+    }
 
     //function of saving image
     public void saveImage(byte[] data,File path){
