@@ -1,12 +1,12 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
-import android.os.Build;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Created by takuma on 2014/05/03.
  */
-public class CameraView extends SurfaceView implements Callback,Camera.AutoFocusCallback,Camera.PictureCallback{
+public class CameraView extends SurfaceView implements Callback{
 
     //declare camera
     private Camera camera;
@@ -48,9 +48,6 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
         this.context = context;
         this.manager = manager;
         SurfaceHolder holder = getHolder();
-        if(Build.VERSION.SDK_INT < 13) {
-            holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        }
         holder.addCallback(this);
         this.cstPath = cstPath;
     }
@@ -136,30 +133,34 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
     public void myAutoFocus(boolean isTaking){
         this.isTaking = isTaking;
         if(isTaking && isFocused){
-            camera.takePicture(null,null,this);
+            camera.takePicture(null,null,mPictureListener);
         }
         else {
-            camera.autoFocus(this);
+            camera.autoFocus(mAutoFocusListener);
         }
     }
 
-    @Override
-    public void onAutoFocus(boolean success,Camera camera){
-        isFocused = success;
-        if(isTaking) {
-            camera.takePicture(null, null, this);
+    private Camera.AutoFocusCallback mAutoFocusListener = new Camera.AutoFocusCallback() {
+        @Override
+        public void onAutoFocus(boolean success, Camera camera) {
+            isFocused = success;
+            if(isTaking) {
+                camera.takePicture(null, null, mPictureListener);
+            }
         }
-    }
+    };
 
-    @Override
-    public void onPictureTaken(byte[] data,Camera camera){
-        //temporary image file path
-        String imagePath = basePath.getPath() + "/temp.jpg";
-        //save image
-        saveImage(data,new File(imagePath));
-        //fragment transition to TrimFragment
-        toTrim(imagePath);
-    }
+    private Camera.PictureCallback mPictureListener = new Camera.PictureCallback() {
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
+            //temporary image file path
+            String imagePath = basePath.getPath() + "/temp.jpg";
+            //save image
+            saveImage(data,new File(imagePath));
+            //fragment transition to TrimFragment
+            toTrim(imagePath);
+        }
+    };
 
     //function of saving image
     public void saveImage(byte[] data,File path){
@@ -182,6 +183,14 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
         }
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        if(event.getAction() == MotionEvent.ACTION_DOWN){
+            myAutoFocus(false);
+        }
+        return true;
+    }
+
     //function of fragment transition to TrimFragment
     public void toTrim(String imagePath){
         FragmentTransaction transaction = manager.beginTransaction();
@@ -200,3 +209,4 @@ public class CameraView extends SurfaceView implements Callback,Camera.AutoFocus
         transaction.commit();
     }
 }
+

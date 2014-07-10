@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -50,14 +49,6 @@ public class CameraFragment extends Fragment {
         cameraView = new CameraView(getActivity(),getActivity().getSupportFragmentManager(),cstPath);
         cameraLayout = (LinearLayout)v.findViewById(R.id.camera_view);
         cameraLayout.addView(cameraView);
-
-        cameraView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                //cameraView.myAutoFocus(false);
-                return true;
-            }
-        });
 
         shutter = (ImageButton)v.findViewById(R.id.shutter);
         shutter.setOnClickListener(new View.OnClickListener() {
