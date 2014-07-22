@@ -474,8 +474,8 @@ public class DrawLineView extends View{
 
     public boolean judgeTouchPoint(float x,float y){
         for(int i = 0;i < numLines;++i) {
-            if (x < (x1[i] + 50) && x > (x1[i] - 50)
-                    && y < (y1[i] + 50) && y > (y1[i] - 50)) {
+            if (x < (x1[i] + lineWidth[i]) && x > (x1[i] - lineWidth[i])
+                    && y < (y1[i] + lineWidth[i]) && y > (y1[i] - lineWidth[i])) {
                 selected = SELECTED_START;
                 touchX = x;
                 touchY = y;
