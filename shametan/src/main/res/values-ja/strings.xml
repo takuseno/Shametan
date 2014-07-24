@@ -31,5 +31,10 @@
     <string name="activation_text">このアプリは横画面と縦画面の両方に対応しています。画面のサイズを正しく取得するために画面の向きを変えてください。これは初回起動時にしか表示されません。</string>
     <string name="activated_text">画面のサイズが取得出来ました。下のボタンを押して始めましょう。</string>
     <string name="start_text">始める</string>
+    <string name="thank_you">ありがとうございます！</string>
+    <string name="please_review">気に入っていただきましたら、是非レビューをお願いします！</string>
+    <string name="review">レビューする</string>
+    <string name="later">あとで</string>
+    <string name="no_more">今後表示しない</string>
 
 </resources>
