@@ -6,6 +6,10 @@ package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -38,6 +42,9 @@ public class SelectNoteFragment extends Fragment {
     CSTFileController rootCSTFileController;
     File[] noteFiles;
     SelectNoteFragment noteFragment;
+    SharedPreferences prefs;
+    SharedPreferences.Editor editor;
+
 
     public static SelectNoteFragment newInstance(){
         SelectNoteFragment fragment = new SelectNoteFragment();
@@ -54,6 +61,16 @@ public class SelectNoteFragment extends Fragment {
         actionBar.setTitle(getString(R.string.notes));
         init(rootView);
         setHasOptionsMenu(true);
+        prefs = getActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        editor = prefs.edit();
+        if(prefs.getBoolean("isRatingDialog",true) && prefs.getInt("activationCounter",10) == 0) {
+            showRatingDialog();
+        }
+        else{
+            int counter = prefs.getInt("activationCounter",10) - 1;
+            editor.putInt("activationCounter",counter);
+            editor.commit();
+        }
         return rootView;
     }
 
@@ -85,7 +102,7 @@ public class SelectNoteFragment extends Fragment {
             public void onClick(View v) {
                 NoteCreateDialog dialog = new NoteCreateDialog();
                 dialog.setFragment(noteFragment);
-                dialog.show(((Activity) getActivity()).getFragmentManager(), "createDialog");
+                dialog.show(getActivity().getFragmentManager(), "createDialog");
             }
         });
 
@@ -129,6 +146,39 @@ public class SelectNoteFragment extends Fragment {
                     }
                 })
                 .setNegativeButton(getString(R.string.cancel), null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void showRatingDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setTitle("ありがとうございます!")
+                .setMessage("気に入っていただけましたら、是非レビューしてくださると嬉しいです。")
+                .setPositiveButton("レビューする", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        editor.putBoolean("isRatingDialog",false);
+                        editor.commit();
+                        Uri uri = Uri.parse("market://details?id=jp.gr.java_conf.androtaku.shametan.shametan");
+                        Intent intent = new Intent(Intent.ACTION_VIEW,uri);
+                        startActivity(intent);
+                    }
+                })
+                .setNeutralButton("あとで", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        editor.putInt("activationCounter",10);
+                        editor.commit();
+                    }
+                })
+                .setNegativeButton("今後表示しない",new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        editor.putBoolean("isRatingDialog",false);
+                        editor.commit();
+                    }
+                });
 
         AlertDialog dialog = builder.create();
         dialog.show();
