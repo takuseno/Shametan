@@ -153,9 +153,9 @@ public class SelectNoteFragment extends Fragment {
 
     public void showRatingDialog(){
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle("ありがとうございます!")
-                .setMessage("気に入っていただけましたら、是非レビューしてくださると嬉しいです。")
-                .setPositiveButton("レビューする", new DialogInterface.OnClickListener() {
+                .setTitle(getString(R.string.thank_you))
+                .setMessage(getString(R.string.please_review))
+                .setPositiveButton(getString(R.string.review), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         editor.putBoolean("isRatingDialog",false);
@@ -165,14 +165,14 @@ public class SelectNoteFragment extends Fragment {
                         startActivity(intent);
                     }
                 })
-                .setNeutralButton("あとで", new DialogInterface.OnClickListener() {
+                .setNeutralButton(getString(R.string.later), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         editor.putInt("activationCounter",10);
                         editor.commit();
                     }
                 })
-                .setNegativeButton("今後表示しない",new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.no_more),new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         editor.putBoolean("isRatingDialog",false);
