@@ -26,12 +26,11 @@
             android:textColor="@android:color/black"
             android:textSize="20dp"/>
 
-        <ImageButton
+        <jp.gr.java_conf.androtaku.shametan.shametan.Fab
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:id="@+id/addPageButton"
             android:layout_gravity="right|bottom"
-            android:background="@drawable/add_button" />
-
+            android:layout_margin="16sp"/>
     </FrameLayout>
 </RelativeLayout>

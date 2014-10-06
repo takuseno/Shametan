@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -134,23 +135,32 @@ public class NoteCreateDialog extends DialogFragment{
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mode == NEW) {
-                    String newPath = basePath + "/" + noteTitleEdit.getText().toString() + ".cst";
-                    File newDirectory = new File(newPath);
-                    CSTFileController rootCSTFileController = new CSTFileController(basePath + "/root.cst");
-                    rootCSTFileController.makeCST(newDirectory);
-                    rootCSTFileController.saveCSTFile(newDirectory);
-                    NoteColorManagement noteColorManagement = new NoteColorManagement();
-                    noteColorManagement.makeNCFile(noteTitleEdit.getText().toString(), selectedColorId);
-                    fragment.refreshNoteAdapter();
+                if("".equals(noteTitleEdit.getText().toString())){
+                    Toast.makeText(getActivity(),getString(R.string.blank_name),Toast.LENGTH_SHORT).show();
                 }
-                else{
-                    String newPath = basePath + "/" + noteTitleEdit.getText().toString() + ".cst";
-                    CSTFileController rootCSTFileController = new CSTFileController(basePath + "/root.cst");
-                    rootCSTFileController.reviseCSTFile(new File(cstPath),newPath);
-                    NoteColorManagement noteColorManagement = new NoteColorManagement();
-                    noteColorManagement.makeNCFile(noteTitleEdit.getText().toString(), selectedColorId);
-                    fragment.refreshNoteAdapter();
+                else {
+                    if (mode == NEW) {
+                        String newPath = basePath + "/" + noteTitleEdit.getText().toString() + ".cst";
+                        File newDirectory = new File(newPath);
+                        if(!newDirectory.exists()) {
+                            CSTFileController rootCSTFileController = new CSTFileController(basePath + "/root.cst");
+                            rootCSTFileController.makeCST(newDirectory);
+                            rootCSTFileController.saveCSTFile(newDirectory);
+                            NoteColorManagement noteColorManagement = new NoteColorManagement();
+                            noteColorManagement.makeNCFile(noteTitleEdit.getText().toString(), selectedColorId);
+                            fragment.refreshNoteAdapter();
+                        }
+                        else{
+                            Toast.makeText(getActivity(),getString(R.string.same_title),Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        String newPath = basePath + "/" + noteTitleEdit.getText().toString() + ".cst";
+                        CSTFileController rootCSTFileController = new CSTFileController(basePath + "/root.cst");
+                        rootCSTFileController.reviseCSTFile(new File(cstPath), newPath);
+                        NoteColorManagement noteColorManagement = new NoteColorManagement();
+                        noteColorManagement.makeNCFile(noteTitleEdit.getText().toString(), selectedColorId);
+                        fragment.refreshNoteAdapter();
+                    }
                 }
                 dismiss();
             }

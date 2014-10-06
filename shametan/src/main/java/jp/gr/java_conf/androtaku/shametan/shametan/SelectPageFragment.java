@@ -1,6 +1,7 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
 import android.app.AlertDialog;
+import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -27,7 +28,7 @@ public class SelectPageFragment extends Fragment {
 
     TextView noPageText;
     GridView gridPageView;
-    ImageButton addPageButton;
+    Fab addPageButton;
     CSTFileController cstFileController;
 
     File[] pageFiles;
@@ -73,7 +74,9 @@ public class SelectPageFragment extends Fragment {
             }
         });
 
-        addPageButton = (ImageButton)v.findViewById(R.id.addPageButton);
+        addPageButton = (Fab)v.findViewById(R.id.addPageButton);
+        addPageButton.setFabDrawable(getResources().getDrawable(R.drawable.ic_action_new));
+        addPageButton.setFabColor(Color.rgb(63, 81, 181));
         addPageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

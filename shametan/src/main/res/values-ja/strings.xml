@@ -36,5 +36,6 @@
     <string name="review">レビューする</string>
     <string name="later">あとで</string>
     <string name="no_more">今後表示しない</string>
-
+    <string name="blank_name">タイトルを入れてください</string>
+    <string name="same_title">既にそのタイトルは使われています</string>
 </resources>

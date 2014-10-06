@@ -35,4 +35,6 @@
     <string name="review">Review</string>
     <string name="later">Later</string>
     <string name="no_more">Never</string>
+    <string name="blank_name">Title must be filled.</string>
+    <string name="same_title">Same title already exists.</string>
 </resources>

@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -37,7 +38,7 @@ public class SelectNoteFragment extends Fragment {
     private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
     GridView gridNoteView;
     TextView noNoteText;
-    ImageButton addNoteButton;
+    Fab addNoteButton;
     NoteGridAdapter noteAdapter;
     CSTFileController rootCSTFileController;
     File[] noteFiles;
@@ -96,7 +97,9 @@ public class SelectNoteFragment extends Fragment {
             }
         });
 
-        addNoteButton = (ImageButton)v.findViewById(R.id.addNoteButton);
+        addNoteButton = (Fab)v.findViewById(R.id.addNoteButton);
+        addNoteButton.setFabDrawable(getResources().getDrawable(R.drawable.ic_action_new));
+        addNoteButton.setFabColor(Color.rgb(63,81,181));
         addNoteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -236,7 +239,7 @@ public class SelectNoteFragment extends Fragment {
                                 createDialog.setColor(new NoteColorManagement().getColor(file.getName().substring(0,index) + ".ns"));
                                 createDialog.setCSTFile(selectedFile.getPath());
                                 createDialog.setMode(2);
-                                createDialog.show(((Activity) getActivity()).getFragmentManager(), "createDialog");
+                                createDialog.show(getActivity().getFragmentManager(), "createDialog");
                                 dialog.dismiss();
                                 break;
                         }

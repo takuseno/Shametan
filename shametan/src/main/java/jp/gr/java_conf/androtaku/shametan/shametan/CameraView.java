@@ -1,5 +1,6 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.content.res.Configuration;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
@@ -11,6 +12,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import java.io.File;
@@ -75,12 +77,13 @@ public class CameraView extends SurfaceView implements Callback,Camera.PictureCa
         parameters.setRotation(90);
         List<Camera.Size> previewSizes = parameters.getSupportedPreviewSizes();
         //get max size
-        Camera.Size previewSize = previewSizes.get(0);
+        Camera.Size previewSize = previewSizes.get(1);
         //set preview size
         parameters.setPreviewSize(previewSize.width, previewSize.height);
         //set parameter
         camera.setParameters(parameters);
         setCameraDisplayOrientation(context,0,camera);
+        adjustPreview(size.width,size.height,width,height);
         //start preview
         camera.startPreview();
     }
@@ -147,7 +150,7 @@ public class CameraView extends SurfaceView implements Callback,Camera.PictureCa
     public void myAutoFocus(boolean isTaking){
         this.isTaking = isTaking;
         if(isTaking && isFocused){
-            camera.takePicture(null,null,this);
+            camera.takePicture(mShutterListener,null,this);
         }
         else {
             camera.autoFocus(this);
@@ -158,7 +161,7 @@ public class CameraView extends SurfaceView implements Callback,Camera.PictureCa
     public void onAutoFocus(boolean success, Camera camera) {
         isFocused = success;
         if(isTaking) {
-            camera.takePicture(null, null, this);
+            camera.takePicture(mShutterListener, null, this);
         }
     }
 
@@ -171,6 +174,13 @@ public class CameraView extends SurfaceView implements Callback,Camera.PictureCa
         //fragment transition to TrimFragment
         toTrim(imagePath);
     }
+
+    private Camera.ShutterCallback mShutterListener = new Camera.ShutterCallback() {
+        @Override
+        public void onShutter() {
+
+        }
+    };
 
     //function of saving image
     public void saveImage(byte[] data,File path){
@@ -191,6 +201,24 @@ public class CameraView extends SurfaceView implements Callback,Camera.PictureCa
         }catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+    public void adjustPreview(int width,int height,int dispWidth,int dispHeight){
+        float scale = 1f;
+
+        ViewGroup.LayoutParams layoutParams = this.getLayoutParams();
+
+        if (this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {// 縦表示なら
+            scale = (float) dispWidth / (float) height;
+            layoutParams.height = (int) (width * scale);
+            layoutParams.width = (int) (height * scale);
+        } else { // 横なら
+            scale = (float) dispHeight / (float) height;
+            layoutParams.height = (int) (height * scale);
+            layoutParams.width = (int) (width * scale);
+        }
+
+        this.setLayoutParams(layoutParams);
     }
 
     @Override

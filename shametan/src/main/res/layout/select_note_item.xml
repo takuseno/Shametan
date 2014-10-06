@@ -8,10 +8,10 @@
         android:layout_height="match_parent"
         android:id="@+id/select_note_image"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:id="@+id/select_note_text"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:id="@+id/select_note_text"/>
 
 </FrameLayout>

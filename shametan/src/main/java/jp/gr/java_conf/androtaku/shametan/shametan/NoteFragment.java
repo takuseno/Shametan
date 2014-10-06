@@ -66,6 +66,7 @@ public class NoteFragment extends Fragment {
         background.setImageBitmap(backgroundBmp);
         noteView = new NoteView(getActivity().getApplicationContext(), filePath);
         frameLayout = (FrameLayout)v.findViewById(R.id.note_framelayout);
+
         frameLayout.addView(noteView);
 
         SharedPreferences prefs = getActivity().getSharedPreferences("prefs",Context.MODE_PRIVATE);
