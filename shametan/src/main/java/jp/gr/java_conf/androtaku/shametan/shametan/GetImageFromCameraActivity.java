@@ -1,7 +1,9 @@
 package jp.gr.java_conf.androtaku.shametan.shametan;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 
 /**
@@ -18,6 +20,10 @@ public class GetImageFromCameraActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar)findViewById(R.id.tool_bar_drawline);
+        toolbar.setTitleTextColor(Color.WHITE);
+        setSupportActionBar(toolbar);
 
         if (savedInstanceState == null) {
             Bundle bundle = new Bundle();

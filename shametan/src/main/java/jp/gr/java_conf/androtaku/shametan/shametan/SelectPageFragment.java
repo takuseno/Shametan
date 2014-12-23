@@ -19,6 +19,8 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
+
 import java.io.File;
 
 /**
@@ -28,7 +30,7 @@ public class SelectPageFragment extends Fragment {
 
     TextView noPageText;
     GridView gridPageView;
-    Fab addPageButton;
+    FloatingActionButton addFromCameraButton,addFromCollectionsButton;
     CSTFileController cstFileController;
 
     File[] pageFiles;
@@ -74,13 +76,25 @@ public class SelectPageFragment extends Fragment {
             }
         });
 
-        addPageButton = (Fab)v.findViewById(R.id.addPageButton);
-        addPageButton.setFabDrawable(getResources().getDrawable(R.drawable.ic_action_new));
-        addPageButton.setFabColor(Color.rgb(63, 81, 181));
-        addPageButton.setOnClickListener(new View.OnClickListener() {
+        addFromCameraButton = (FloatingActionButton)v.findViewById(R.id.add_from_camera);
+        addFromCameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAddDialog();
+                Intent intent;
+                intent = new Intent(getActivity().getApplicationContext(),GetImageFromCameraActivity.class);
+                intent.putExtra("cst_path",getArguments().getString("cst_path"));
+                getActivity().startActivity(intent);
+            }
+        });
+
+        addFromCollectionsButton = (FloatingActionButton)v.findViewById(R.id.add_from_collections);
+        addFromCollectionsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent;
+                intent = new Intent(getActivity().getApplicationContext(),GetImageFromGalleryActivity.class);
+                intent.putExtra("cst_path",getArguments().getString("cst_path"));
+                getActivity().startActivity(intent);
             }
         });
 
@@ -130,31 +144,6 @@ public class SelectPageFragment extends Fragment {
 
         AlertDialog dialog = builder.create();
         dialog.show();
-    }
-
-    public void showAddDialog(){
-        final CharSequence[] items = {getString(R.string.add_from_camera),getString(R.string.add_from_gallery)};
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                .setTitle(getString(R.string.adding_page))
-                .setItems(items,new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent;
-                        switch (which){
-                            case 0:
-                                intent = new Intent(getActivity().getApplicationContext(),GetImageFromCameraActivity.class);
-                                intent.putExtra("cst_path",getArguments().getString("cst_path"));
-                                getActivity().startActivity(intent);
-                                break;
-                            case 1:
-                                intent = new Intent(getActivity().getApplicationContext(),GetImageFromGalleryActivity.class);
-                                intent.putExtra("cst_path",getArguments().getString("cst_path"));
-                                getActivity().startActivity(intent);
-                                break;
-                        }
-                    }
-                });
-        builder.create().show();
     }
 
     @Override

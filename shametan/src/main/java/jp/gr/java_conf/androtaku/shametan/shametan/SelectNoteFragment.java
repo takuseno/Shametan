@@ -29,6 +29,8 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.getbase.floatingactionbutton.FloatingActionButton;
+
 import java.io.File;
 
 /**
@@ -38,13 +40,14 @@ public class SelectNoteFragment extends Fragment {
     private static final File basePath = new File(Environment.getExternalStorageDirectory().getPath() + "/Shametan/");
     GridView gridNoteView;
     TextView noNoteText;
-    Fab addNoteButton;
+    FloatingActionButton addNoteButton;
     NoteGridAdapter noteAdapter;
     CSTFileController rootCSTFileController;
     File[] noteFiles;
     SelectNoteFragment noteFragment;
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
+
 
 
     public static SelectNoteFragment newInstance(){
@@ -57,9 +60,9 @@ public class SelectNoteFragment extends Fragment {
                              Bundle savedInstanceState){
         View rootView = inflater.inflate(R.layout.note_select_layout,container,false);
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(false);
         noteFragment = this;
         actionBar.setTitle(getString(R.string.notes));
+        actionBar.setDisplayHomeAsUpEnabled(false);
         init(rootView);
         setHasOptionsMenu(true);
         prefs = getActivity().getSharedPreferences("prefs", Context.MODE_PRIVATE);
@@ -97,9 +100,7 @@ public class SelectNoteFragment extends Fragment {
             }
         });
 
-        addNoteButton = (Fab)v.findViewById(R.id.addNoteButton);
-        addNoteButton.setFabDrawable(getResources().getDrawable(R.drawable.ic_action_new));
-        addNoteButton.setFabColor(Color.rgb(63,81,181));
+        addNoteButton = (FloatingActionButton)v.findViewById(R.id.addNoteButton);
         addNoteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

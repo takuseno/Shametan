@@ -233,7 +233,7 @@ public class TrimFragment extends Fragment{
 
             case R.id.ratate:
                 Matrix matrix = new Matrix();
-                matrix.postRotate(90);
+                matrix.postRotate(-90);
                 Bitmap tempBmp = setBmp;
                 Bitmap rotatedBmp = Bitmap.createBitmap(tempBmp,0,0,
                         tempBmp.getWidth(),tempBmp.getHeight(),matrix,true);
